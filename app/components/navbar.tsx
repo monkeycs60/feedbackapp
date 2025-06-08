@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function Navbar() {
   const router = useRouter();
-  const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const { data: session, isPending } = authClient.useSession();
@@ -21,12 +20,6 @@ export function Navbar() {
       console.error("Logout error:", error);
     } finally {
       setIsLoggingOut(false);
-    }
-  };
-
-  const handleSignupRedirect = () => {
-    if (pathname !== "/login") {
-      router.push("/login?mode=signup");
     }
   };
 
@@ -94,12 +87,12 @@ export function Navbar() {
                 Login
               </Link>
               
-              <button
-                onClick={handleSignupRedirect}
+              <Link
+                href="/login?mode=signup"
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 h-9 px-4 py-2 shadow-md"
               >
                 Sign up
-              </button>
+              </Link>
             </div>
           )}
         </div>

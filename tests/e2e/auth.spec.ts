@@ -10,7 +10,7 @@ test.describe('Authentication Flow', () => {
   test('should display navbar with login/signup buttons when not authenticated', async ({ page }) => {
     await page.goto('/');
     
-    await expect(page.getByText('FeedbackApp')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'F FeedbackApp' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Sign up' })).toBeVisible();
   });
@@ -134,8 +134,8 @@ test.describe('Authentication Flow', () => {
     
     // Check profile information
     await expect(page.getByText('User Profile')).toBeVisible();
-    await expect(page.getByText(profileUser.name)).toBeVisible();
-    await expect(page.getByText(profileUser.email)).toBeVisible();
+    await expect(page.getByRole('definition').filter({ hasText: profileUser.name })).toBeVisible();
+    await expect(page.getByRole('definition').filter({ hasText: profileUser.email })).toBeVisible();
   });
 
   test('should redirect to login when accessing profile unauthenticated', async ({ page }) => {
