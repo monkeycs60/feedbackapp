@@ -3,38 +3,58 @@
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const formSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").optional(),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function LoginForm() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    reset,
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+  });
+
+  const onSubmit = async (data: FormData) => {
     setLoading(true);
 
     try {
       if (isLogin) {
         await authClient.signIn.email({
-          email,
-          password,
+          email: data.email,
+          password: data.password,
         });
       } else {
+        if (!data.name) {
+          setError("name", { message: "Name is required for signup" });
+          setLoading(false);
+          return;
+        }
         await authClient.signUp.email({
-          email,
-          password,
-          name,
+          email: data.email,
+          password: data.password,
+          name: data.name,
         });
       }
       router.push("/");
     } catch (err) {
       const error = err as Error;
-      setError(error.message || "Authentication failed");
+      setError("root", { message: error.message || "Authentication failed" });
     } finally {
       setLoading(false);
     }
@@ -46,6 +66,11 @@ export function LoginForm() {
     });
   };
 
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    reset();
+  };
+
   return (
     <div className="max-w-md w-full space-y-8">
       <div>
@@ -53,8 +78,7 @@ export function LoginForm() {
           {isLogin ? "Sign in to your account" : "Create a new account"}
         </h2>
       </div>
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-        <input type="hidden" name="remember" value="true" />
+      <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="rounded-md shadow-sm -space-y-px">
           {!isLogin && (
             <div>
@@ -63,34 +87,34 @@ export function LoginForm() {
               </label>
               <input
                 id="name"
-                name="name"
                 type="text"
                 autoComplete="name"
-                required={!isLogin}
+                {...register("name")}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
               />
+              {errors.name && (
+                <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+              )}
             </div>
           )}
           <div>
-            <label htmlFor="email-address" className="sr-only">
+            <label htmlFor="email" className="sr-only">
               Email address
             </label>
             <input
-              id="email-address"
-              name="email"
+              id="email"
               type="email"
               autoComplete="email"
-              required
+              {...register("email")}
               className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 ${
-                isLogin || !name ? "rounded-t-md" : ""
+                isLogin ? "rounded-t-md" : ""
               } focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
               placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
             />
+            {errors.email && (
+              <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+            )}
           </div>
           <div>
             <label htmlFor="password" className="sr-only">
@@ -98,21 +122,21 @@ export function LoginForm() {
             </label>
             <input
               id="password"
-              name="password"
               type="password"
               autoComplete="current-password"
-              required
+              {...register("password")}
               className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
             />
+            {errors.password && (
+              <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
+            )}
           </div>
         </div>
 
-        {error && (
+        {errors.root && (
           <div className="rounded-md bg-red-50 p-4">
-            <p className="text-sm text-red-800">{error}</p>
+            <p className="text-sm text-red-800">{errors.root.message}</p>
           </div>
         )}
 
@@ -168,7 +192,7 @@ export function LoginForm() {
         <div className="text-center">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={toggleMode}
             className="font-medium text-indigo-600 hover:text-indigo-500"
           >
             {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
