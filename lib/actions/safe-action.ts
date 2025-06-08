@@ -1,4 +1,6 @@
 import { createSafeActionClient, DEFAULT_SERVER_ERROR_MESSAGE } from "next-safe-action";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const actionClient = createSafeActionClient({
   handleServerError(e) {
@@ -8,18 +10,19 @@ export const actionClient = createSafeActionClient({
 });
 
 export const authenticatedAction = actionClient.use(async ({ next }) => {
-  // TODO: Add your authentication logic here
-  // For example, check if user is logged in via session/JWT
-  const isAuthenticated = false; // Replace with actual auth check
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   
-  if (!isAuthenticated) {
+  if (!session) {
     throw new Error("Unauthorized");
   }
   
   return next({
     ctx: {
-      // Add user context here
-      userId: "user-id", // Replace with actual user ID
+      userId: session.user.id,
+      user: session.user,
+      session,
     },
   });
 });
