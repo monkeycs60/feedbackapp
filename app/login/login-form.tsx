@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -18,15 +18,9 @@ type FormData = z.infer<typeof formSchema>;
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isLogin, setIsLogin] = useState(true);
+  const mode = searchParams.get("mode");
+  const [isLogin, setIsLogin] = useState(mode !== "signup");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const mode = searchParams.get("mode");
-    if (mode === "signup") {
-      setIsLogin(false);
-    }
-  }, [searchParams]);
 
   const {
     register,
