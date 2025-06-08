@@ -55,7 +55,7 @@ npx prisma studio    # Open Prisma Studio GUI
    => Then, refactor the code to make it more readable and maintainable.
    => Then, write the documentation again to reflect the changes.
    => Then, repeat the process until the code is complete.
-   => Then, fill the CHANGELOG.md file at the root of the project with the changes and the reasons for the changes (keep it short and concise and add the date of the change (YYYY-MM-DD-HH:MM)). This changelog helps me to keep track of all changes that have been made to the project and to know what has been changed and why. You can use it as context for the next changes.
+   => Then, fill the CHANGELOG.md file at the root of the project with the changes and the reasons for the changes (keep it short and concise and add the date of the change (YYYY-MM-DD-HH:MM)). This changelog helps me to keep track of all changes that have been made to the project and to know what has been changed and why. You can use it as context for the next changes. You need to classify the different type of changes (new feature, bug fix, refactor, etc.) and add the date of the change (YYYY-MM-DD-HH:MM).
 
 -  **Avoid `useEffect` at all costs** - only use when synchronizing with external systems:
    => **Data fetching**: Use tanstack query with `useQuery` hook
