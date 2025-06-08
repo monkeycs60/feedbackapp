@@ -37,24 +37,39 @@ export function LoginForm() {
 
     try {
       if (isLogin) {
-        await authClient.signIn.email({
+        const result = await authClient.signIn.email({
           email: data.email,
           password: data.password,
         });
+        
+        if (result.error) {
+          setError("root", { message: result.error.message || "Invalid credentials" });
+          return;
+        }
+        
+        router.push("/");
       } else {
         if (!data.name) {
           setError("name", { message: "Name is required for signup" });
           setLoading(false);
           return;
         }
-        await authClient.signUp.email({
+        
+        const result = await authClient.signUp.email({
           email: data.email,
           password: data.password,
           name: data.name,
         });
+        
+        if (result.error) {
+          setError("root", { message: result.error.message || "Failed to create account" });
+          return;
+        }
+        
+        router.push("/");
       }
-      router.push("/");
     } catch (err) {
+      console.error("Authentication error:", err);
       const error = err as Error;
       setError("root", { message: error.message || "Authentication failed" });
     } finally {
@@ -63,9 +78,15 @@ export function LoginForm() {
   };
 
   const handleGoogleLogin = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-    });
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+      });
+    } catch (err) {
+      console.error("Google login error:", err);
+      const error = err as Error;
+      setError("root", { message: error.message || "Google login failed" });
+    }
   };
 
   const toggleMode = () => {
