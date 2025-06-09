@@ -68,7 +68,8 @@ export function LoginForm() {
           return;
         }
         
-        router.push("/");
+        // Redirect new users to onboarding
+        router.push("/onboarding/role-selection");
       }
     } catch (err) {
       console.error("Authentication error:", err);
