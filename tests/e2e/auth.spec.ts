@@ -10,7 +10,7 @@ test.describe('Authentication Flow', () => {
   test('should display navbar with login/signup buttons when not authenticated', async ({ page }) => {
     await page.goto('/');
     
-    await expect(page.getByRole('link', { name: 'F FeedbackApp' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '🔥 RoastMyApp' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Sign up' })).toBeVisible();
   });

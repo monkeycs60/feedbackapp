@@ -1,7 +1,17 @@
 import { test, expect } from '@playwright/test';
+import { createTestUser, signUpUser, cleanupTestUser, type TestUser } from '../helpers/auth-helper';
 
 test.describe('Onboarding Pages Basic', () => {
-  // Test direct access to onboarding pages (bypassing middleware for now)
+  let testUser: TestUser;
+
+  test.beforeEach(async ({ page }) => {
+    testUser = await createTestUser();
+    await signUpUser(page, testUser);
+  });
+
+  test.afterEach(async () => {
+    await cleanupTestUser(testUser.email);
+  });
   
   test('role selection page loads correctly', async ({ page }) => {
     await page.goto('/onboarding/role-selection');
@@ -75,6 +85,17 @@ test.describe('Onboarding Pages Basic', () => {
 });
 
 test.describe('Onboarding Accessibility', () => {
+  let testUser: TestUser;
+
+  test.beforeEach(async ({ page }) => {
+    testUser = await createTestUser();
+    await signUpUser(page, testUser);
+  });
+
+  test.afterEach(async () => {
+    await cleanupTestUser(testUser.email);
+  });
+
   test('role cards have proper ARIA attributes', async ({ page }) => {
     await page.goto('/onboarding/role-selection');
     
@@ -108,6 +129,16 @@ test.describe('Onboarding Accessibility', () => {
 
 test.describe('Onboarding Mobile', () => {
   test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE
+  let testUser: TestUser;
+
+  test.beforeEach(async ({ page }) => {
+    testUser = await createTestUser();
+    await signUpUser(page, testUser);
+  });
+
+  test.afterEach(async () => {
+    await cleanupTestUser(testUser.email);
+  });
 
   test('mobile layout works correctly', async ({ page }) => {
     await page.goto('/onboarding/role-selection');

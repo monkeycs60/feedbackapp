@@ -1,10 +1,16 @@
 import { test, expect } from '@playwright/test';
+import { createTestUser, signUpUser, cleanupTestUser, type TestUser } from '../helpers/auth-helper';
 
 test.describe('Onboarding Flow', () => {
+  let testUser: TestUser;
+
   test.beforeEach(async ({ page }) => {
-    // Mock authentication - for now we'll assume user is logged in
-    // TODO: Replace with actual auth flow once implemented
-    await page.goto('/');
+    testUser = await createTestUser();
+    await signUpUser(page, testUser);
+  });
+
+  test.afterEach(async () => {
+    await cleanupTestUser(testUser.email);
   });
 
   test('should display role selection page for new users', async ({ page }) => {
@@ -169,6 +175,17 @@ test.describe('Onboarding Flow', () => {
 });
 
 test.describe('Onboarding Accessibility', () => {
+  let testUser: TestUser;
+
+  test.beforeEach(async ({ page }) => {
+    testUser = await createTestUser();
+    await signUpUser(page, testUser);
+  });
+
+  test.afterEach(async () => {
+    await cleanupTestUser(testUser.email);
+  });
+
   test('should be keyboard navigable', async ({ page }) => {
     await page.goto('/onboarding/role-selection');
     
@@ -197,6 +214,16 @@ test.describe('Onboarding Accessibility', () => {
 
 test.describe('Onboarding Mobile', () => {
   test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE
+  let testUser: TestUser;
+
+  test.beforeEach(async ({ page }) => {
+    testUser = await createTestUser();
+    await signUpUser(page, testUser);
+  });
+
+  test.afterEach(async () => {
+    await cleanupTestUser(testUser.email);
+  });
 
   test('should work on mobile viewport', async ({ page }) => {
     await page.goto('/onboarding/role-selection');
