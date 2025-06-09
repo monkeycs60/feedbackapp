@@ -39,8 +39,8 @@ export function RoleCard({ role, isSelected, onSelect }: RoleCardProps) {
   
   return (
     <Card 
-      className={`relative overflow-hidden transition-all duration-300 hover:scale-105 cursor-pointer ${
-        isSelected ? 'ring-2 ring-orange-500 shadow-xl' : 'hover:shadow-lg'
+      className={`relative overflow-hidden transition-all duration-300 hover:scale-105 cursor-pointer bg-gray-800 border-gray-700 ${
+        isSelected ? 'ring-2 ring-orange-500 shadow-xl' : 'hover:shadow-lg hover:border-gray-600'
       }`}
       onClick={() => onSelect(role)}
       data-testid={`${role}-card`}
@@ -76,7 +76,7 @@ export function RoleCard({ role, isSelected, onSelect }: RoleCardProps) {
         </ul>
         
         <Button 
-          className={`w-full bg-gradient-to-r ${config.gradient} hover:opacity-90 pointer-events-none`}
+          className={`w-full bg-gradient-to-r ${config.gradient} hover:opacity-90 pointer-events-none text-white`}
           size="lg"
         >
           {config.buttonText}

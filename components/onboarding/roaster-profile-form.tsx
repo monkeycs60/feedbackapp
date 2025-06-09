@@ -67,7 +67,7 @@ export function RoasterProfileForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Spécialités */}
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
           <CardTitle className="text-white">Tes spécialités</CardTitle>
           <p className="text-gray-400">Dans quoi tu excelles ? (sélection multiple)</p>
@@ -100,7 +100,7 @@ export function RoasterProfileForm() {
       </Card>
 
       {/* Expérience */}
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
           <CardTitle className="text-white">Ton niveau d'expérience</CardTitle>
         </CardHeader>
@@ -133,7 +133,7 @@ export function RoasterProfileForm() {
       </Card>
 
       {/* Bio optionnelle */}
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
           <CardTitle className="text-white">Bio (optionnel)</CardTitle>
           <p className="text-gray-400">Parle-nous de toi en quelques mots</p>
@@ -158,7 +158,7 @@ export function RoasterProfileForm() {
       </Card>
 
       {/* Portfolio optionnel */}
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
           <CardTitle className="text-white">Portfolio/LinkedIn (optionnel)</CardTitle>
           <p className="text-gray-400">Pour rassurer les créateurs</p>

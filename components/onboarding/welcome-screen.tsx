@@ -56,7 +56,7 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
         </div>
 
         {/* Next steps */}
-        <Card className="mb-8">
+        <Card className="mb-8 bg-gray-800 border-gray-700">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-white mb-4">
               Tes prochaines étapes :
@@ -73,7 +73,7 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
         </Card>
 
         {/* Preview autre rôle */}
-        <Card className="mb-8 border-orange-500/30">
+        <Card className="mb-8 bg-gray-800 border-orange-500/30">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">💡</span>

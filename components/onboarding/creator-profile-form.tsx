@@ -36,7 +36,7 @@ export function CreatorProfileForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
           <CardTitle className="text-white">Ton entreprise/projet</CardTitle>
           <p className="text-gray-400">Optionnel - juste pour personnaliser ton expérience</p>
