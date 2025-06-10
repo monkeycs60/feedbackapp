@@ -91,6 +91,24 @@ export async function cleanupTestUser(email: string) {
         where: { userId: user.id },
       });
 
+      // Delete roast requests and related data
+      const roastRequests = await prisma.roastRequest.findMany({
+        where: { creatorId: user.id },
+        select: { id: true },
+      });
+
+      for (const request of roastRequests) {
+        // Delete feedbacks first
+        await prisma.feedback.deleteMany({
+          where: { roastRequestId: request.id },
+        });
+      }
+
+      // Delete roast requests
+      await prisma.roastRequest.deleteMany({
+        where: { creatorId: user.id },
+      });
+
       // Delete the user
       await prisma.user.delete({
         where: { id: user.id },

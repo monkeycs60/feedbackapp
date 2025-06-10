@@ -200,6 +200,10 @@ export async function completeOnboarding() {
     const redirectUrl = user.primaryRole === 'roaster' ? '/marketplace' : '/dashboard';
     redirect(redirectUrl);
   } catch (error) {
+    // Allow Next.js redirects to pass through
+    if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+      throw error;
+    }
     console.error('Erreur finalisation onboarding:', error);
     throw new Error('Erreur lors de la finalisation');
   }
