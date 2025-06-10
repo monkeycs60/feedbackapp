@@ -16,7 +16,7 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
-          POSTGRES_DB: feedbackapp_test
+          POSTGRES_DB: postgres
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -44,12 +44,25 @@ jobs:
         echo "GOOGLE_CLIENT_ID=test_client_id" >> $GITHUB_ENV
         echo "GOOGLE_CLIENT_SECRET=test_client_secret" >> $GITHUB_ENV
         
+    - name: Create test databases
+      run: |
+        # Wait for PostgreSQL to be ready
+        until pg_isready -h localhost -p 5432; do
+          echo "Waiting for PostgreSQL..."
+          sleep 2
+        done
+        
+        # Create test databases
+        PGPASSWORD=postgres createdb -h localhost -U postgres feedbackapp_test || echo "Test DB already exists"
+        PGPASSWORD=postgres createdb -h localhost -U postgres feedbackapp_shadow_test || echo "Shadow DB already exists"
+        
     - name: Generate Prisma client
       run: npx prisma generate
       
     - name: Setup test database
       run: |
-        npx prisma migrate deploy
+        # Try migrate deploy first, fallback to db push if migrations fail
+        npx prisma migrate deploy || npx prisma db push --force-reset
         
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps

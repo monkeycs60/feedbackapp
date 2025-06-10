@@ -76,7 +76,7 @@ CREATE TABLE "feedbacks" (
 );
 
 -- AlterTable
-ALTER TABLE "user" ADD COLUMN     "daysSinceSignup" INTEGER NOT NULL DEFAULT 0,
+ALTER TABLE "User" ADD COLUMN     "daysSinceSignup" INTEGER NOT NULL DEFAULT 0,
 ADD COLUMN     "hasTriedBothRoles" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "onboardingStep" INTEGER NOT NULL DEFAULT 0,
 ADD COLUMN     "primaryRole" TEXT DEFAULT 'creator';
@@ -88,16 +88,16 @@ CREATE UNIQUE INDEX "creator_profiles_userId_key" ON "creator_profiles"("userId"
 CREATE UNIQUE INDEX "roaster_profiles_userId_key" ON "roaster_profiles"("userId");
 
 -- AddForeignKey
-ALTER TABLE "creator_profiles" ADD CONSTRAINT "creator_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "creator_profiles" ADD CONSTRAINT "creator_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "roaster_profiles" ADD CONSTRAINT "roaster_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "roaster_profiles" ADD CONSTRAINT "roaster_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "roast_requests" ADD CONSTRAINT "roast_requests_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "roast_requests" ADD CONSTRAINT "roast_requests_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "feedbacks" ADD CONSTRAINT "feedbacks_roastRequestId_fkey" FOREIGN KEY ("roastRequestId") REFERENCES "roast_requests"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "feedbacks" ADD CONSTRAINT "feedbacks_roasterId_fkey" FOREIGN KEY ("roasterId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "feedbacks" ADD CONSTRAINT "feedbacks_roasterId_fkey" FOREIGN KEY ("roasterId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
