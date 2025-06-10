@@ -157,7 +157,7 @@ test.describe('Onboarding Flow', () => {
     await page.click('button:has-text("Finaliser mon profil")');
     
     // Should show URL validation error
-    await expect(page.locator('text=URL invalide')).toBeVisible();
+    await expect(page.locator('text=Invalid URL')).toBeVisible();
   });
 
   test('should allow role switching hint', async ({ page }) => {

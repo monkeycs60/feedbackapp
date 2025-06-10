@@ -109,17 +109,19 @@ test.describe('Onboarding Accessibility', () => {
   test('keyboard navigation works', async ({ page }) => {
     await page.goto('/onboarding/role-selection');
     
-    // Test that cards can be focused directly
+    // Focus the first card directly
     await page.locator('[data-testid="creator-card"]').focus();
-    let focusedElement = await page.evaluate(() => document.activeElement?.getAttribute('data-testid'));
+    
+    // Check it can be focused (alternative to toBeFocused)
+    const focusedElement = await page.evaluate(() => document.activeElement?.getAttribute('data-testid'));
     expect(focusedElement).toBe('creator-card');
     
-    // Test that the second card can also be focused
-    await page.locator('[data-testid="roaster-card"]').focus();
-    focusedElement = await page.evaluate(() => document.activeElement?.getAttribute('data-testid'));
-    expect(focusedElement).toBe('roaster-card');
+    // Tab to second card
+    await page.keyboard.press('Tab');
+    const focusedElement2 = await page.evaluate(() => document.activeElement?.getAttribute('data-testid'));
+    expect(focusedElement2).toBe('roaster-card');
     
-    // Test keyboard selection with Enter
+    // Select with Enter
     await page.keyboard.press('Enter');
     await expect(page.locator('[data-testid="roaster-card"]')).toHaveClass(/ring-2/);
     
