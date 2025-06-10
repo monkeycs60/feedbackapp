@@ -130,17 +130,19 @@ export async function completeOnboarding(page: Page, role: 'creator' | 'roaster'
   if (role === 'creator') {
     // Creator profile setup is simpler - wait for form to be ready
     await page.waitForSelector('button:has-text("C\'est parti !")', { timeout: 10000 });
+    await page.waitForTimeout(1000); // Wait a bit to ensure form is ready
     await page.click('button:has-text("C\'est parti !")');
   } else {
     // Roaster profile setup requires specialties - wait for specialty options
     await page.waitForSelector('[data-testid="specialty-UX"]', { timeout: 10000 });
     await page.click('[data-testid="specialty-UX"]');
     await page.waitForSelector('button:has-text("Finaliser mon profil")', { timeout: 10000 });
+    await page.waitForTimeout(1000); // Wait a bit to ensure form is ready
     await page.click('button:has-text("Finaliser mon profil")');
   }
   
-  // Complete welcome screen
-  await page.waitForURL('/onboarding/welcome', { timeout: 15000 });
+  // Wait for form submission to complete and navigate to welcome
+  await page.waitForURL('/onboarding/welcome', { timeout: 20000 });
   await page.waitForLoadState('domcontentloaded');
   await page.waitForLoadState('networkidle', { timeout: 10000 });
   

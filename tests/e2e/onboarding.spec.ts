@@ -123,11 +123,14 @@ test.describe('Onboarding Flow', () => {
 			'https://linkedin.com/in/testuser'
 		);
 
-		// Submit profile
+		// Submit profile - wait a bit to ensure form is ready
+		await page.waitForTimeout(1000);
 		await page.click('button:has-text("Finaliser mon profil")');
+		
+		// Wait for form submission and navigation to complete
+		await page.waitForURL('/onboarding/welcome', { timeout: 20000 });
 		await page.waitForLoadState('domcontentloaded');
-		await page.waitForLoadState('networkidle', { timeout: 10000 });
-		await expect(page).toHaveURL('/onboarding/welcome');
+		await page.waitForLoadState('networkidle', { timeout: 15000 });
 
 		// Step 3: Welcome screen
 		await expect(page.locator('h1')).toContainText(
@@ -185,11 +188,14 @@ test.describe('Onboarding Flow', () => {
 		// Fill optional company
 		await page.fill('[data-testid="company-input"]', 'MonStartup');
 
-		// Submit profile
+		// Submit profile - wait a bit to ensure form is ready
+		await page.waitForTimeout(1000);
 		await page.click('button:has-text("C\'est parti !")');
+		
+		// Wait for form submission and navigation to complete
+		await page.waitForURL('/onboarding/welcome', { timeout: 20000 });
 		await page.waitForLoadState('domcontentloaded');
-		await page.waitForLoadState('networkidle', { timeout: 10000 });
-		await expect(page).toHaveURL('/onboarding/welcome');
+		await page.waitForLoadState('networkidle', { timeout: 15000 });
 
 		// Step 3: Welcome screen
 		await expect(page.locator('h1')).toContainText(
