@@ -1,0 +1,14 @@
+# Ignorer les fichiers générés par Prisma
+app/generated/
+
+# Ignorer node_modules
+node_modules/
+
+# Ignorer les fichiers de build
+.next/
+out/
+dist/
+
+# Ignorer les fichiers de configuration
+*.config.js
+*.config.ts

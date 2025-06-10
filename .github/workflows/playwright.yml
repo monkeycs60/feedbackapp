@@ -41,8 +41,8 @@ jobs:
         echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/feedbackapp_test" >> $GITHUB_ENV
         echo "SHADOW_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/feedbackapp_shadow_test" >> $GITHUB_ENV
         echo "NEXT_PUBLIC_APP_URL=http://localhost:3000" >> $GITHUB_ENV
-        echo "GOOGLE_CLIENT_ID=test_client_id" >> $GITHUB_ENV
-        echo "GOOGLE_CLIENT_SECRET=test_client_secret" >> $GITHUB_ENV
+        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> $GITHUB_ENV
         
     - name: Create test databases
       run: |
@@ -77,6 +77,11 @@ jobs:
       run: npm run test:e2e
       env:
         CI: true
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/feedbackapp_test
+        SHADOW_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/feedbackapp_shadow_test
+        NEXT_PUBLIC_APP_URL: http://localhost:3000
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         
     - uses: actions/upload-artifact@v4
       if: failure()
