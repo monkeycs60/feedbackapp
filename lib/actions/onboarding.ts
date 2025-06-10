@@ -5,11 +5,27 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { 
   RoasterProfileFormData, 
   CreatorProfileFormData,
   ROASTER_SPECIALTIES
 } from "@/lib/types/onboarding";
+
+/**
+ * Helper function to get the current authenticated user
+ */
+async function getCurrentUser() {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+  
+  if (!session?.user?.id) {
+    throw new Error("Non authentifié");
+  }
+  
+  return session.user;
+}
 
 // Schémas de validation Zod
 const roleSelectionSchema = z.object({
@@ -33,9 +49,7 @@ const creatorProfileSchema = z.object({
  */
 export async function selectPrimaryRole(role: 'creator' | 'roaster') {
   try {
-    // Vérification de l'authentification - version simplifiée pour le MVP
-    // TODO: Implémenter la vraie vérification avec Better Auth
-    const mockUserId = "mock-user-id"; // En attendant l'intégration auth
+    const user = await getCurrentUser();
 
     const validation = roleSelectionSchema.safeParse({ role });
     if (!validation.success) {
@@ -43,16 +57,9 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
     }
 
     // Mise à jour de l'utilisateur
-    await prisma.user.upsert({
-      where: { id: mockUserId },
-      update: {
-        primaryRole: role,
-        onboardingStep: 1
-      },
-      create: {
-        id: mockUserId,
-        email: "mock@example.com",
-        name: "Mock User",
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
         primaryRole: role,
         onboardingStep: 1
       }
@@ -61,16 +68,16 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
     // Créer le profil correspondant
     if (role === 'creator') {
       await prisma.creatorProfile.upsert({
-        where: { userId: mockUserId },
+        where: { userId: user.id },
         update: {},
-        create: { userId: mockUserId }
+        create: { userId: user.id }
       });
     } else {
       await prisma.roasterProfile.upsert({
-        where: { userId: mockUserId },
+        where: { userId: user.id },
         update: {},
         create: { 
-          userId: mockUserId,
+          userId: user.id,
           specialties: [],
           languages: ['Français']
         }
@@ -90,7 +97,7 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
  */
 export async function setupRoasterProfile(data: RoasterProfileFormData) {
   try {
-    const mockUserId = "mock-user-id"; // TODO: Récupérer l'ID utilisateur réel
+    const user = await getCurrentUser();
 
     const validation = roasterProfileSchema.safeParse(data);
     if (!validation.success) {
@@ -101,7 +108,7 @@ export async function setupRoasterProfile(data: RoasterProfileFormData) {
 
     // Mise à jour du profil roaster
     await prisma.roasterProfile.update({
-      where: { userId: mockUserId },
+      where: { userId: user.id },
       data: {
         specialties: validatedData.specialties,
         languages: validatedData.languages,
@@ -113,7 +120,7 @@ export async function setupRoasterProfile(data: RoasterProfileFormData) {
 
     // Mise à jour de l'étape d'onboarding
     await prisma.user.update({
-      where: { id: mockUserId },
+      where: { id: user.id },
       data: { onboardingStep: 2 }
     });
 
@@ -130,7 +137,7 @@ export async function setupRoasterProfile(data: RoasterProfileFormData) {
  */
 export async function setupCreatorProfile(data: CreatorProfileFormData) {
   try {
-    const mockUserId = "mock-user-id"; // TODO: Récupérer l'ID utilisateur réel
+    const user = await getCurrentUser();
 
     const validation = creatorProfileSchema.safeParse(data);
     if (!validation.success) {
@@ -141,7 +148,7 @@ export async function setupCreatorProfile(data: CreatorProfileFormData) {
 
     // Mise à jour du profil creator
     await prisma.creatorProfile.update({
-      where: { userId: mockUserId },
+      where: { userId: user.id },
       data: {
         company: validatedData.company || null
       }
@@ -149,7 +156,7 @@ export async function setupCreatorProfile(data: CreatorProfileFormData) {
 
     // Mise à jour de l'étape d'onboarding
     await prisma.user.update({
-      where: { id: mockUserId },
+      where: { id: user.id },
       data: { onboardingStep: 2 }
     });
 
@@ -166,11 +173,11 @@ export async function setupCreatorProfile(data: CreatorProfileFormData) {
  */
 export async function completeOnboarding() {
   try {
-    const mockUserId = "mock-user-id"; // TODO: Récupérer l'ID utilisateur réel
+    const currentUser = await getCurrentUser();
 
     // Récupérer l'utilisateur pour connaître son rôle
-    const user = await prisma.user.findUnique({
-      where: { id: mockUserId },
+    const user = await prisma.user.findUnique({ 
+      where: { id: currentUser.id },
       select: { primaryRole: true }
     });
 
@@ -180,7 +187,7 @@ export async function completeOnboarding() {
 
     // Marquer l'onboarding comme terminé
     await prisma.user.update({
-      where: { id: mockUserId },
+      where: { id: currentUser.id },
       data: { 
         onboardingStep: 4,
         daysSinceSignup: 0 // Reset pour le calcul des nudges
@@ -203,10 +210,10 @@ export async function completeOnboarding() {
  */
 export async function getOnboardingState() {
   try {
-    const mockUserId = "mock-user-id"; // TODO: Récupérer l'ID utilisateur réel
+    const currentUser = await getCurrentUser();
 
     const user = await prisma.user.findUnique({
-      where: { id: mockUserId },
+      where: { id: currentUser.id },
       include: {
         creatorProfile: true,
         roasterProfile: true
@@ -214,24 +221,7 @@ export async function getOnboardingState() {
     });
 
     if (!user) {
-      // Retourner un état par défaut pour le développement
-      return {
-        currentStep: 0,
-        selectedRole: null,
-        profileComplete: false,
-        canProceed: true,
-        user: {
-          id: mockUserId,
-          email: "mock@example.com",
-          name: "Mock User",
-          primaryRole: null,
-          onboardingStep: 0,
-          hasTriedBothRoles: false,
-          daysSinceSignup: 0,
-          creatorProfile: null,
-          roasterProfile: null
-        }
-      };
+      throw new Error("Utilisateur non trouvé");
     }
 
     return {
@@ -249,24 +239,7 @@ export async function getOnboardingState() {
     };
   } catch (error) {
     console.error('Erreur récupération état onboarding:', error);
-    // Retourner un état par défaut en cas d'erreur
-    return {
-      currentStep: 0,
-      selectedRole: null,
-      profileComplete: false,
-      canProceed: true,
-      user: {
-        id: "mock-user-id",
-        email: "mock@example.com",
-        name: "Mock User",
-        primaryRole: null,
-        onboardingStep: 0,
-        hasTriedBothRoles: false,
-        daysSinceSignup: 0,
-        creatorProfile: null,
-        roasterProfile: null
-      }
-    };
+    throw error;
   }
 }
 
@@ -275,10 +248,10 @@ export async function getOnboardingState() {
  */
 export async function checkOnboardingStatus() {
   try {
-    const mockUserId = "mock-user-id"; // TODO: Récupérer l'ID utilisateur réel
+    const currentUser = await getCurrentUser();
 
     const user = await prisma.user.findUnique({
-      where: { id: mockUserId },
+      where: { id: currentUser.id },
       select: { 
         onboardingStep: true,
         primaryRole: true
@@ -305,12 +278,12 @@ export async function checkOnboardingStatus() {
  */
 export async function triggerRoleDiscoveryNudge(targetRole: 'creator' | 'roaster') {
   try {
-    const mockUserId = "mock-user-id"; // TODO: Récupérer l'ID utilisateur réel
+    const user = await getCurrentUser();
 
     // Enregistrer que l'utilisateur a vu le nudge
     // TODO: Implémenter un système de tracking des nudges
     
-    console.log(`Nudge vers ${targetRole} déclenché pour utilisateur ${mockUserId}`);
+    console.log(`Nudge vers ${targetRole} déclenché pour utilisateur ${user.id}`);
     
     return { success: true };
   } catch (error) {
