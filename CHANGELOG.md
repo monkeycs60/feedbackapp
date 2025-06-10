@@ -1,5 +1,26 @@
 # Changelog
 
+## 2025-01-10-13:45
+- **Fixed**: Added Dashboard link to navbar for authenticated users
+- **Fixed**: Verified RoleSwitch component displays correctly on dashboard page for dual-role users
+- **Feature**: Added accessible UI to allow users to add their second role/profile
+- **UI**: Created `AddSecondRolePrompt` component that appears in dashboard for single-role users
+- **Enhancement**: Modified role selection form to show informative message when adding second role
+- **UX**: Added clear call-to-action with benefits for each role to encourage dual-role adoption
+
+## 2025-06-10-21:30
+- **Feature**: Implemented dual-role dashboard system with role-based content display
+- **Enhancement**: Dashboard now shows different content based on user's primary role (creator vs roaster)
+- **Security**: Added role validation to prevent roasters from creating roast requests
+- **UI**: Created `AvailableRoastsList` component for roasters to view apps available for roasting
+- **UI**: Added `RoleSwitch` component allowing users with both profiles to switch between roles
+- **Actions**: Enhanced roast request creation to enforce role permissions
+- **Actions**: Added `switchUserRole` function for seamless role switching
+- **Actions**: Improved `getAvailableRoastRequests` to show roasts to roaster users
+- **Tests**: Created comprehensive dual-role E2E test suite (`tests/e2e/dual-roles.spec.ts`)
+- **Tests**: Added tests for role switching, permissions, and priority indicators
+- **Database**: Enhanced user role management with dual-profile support
+
 ## 2025-06-10-17:50
 - **Feature**: Implemented complete Roast Request system (Sprint 2 - Task 1)
 - **Types**: Added comprehensive types and constants for roast requests (`lib/types/roast-request.ts`)

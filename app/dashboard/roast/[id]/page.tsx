@@ -8,15 +8,16 @@ import { Calendar, Globe, Target, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface RoastDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function RoastDetailPage({ params }: RoastDetailPageProps) {
   await requireOnboardingComplete();
   
-  const roastRequest = await getRoastRequestById(params.id);
+  const { id } = await params;
+  const roastRequest = await getRoastRequestById(id);
   
   if (!roastRequest) {
     notFound();

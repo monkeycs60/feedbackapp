@@ -40,7 +40,7 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
   try {
     const user = await getCurrentUser();
 
-    // Vérifier que l'utilisateur a un profil créateur
+    // Vérifier que l'utilisateur a un profil créateur ET que son rôle principal est creator
     const userWithProfile = await prisma.user.findUnique({
       where: { id: user.id },
       include: { creatorProfile: true }
@@ -48,6 +48,10 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
 
     if (!userWithProfile?.creatorProfile) {
       throw new Error("Profil créateur requis");
+    }
+
+    if (userWithProfile.primaryRole === 'roaster') {
+      throw new Error("Les roasters ne peuvent pas créer de demandes de roast. Changez de rôle pour accéder à cette fonctionnalité.");
     }
 
     const validation = roastRequestSchema.safeParse(data);

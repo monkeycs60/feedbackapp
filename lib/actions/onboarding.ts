@@ -295,3 +295,49 @@ export async function triggerRoleDiscoveryNudge(targetRole: 'creator' | 'roaster
     return { success: false };
   }
 }
+
+/**
+ * Permet de changer le rôle primaire de l'utilisateur
+ */
+export async function switchUserRole(newRole: 'creator' | 'roaster') {
+  try {
+    const user = await getCurrentUser();
+
+    // Vérifier que l'utilisateur a les profils nécessaires
+    const fullUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        creatorProfile: true,
+        roasterProfile: true
+      }
+    });
+
+    if (!fullUser) {
+      throw new Error("Utilisateur non trouvé");
+    }
+
+    // Vérifier que l'utilisateur a le profil correspondant au nouveau rôle
+    if (newRole === 'creator' && !fullUser.creatorProfile) {
+      throw new Error("Vous devez d'abord créer un profil créateur");
+    }
+    
+    if (newRole === 'roaster' && !fullUser.roasterProfile) {
+      throw new Error("Vous devez d'abord créer un profil roaster");
+    }
+
+    // Mettre à jour le rôle primaire
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { 
+        primaryRole: newRole,
+        hasTriedBothRoles: true
+      }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur changement de rôle:', error);
+    throw new Error(error instanceof Error ? error.message : 'Erreur lors du changement de rôle');
+  }
+}
