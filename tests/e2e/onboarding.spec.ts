@@ -125,6 +125,8 @@ test.describe('Onboarding Flow', () => {
 
 		// Submit profile
 		await page.click('button:has-text("Finaliser mon profil")');
+		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle', { timeout: 10000 });
 		await expect(page).toHaveURL('/onboarding/welcome');
 
 		// Step 3: Welcome screen
@@ -153,6 +155,8 @@ test.describe('Onboarding Flow', () => {
 
 		// Complete onboarding
 		await page.click('button:has-text("Voir les missions")');
+		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle', { timeout: 10000 });
 		await expect(page).toHaveURL('/marketplace');
 	});
 
@@ -183,6 +187,8 @@ test.describe('Onboarding Flow', () => {
 
 		// Submit profile
 		await page.click('button:has-text("C\'est parti !")');
+		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle', { timeout: 10000 });
 		await expect(page).toHaveURL('/onboarding/welcome');
 
 		// Step 3: Welcome screen
@@ -213,6 +219,8 @@ test.describe('Onboarding Flow', () => {
 
 		// Complete onboarding
 		await page.click('button:has-text("Poster mon app")');
+		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle', { timeout: 10000 });
 		await expect(page).toHaveURL('/dashboard');
 	});
 
@@ -233,6 +241,8 @@ test.describe('Onboarding Flow', () => {
 		await page.goto('/onboarding/role-selection');
 		await page.click('[data-testid="roaster-card"]');
 		await page.click('button:has-text("Continuer")');
+		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle', { timeout: 10000 });
 
 		// Try to submit without required fields
 		await page.click('button:has-text("Finaliser mon profil")');
@@ -258,7 +268,8 @@ test.describe('Onboarding Flow', () => {
 		await page.click('button:has-text("Continuer")');
 		await page.click('[data-testid="specialty-UX"]');
 		await page.click('button:has-text("Finaliser mon profil")');
-
+		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle', { timeout: 10000 });
 		// On welcome screen, check the hint about future role
 		await expect(page.locator('text=💡')).toBeVisible();
 		await expect(
