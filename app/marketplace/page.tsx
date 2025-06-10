@@ -1,9 +1,13 @@
+import { requireOnboardingComplete } from '@/lib/auth-guards';
+
 export const metadata = {
   title: "Marketplace Roaster - RoastMyApp", 
   description: "Trouvez des missions de roast et gagnez de l'argent"
 };
 
-export default function MarketplacePage() {
+export default async function MarketplacePage() {
+  // Ensure user has completed onboarding before accessing marketplace
+  await requireOnboardingComplete();
   return (
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-6xl mx-auto">

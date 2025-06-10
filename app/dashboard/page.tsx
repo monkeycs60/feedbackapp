@@ -1,9 +1,13 @@
+import { requireOnboardingComplete } from '@/lib/auth-guards';
+
 export const metadata = {
   title: "Dashboard Creator - RoastMyApp",
   description: "Gérez vos demandes de roast et vos feedbacks"
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Ensure user has completed onboarding before accessing dashboard
+  await requireOnboardingComplete();
   return (
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-6xl mx-auto">
