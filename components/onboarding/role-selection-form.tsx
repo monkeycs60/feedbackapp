@@ -8,13 +8,25 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 
-export function RoleSelectionForm() {
-  const [selectedRole, setSelectedRole] = useState<'creator' | 'roaster' | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface RoleSelectionFormProps {
+  hasCreatorProfile?: boolean;
+  hasRoasterProfile?: boolean;
+}
+
+export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile = false }: RoleSelectionFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isAddingSecondRole = searchParams.get('add_role') === 'true';
+  
+  // Pré-sélectionner automatiquement le rôle manquant si on ajoute un second rôle
+  const missingRole = hasCreatorProfile && !hasRoasterProfile ? 'roaster' : 
+                     !hasCreatorProfile && hasRoasterProfile ? 'creator' : null;
+  
+  const [selectedRole, setSelectedRole] = useState<'creator' | 'roaster' | null>(
+    isAddingSecondRole && missingRole ? missingRole : null
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     if (!selectedRole) return;
@@ -50,11 +62,15 @@ export function RoleSelectionForm() {
           role="creator"
           isSelected={selectedRole === 'creator'}
           onSelect={setSelectedRole}
+          isDisabled={isAddingSecondRole && hasCreatorProfile}
+          disabledMessage="Tu as déjà un profil Créateur"
         />
         <RoleCard 
           role="roaster" 
           isSelected={selectedRole === 'roaster'}
           onSelect={setSelectedRole}
+          isDisabled={isAddingSecondRole && hasRoasterProfile}
+          disabledMessage="Tu as déjà un profil Roaster"
         />
       </div>
       

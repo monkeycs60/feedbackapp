@@ -7,6 +7,9 @@
 - **UI**: Created `AddSecondRolePrompt` component that appears in dashboard for single-role users
 - **Enhancement**: Modified role selection form to show informative message when adding second role
 - **UX**: Added clear call-to-action with benefits for each role to encourage dual-role adoption
+- **Improvement**: Auto-select missing role when adding second profile
+- **UX**: Disable and gray out already owned role with informative message
+- **Enhancement**: Preserve primary role when adding second profile
 
 ## 2025-06-10-21:30
 - **Feature**: Implemented dual-role dashboard system with role-based content display

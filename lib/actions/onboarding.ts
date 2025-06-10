@@ -56,11 +56,28 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
       throw new Error("Rôle invalide");
     }
 
+    // Vérifier si l'utilisateur a déjà des profils
+    const existingUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        creatorProfile: true,
+        roasterProfile: true
+      }
+    });
+
+    if (!existingUser) {
+      throw new Error("Utilisateur non trouvé");
+    }
+
+    // Si l'utilisateur a déjà un profil et en ajoute un second
+    const isAddingSecondRole = (existingUser.creatorProfile && role === 'roaster') || 
+                               (existingUser.roasterProfile && role === 'creator');
+
     // Mise à jour de l'utilisateur
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        primaryRole: role,
+        primaryRole: isAddingSecondRole ? existingUser.primaryRole : role,
         onboardingStep: 1
       }
     });
@@ -85,7 +102,7 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
     }
 
     revalidatePath('/onboarding');
-    return { success: true };
+    return { success: true, isAddingSecondRole };
   } catch (error) {
     console.error('Erreur sélection rôle:', error);
     throw new Error('Erreur lors de la sélection du rôle');

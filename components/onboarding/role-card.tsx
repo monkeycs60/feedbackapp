@@ -5,6 +5,8 @@ interface RoleCardProps {
   role: 'creator' | 'roaster';
   isSelected: boolean;
   onSelect: (role: 'creator' | 'roaster') => void;
+  isDisabled?: boolean;
+  disabledMessage?: string;
 }
 
 const roleConfig = {
@@ -34,29 +36,41 @@ const roleConfig = {
   }
 };
 
-export function RoleCard({ role, isSelected, onSelect }: RoleCardProps) {
+export function RoleCard({ role, isSelected, onSelect, isDisabled = false, disabledMessage }: RoleCardProps) {
   const config = roleConfig[role];
   
   return (
     <Card 
-      className={`relative overflow-hidden transition-all duration-300 hover:scale-105 cursor-pointer bg-gray-800 border-gray-700 ${
-        isSelected ? 'ring-2 ring-orange-500 shadow-xl' : 'hover:shadow-lg hover:border-gray-600'
+      className={`relative overflow-hidden transition-all duration-300 ${
+        isDisabled 
+          ? 'opacity-50 cursor-not-allowed' 
+          : 'hover:scale-105 cursor-pointer'
+      } bg-gray-800 border-gray-700 ${
+        isSelected ? 'ring-2 ring-orange-500 shadow-xl' : 
+        !isDisabled ? 'hover:shadow-lg hover:border-gray-600' : ''
       }`}
-      onClick={() => onSelect(role)}
+      onClick={() => !isDisabled && onSelect(role)}
       data-testid={`${role}-card`}
       role="button"
-      tabIndex={0}
+      tabIndex={isDisabled ? -1 : 0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (!isDisabled && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           onSelect(role);
         }
       }}
       aria-label={`Sélectionner le rôle ${role}`}
+      aria-disabled={isDisabled}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${config.gradient} opacity-10`} />
       
       <CardContent className="p-8 relative">
+        {isDisabled && disabledMessage && (
+          <div className="absolute inset-0 bg-gray-900/80 flex items-center justify-center z-10 rounded-lg">
+            <p className="text-gray-300 font-medium text-lg">{disabledMessage}</p>
+          </div>
+        )}
+        
         <div className="text-center mb-6">
           <div className="text-6xl mb-4">{config.icon}</div>
           <h3 className="text-2xl font-bold text-white mb-2">
@@ -78,6 +92,7 @@ export function RoleCard({ role, isSelected, onSelect }: RoleCardProps) {
         <Button 
           className={`w-full bg-gradient-to-r ${config.gradient} hover:opacity-90 pointer-events-none text-white`}
           size="lg"
+          disabled={isDisabled}
         >
           {config.buttonText}
         </Button>

@@ -1,4 +1,5 @@
 import { RoleSelectionForm } from "@/components/onboarding/role-selection-form";
+import { getUserProfiles } from "@/lib/actions/user-profiles";
 
 export const metadata = {
   title: "Choisir son rôle - RoastMyApp",
@@ -6,10 +7,8 @@ export const metadata = {
 };
 
 export default async function RoleSelectionPage() {
-  // TODO: Vérifier l'authentification avec Better Auth
-  // const session = await auth();
-  // if (!session?.user) redirect("/login");
-
+  const userProfiles = await getUserProfiles();
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
@@ -22,7 +21,10 @@ export default async function RoleSelectionPage() {
           </p>
         </div>
         
-        <RoleSelectionForm />
+        <RoleSelectionForm 
+          hasCreatorProfile={userProfiles?.hasCreatorProfile || false}
+          hasRoasterProfile={userProfiles?.hasRoasterProfile || false}
+        />
         
         <div className="text-center mt-8">
           <p className="text-gray-400 flex items-center justify-center gap-2">
