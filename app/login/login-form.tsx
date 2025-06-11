@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -31,6 +31,11 @@ export function LoginForm() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
+
+  useEffect(() => {
+    setIsLogin(mode !== "signup");
+    reset();
+  }, [mode, reset]);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
