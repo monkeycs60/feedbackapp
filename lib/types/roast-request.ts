@@ -4,34 +4,107 @@ export type FocusArea = 'UX' | 'Onboarding' | 'Pricing' | 'Business' | 'Technica
 export type AppCategory = 'SaaS' | 'Mobile' | 'E-commerce' | 'Landing' | 'MVP' | 'Autre';
 export type RoastStatus = 'draft' | 'open' | 'in_progress' | 'completed' | 'cancelled';
 
+export interface DomainQuestion {
+  id: string;
+  text: string;
+  isDefault: boolean;
+  order: number;
+}
+
+export interface SelectedDomain {
+  id: FocusArea;
+  questions: DomainQuestion[];
+}
+
 export interface RoastRequestForm {
   title: string;
   appUrl: string;
   description: string;
   targetAudience: string;
   category: AppCategory;
-  focusAreas: FocusArea[];
-  maxPrice: number;
-  deadline?: Date;
-  isUrgent: boolean;
+  selectedDomains: SelectedDomain[];
+  totalPrice: number;
   additionalContext?: string;
 }
 
-export const FOCUS_AREAS: { id: FocusArea; label: string; icon: string; description: string }[] = [
-  { id: 'UX', label: 'UX/UI Design', icon: '🎨', description: 'Interface, navigation, expérience utilisateur' },
-  { id: 'Onboarding', label: 'Onboarding', icon: '🚀', description: 'Première expérience, signup flow' },
-  { id: 'Pricing', label: 'Pricing', icon: '💰', description: 'Structure tarifaire, value proposition' },
-  { id: 'Business', label: 'Business Model', icon: '📊', description: 'Modèle économique, stratégie' },
-  { id: 'Technical', label: 'Technical', icon: '⚙️', description: 'Performance, bugs, fonctionnalités' },
-  { id: 'Copy', label: 'Copywriting', icon: '✍️', description: 'Textes, messages, communication' },
-  { id: 'Mobile', label: 'Mobile Experience', icon: '📱', description: 'Responsive, app mobile' }
+export const FOCUS_AREAS: { id: FocusArea; label: string; icon: string; description: string; questions: string[] }[] = [
+  { 
+    id: 'UX', 
+    label: 'UX/UI Design', 
+    icon: '🎨', 
+    description: 'Interface, navigation, expérience utilisateur',
+    questions: [
+      'Comment améliorer la navigation principale ?',
+      'Quels éléments d\'interface prêtent à confusion ?'
+    ]
+  },
+  { 
+    id: 'Onboarding', 
+    label: 'Onboarding', 
+    icon: '🚀', 
+    description: 'Première expérience, signup flow',
+    questions: [
+      'Le processus d\'inscription est-il trop long ?',
+      'Comment simplifier la première utilisation ?'
+    ]
+  },
+  { 
+    id: 'Pricing', 
+    label: 'Pricing', 
+    icon: '💰', 
+    description: 'Structure tarifaire, value proposition',
+    questions: [
+      'La grille tarifaire est-elle claire et attractive ?',
+      'La value proposition est-elle convaincante ?'
+    ]
+  },
+  { 
+    id: 'Business', 
+    label: 'Business Model', 
+    icon: '📊', 
+    description: 'Modèle économique, stratégie',
+    questions: [
+      'Le modèle économique est-il viable ?',
+      'Quelles opportunités de revenus manqués ?'
+    ]
+  },
+  { 
+    id: 'Technical', 
+    label: 'Technical', 
+    icon: '⚙️', 
+    description: 'Performance, bugs, fonctionnalités',
+    questions: [
+      'Quels problèmes de performance avez-vous remarqués ?',
+      'Quelles fonctionnalités manquent cruellement ?'
+    ]
+  },
+  { 
+    id: 'Copy', 
+    label: 'Copywriting', 
+    icon: '✍️', 
+    description: 'Textes, messages, communication',
+    questions: [
+      'Les messages sont-ils clairs et engageants ?',
+      'Comment améliorer le ton et le style ?'
+    ]
+  },
+  { 
+    id: 'Mobile', 
+    label: 'Mobile Experience', 
+    icon: '📱', 
+    description: 'Responsive, app mobile',
+    questions: [
+      'L\'expérience mobile est-elle fluide ?',
+      'Quels problèmes d\'affichage sur mobile ?'
+    ]
+  }
 ];
 
-export const PRICE_RANGES = [
-  { value: 25, label: '25€', description: 'Feedback rapide et ciblé' },
-  { value: 40, label: '40€', description: 'Analyse approfondie' },
-  { value: 60, label: '60€', description: 'Audit complet avec recommandations' }
-];
+export const PRICING = {
+  BASE_PRICE: 0,
+  DOMAIN_PRICE: 2,
+  ADDITIONAL_QUESTION: 1
+};
 
 export const APP_CATEGORIES: { id: AppCategory; label: string }[] = [
   { id: 'SaaS', label: 'SaaS' },
