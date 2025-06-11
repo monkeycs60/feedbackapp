@@ -28,8 +28,8 @@ const roastRequestSchema = z.object({
   description: z.string().min(50, "La description doit faire au moins 50 caractères").max(1000),
   targetAudience: z.string().min(10, "Décris ton audience cible").max(200),
   category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
-  focusAreas: z.array(z.string()).min(1, "Sélectionne au moins un domaine").max(4, "Maximum 4 domaines"),
-  maxPrice: z.number().min(25).max(100),
+  focusAreas: z.array(z.string()).min(1, "Sélectionne au moins un domaine"),
+  maxPrice: z.number().min(2, "Le prix minimum est de 2€"),
   deadline: z.date().optional(),
   isUrgent: z.boolean().default(false),
   additionalContext: z.string().max(500).optional()
