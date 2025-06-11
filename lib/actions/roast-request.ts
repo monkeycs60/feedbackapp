@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
-import type { FocusArea, AppCategory } from "@/lib/types/roast-request";
 
 /**
  * Helper function to get the current authenticated user
