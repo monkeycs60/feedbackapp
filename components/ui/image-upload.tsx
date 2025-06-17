@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useUploadThing } from "@/lib/uploadthing";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { optimizeImage } from "@/lib/image-utils";
 
 interface ImageUploadProps {
   value?: string;
@@ -16,6 +17,7 @@ interface ImageUploadProps {
 export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
 
   const { startUpload } = useUploadThing("roastCover", {
     onUploadProgress: (progress) => {
@@ -46,18 +48,30 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       return;
     }
 
-    // Vérifier la taille (max 4MB)
-    if (file.size > 4 * 1024 * 1024) {
-      alert("L'image ne doit pas dépasser 4MB");
-      return;
-    }
-
-    setIsUploading(true);
+    // Afficher l'état d'optimisation
+    setIsOptimizing(true);
+    
     try {
-      await startUpload([file]);
+      // Optimiser l'image avant l'upload
+      const optimizedFile = await optimizeImage(file);
+      
+      // Vérifier la taille après optimisation (max 4MB)
+      if (optimizedFile.size > 4 * 1024 * 1024) {
+        alert("L'image est trop lourde même après optimisation. Veuillez choisir une image plus petite.");
+        setIsOptimizing(false);
+        return;
+      }
+
+      setIsOptimizing(false);
+      setIsUploading(true);
+      
+      // Uploader l'image optimisée
+      await startUpload([optimizedFile]);
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("Error:", error);
+      setIsOptimizing(false);
       setIsUploading(false);
+      alert("Erreur lors du traitement de l'image");
     }
   };
 
@@ -73,7 +87,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
             type="file"
             accept="image/*"
             onChange={handleFileSelect}
-            disabled={disabled || isUploading}
+            disabled={disabled || isUploading || isOptimizing}
             className="hidden"
             id="image-upload"
           />
@@ -82,7 +96,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
             className={`
               block w-full p-8 border-2 border-dashed rounded-lg text-center cursor-pointer
               transition-colors hover:border-gray-400 hover:bg-gray-50
-              ${disabled || isUploading ? "opacity-50 cursor-not-allowed" : ""}
+              ${disabled || isUploading || isOptimizing ? "opacity-50 cursor-not-allowed" : ""}
             `}
           >
             <div className="flex flex-col items-center gap-2">
@@ -97,11 +111,20 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
             </div>
           </label>
 
-          {isUploading && (
+          {(isUploading || isOptimizing) && (
             <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
               <div className="w-full max-w-xs">
-                <Progress value={uploadProgress} className="h-2" />
-                <p className="text-sm text-center mt-2">Upload en cours... {uploadProgress}%</p>
+                {isOptimizing ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-600" />
+                    <p className="text-sm text-center">Optimisation de l&apos;image...</p>
+                  </div>
+                ) : (
+                  <>
+                    <Progress value={uploadProgress} className="h-2" />
+                    <p className="text-sm text-center mt-2">Upload en cours... {uploadProgress}%</p>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -127,7 +150,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
           >
             <X className="h-4 w-4" />
           </Button>
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             <div className="bg-black/50 p-2 rounded">
               <ImageIcon className="h-6 w-6 text-white" />
             </div>
