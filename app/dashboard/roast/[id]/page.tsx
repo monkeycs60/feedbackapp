@@ -4,8 +4,9 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Globe, Target, Users } from 'lucide-react';
+import { Calendar, Globe, Target, Users, MessageSquare, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface RoastDetailPageProps {
   params: Promise<{
@@ -67,6 +68,38 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
           </div>
         </div>
 
+        {/* Image de couverture */}
+        {roastRequest.coverImage ? (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5" />
+                Aperçu de l&apos;application
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                <Image
+                  src={roastRequest.coverImage}
+                  alt={roastRequest.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-8">
+            <CardContent className="py-8">
+              <div className="flex flex-col items-center justify-center text-gray-400">
+                <ImageIcon className="w-12 h-12 mb-2" />
+                <p className="text-sm">Aucune image de couverture</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contenu principal */}
           <div className="lg:col-span-2 space-y-6">
@@ -108,6 +141,60 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
                 </div>
               </CardContent>
             </Card>
+
+            {/* Questions par domaine */}
+            {roastRequest.questions && roastRequest.questions.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5" />
+                    Questions spécifiques
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Questions personnalisées pour chaque domaine de feedback
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {roastRequest.focusAreas.map((domain) => {
+                      const domainQuestions = roastRequest.questions
+                        .filter(q => q.domain === domain)
+                        .sort((a, b) => a.order - b.order);
+                      
+                      if (domainQuestions.length === 0) return null;
+                      
+                      return (
+                        <div key={domain} className="border rounded-lg p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Badge variant="outline">{domain}</Badge>
+                            <span className="text-sm text-gray-500">
+                              {domainQuestions.length} question{domainQuestions.length > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                          <div className="space-y-2">
+                            {domainQuestions.map((question, index) => (
+                              <div key={question.id} className="flex items-start gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
+                                  {index + 1}
+                                </span>
+                                <div className="flex-1">
+                                  <p className="text-gray-800">{question.text}</p>
+                                  {!question.isDefault && (
+                                    <Badge variant="secondary" className="mt-1 text-xs">
+                                      Question personnalisée
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Feedbacks reçus */}
             {roastRequest.feedbacks.length > 0 && (
