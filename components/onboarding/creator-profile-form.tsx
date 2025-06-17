@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ export function CreatorProfileForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const { register, handleSubmit } = useForm<CreatorProfileForm>();
 
@@ -25,11 +26,12 @@ export function CreatorProfileForm() {
     
     try {
       await setupCreatorProfile(data);
-      router.push('/onboarding/welcome');
+      startTransition(() => {
+        router.push('/onboarding/welcome');
+      });
     } catch (error) {
       console.error('Erreur setup profil:', error);
       setError('Une erreur est survenue. Veuillez réessayer.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -59,11 +61,11 @@ export function CreatorProfileForm() {
 
       <Button 
         type="submit" 
-        disabled={isLoading}
+        disabled={isLoading || isPending}
         className="w-full bg-orange-600 hover:bg-orange-700"
         size="lg"
       >
-        {isLoading ? "Finalisation..." : "C'est parti !"}
+        {isLoading || isPending ? "Chargement..." : "C'est parti !"}
       </Button>
     </form>
   );

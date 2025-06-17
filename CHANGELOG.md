@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-01-11-13:02
+- **Fixed**: Resolved flickering issue during onboarding flow transitions
+- **Feature**: Added loading.tsx file for onboarding routes to provide consistent loading UI
+- **Enhancement**: Implemented React's useTransition hook in all onboarding forms for smoother navigation
+- **UI**: Unified loading button text to "Chargement..." across all onboarding components
+- **Performance**: Improved user experience by preventing loading state flicker between onboarding steps
+
 ## 2025-01-10-13:45
 - **Fixed**: Added Dashboard link to navbar for authenticated users
 - **Fixed**: Verified RoleSwitch component displays correctly on dashboard page for dual-role users

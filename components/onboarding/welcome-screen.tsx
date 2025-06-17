@@ -64,7 +64,7 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
             <div className="space-y-3 text-left">
               {config.nextSteps.map((step, index) => (
                 <div key={index} className="flex items-center gap-3">
-                  <Badge variant="outline" className="shrink-0">{index + 1}</Badge>
+                  <Badge variant="outline" className="shrink-0 text-white">{index + 1}</Badge>
                   <span className="text-gray-300">{step}</span>
                 </div>
               ))}

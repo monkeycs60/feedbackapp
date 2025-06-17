@@ -1,4 +1,66 @@
 -- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "name" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "image" TEXT,
+    "primaryRole" TEXT DEFAULT 'creator',
+    "hasTriedBothRoles" BOOLEAN NOT NULL DEFAULT false,
+    "onboardingStep" INTEGER NOT NULL DEFAULT 0,
+    "daysSinceSignup" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "token" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+    "userId" TEXT NOT NULL,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Account" (
+    "id" TEXT NOT NULL,
+    "accountId" TEXT NOT NULL,
+    "providerId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "accessToken" TEXT,
+    "refreshToken" TEXT,
+    "idToken" TEXT,
+    "accessTokenExpiresAt" TIMESTAMP(3),
+    "refreshTokenExpiresAt" TIMESTAMP(3),
+    "scope" TEXT,
+    "password" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Verification" (
+    "id" TEXT NOT NULL,
+    "identifier" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Verification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "creator_profiles" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -55,6 +117,20 @@ CREATE TABLE "roast_requests" (
 );
 
 -- CreateTable
+CREATE TABLE "roast_questions" (
+    "id" TEXT NOT NULL,
+    "roastRequestId" TEXT NOT NULL,
+    "domain" TEXT NOT NULL,
+    "text" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
+    "isDefault" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "roast_questions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "feedbacks" (
     "id" TEXT NOT NULL,
     "roastRequestId" TEXT NOT NULL,
@@ -75,17 +151,23 @@ CREATE TABLE "feedbacks" (
     CONSTRAINT "feedbacks_pkey" PRIMARY KEY ("id")
 );
 
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "daysSinceSignup" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "hasTriedBothRoles" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "onboardingStep" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "primaryRole" TEXT DEFAULT 'creator';
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "creator_profiles_userId_key" ON "creator_profiles"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "roaster_profiles_userId_key" ON "roaster_profiles"("userId");
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "creator_profiles" ADD CONSTRAINT "creator_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -95,6 +177,9 @@ ALTER TABLE "roaster_profiles" ADD CONSTRAINT "roaster_profiles_userId_fkey" FOR
 
 -- AddForeignKey
 ALTER TABLE "roast_requests" ADD CONSTRAINT "roast_requests_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "roast_questions" ADD CONSTRAINT "roast_questions_roastRequestId_fkey" FOREIGN KEY ("roastRequestId") REFERENCES "roast_requests"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "feedbacks" ADD CONSTRAINT "feedbacks_roastRequestId_fkey" FOREIGN KEY ("roastRequestId") REFERENCES "roast_requests"("id") ON DELETE CASCADE ON UPDATE CASCADE;

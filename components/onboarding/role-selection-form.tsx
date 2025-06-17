@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RoleCard } from "./role-card";
 import { selectPrimaryRole } from "@/lib/actions/onboarding";
@@ -16,6 +16,7 @@ interface RoleSelectionFormProps {
 export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile = false }: RoleSelectionFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
   const isAddingSecondRole = searchParams.get('add_role') === 'true';
   
   // Pré-sélectionner automatiquement le rôle manquant si on ajoute un second rôle
@@ -36,11 +37,12 @@ export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile
     
     try {
       await selectPrimaryRole(selectedRole);
-      router.push('/onboarding/profile-setup');
+      startTransition(() => {
+        router.push('/onboarding/profile-setup');
+      });
     } catch (error) {
       console.error('Erreur sélection rôle:', error);
       setError('Une erreur est survenue. Veuillez réessayer.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -84,11 +86,11 @@ export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile
         <div className="text-center">
           <Button 
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isLoading || isPending}
             size="lg"
             className="bg-orange-600 hover:bg-orange-700 px-8"
           >
-            {isLoading ? "Création du profil..." : "Continuer"}
+            {isLoading || isPending ? "Chargement..." : "Continuer"}
           </Button>
         </div>
       )}

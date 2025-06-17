@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +27,7 @@ export function RoasterProfileForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<RoasterProfileForm>({
     resolver: zodResolver(roasterProfileSchema),
@@ -55,11 +56,12 @@ export function RoasterProfileForm() {
     
     try {
       await setupRoasterProfile(data);
-      router.push('/onboarding/welcome');
+      startTransition(() => {
+        router.push('/onboarding/welcome');
+      });
     } catch (error) {
       console.error('Erreur setup profil:', error);
       setError('Une erreur est survenue. Veuillez réessayer.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -184,11 +186,11 @@ export function RoasterProfileForm() {
 
       <Button 
         type="submit" 
-        disabled={isLoading}
+        disabled={isLoading || isPending}
         className="w-full bg-orange-600 hover:bg-orange-700"
         size="lg"
       >
-        {isLoading ? "Création du profil..." : "Finaliser mon profil"}
+        {isLoading || isPending ? "Chargement..." : "Finaliser mon profil"}
       </Button>
     </form>
   );
