@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +18,6 @@ interface WelcomeScreenProps {
 export function WelcomeScreen({ user }: WelcomeScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const handleContinue = async () => {
     setIsLoading(true);
@@ -29,12 +27,13 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
       await completeOnboarding();
       // La redirection sera gérée par completeOnboarding()
     } catch (error) {
+      // Ne pas traiter les redirections Next.js comme des erreurs
+      if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+        throw error;
+      }
+      
       console.error('Erreur finalisation:', error);
       setError('Une erreur est survenue. Veuillez réessayer.');
-      // Redirection manuelle en cas d'erreur
-      const redirectUrl = user.primaryRole === 'roaster' ? '/marketplace' : '/dashboard';
-      router.push(redirectUrl);
-    } finally {
       setIsLoading(false);
     }
   };
