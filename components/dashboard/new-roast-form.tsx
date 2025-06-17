@@ -194,7 +194,8 @@ export function NewRoastForm() {
         ...data,
         focusAreas: data.selectedDomains.map(d => d.id),
         maxPrice: data.totalPrice,
-        isUrgent: false // Plus d'urgence
+        isUrgent: false, // Plus d'urgence
+        selectedDomains: data.selectedDomains // Envoyer aussi les domaines avec questions
       };
       await createRoastRequest(transformedData);
       // La redirection est gérée dans l'action

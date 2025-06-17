@@ -138,8 +138,25 @@ model RoastRequest {
   updatedAt       DateTime @updatedAt
   
   feedbacks       Feedback[]
+  questions       RoastQuestion[]
   
   @@map("roast_requests")
+}
+
+model RoastQuestion {
+  id              String   @id @default(cuid())
+  roastRequestId  String
+  roastRequest    RoastRequest @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+  
+  domain          String   // Le domaine associé (UX, Onboarding, etc.)
+  text            String   // Le texte de la question
+  order           Int      // L'ordre de la question
+  isDefault       Boolean  @default(false) // Si c'est une question par défaut
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("roast_questions")
 }
 
 model Feedback {

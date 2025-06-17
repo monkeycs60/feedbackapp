@@ -32,7 +32,17 @@ const roastRequestSchema = z.object({
   maxPrice: z.number().min(2, "Le prix minimum est de 2€"),
   deadline: z.date().optional(),
   isUrgent: z.boolean().default(false),
-  additionalContext: z.string().max(500).optional()
+  additionalContext: z.string().max(500).optional(),
+  // Nouveau : pour gérer les questions
+  selectedDomains: z.array(z.object({
+    id: z.string(),
+    questions: z.array(z.object({
+      id: z.string(),
+      text: z.string(),
+      isDefault: z.boolean(),
+      order: z.number()
+    }))
+  })).optional()
 });
 
 export async function createRoastRequest(data: z.infer<typeof roastRequestSchema>) {
@@ -62,7 +72,7 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
 
     console.log({validData});
 
-    await prisma.roastRequest.create({
+    const roastRequest = await prisma.roastRequest.create({
       data: {
         creatorId: user.id,
         title: validData.title,
@@ -75,6 +85,23 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
         status: 'open'
       }
     });
+
+    // Créer les questions si elles existent
+    if (validData.selectedDomains && validData.selectedDomains.length > 0) {
+      const questionsToCreate = validData.selectedDomains.flatMap(domain => 
+        domain.questions.map(question => ({
+          roastRequestId: roastRequest.id,
+          domain: domain.id,
+          text: question.text,
+          order: question.order,
+          isDefault: question.isDefault
+        }))
+      );
+
+      await prisma.roastQuestion.createMany({
+        data: questionsToCreate
+      });
+    }
 
     // Mettre à jour le compteur de projets postés
     await prisma.creatorProfile.update({
@@ -107,6 +134,12 @@ export async function getUserRoastRequests() {
         },
         _count: {
           select: { feedbacks: true }
+        },
+        questions: {
+          orderBy: [
+            { domain: 'asc' },
+            { order: 'asc' }
+          ]
         }
       }
     });
@@ -169,6 +202,12 @@ export async function getAvailableRoastRequests() {
         },
         _count: {
           select: { feedbacks: true }
+        },
+        questions: {
+          orderBy: [
+            { domain: 'asc' },
+            { order: 'asc' }
+          ]
         }
       }
     });
@@ -212,6 +251,12 @@ export async function getRoastRequestById(id: string) {
               }
             }
           }
+        },
+        questions: {
+          orderBy: [
+            { domain: 'asc' },
+            { order: 'asc' }
+          ]
         }
       }
     });
