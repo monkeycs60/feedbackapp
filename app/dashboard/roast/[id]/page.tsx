@@ -155,38 +155,83 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {roastRequest.focusAreas.map((domain) => {
+                  <div className="space-y-8">
+                    {roastRequest.focusAreas.map((domain, domainIndex) => {
                       const domainQuestions = roastRequest.questions
                         .filter(q => q.domain === domain)
                         .sort((a, b) => a.order - b.order);
                       
                       if (domainQuestions.length === 0) return null;
                       
+                      // Couleurs pour différencier les domaines
+                      const domainColors = {
+                        UX: 'from-purple-500 to-purple-600',
+                        Onboarding: 'from-blue-500 to-blue-600', 
+                        Pricing: 'from-green-500 to-green-600',
+                        Performance: 'from-orange-500 to-orange-600',
+                        Marketing: 'from-pink-500 to-pink-600',
+                        Development: 'from-indigo-500 to-indigo-600',
+                        Business: 'from-teal-500 to-teal-600'
+                      };
+                      
+                      const gradientClass = domainColors[domain as keyof typeof domainColors] || 'from-gray-500 to-gray-600';
+                      
                       return (
-                        <div key={domain} className="border rounded-lg p-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Badge variant="outline">{domain}</Badge>
-                            <span className="text-sm text-gray-500">
-                              {domainQuestions.length} question{domainQuestions.length > 1 ? 's' : ''}
-                            </span>
-                          </div>
-                          <div className="space-y-2">
-                            {domainQuestions.map((question, index) => (
-                              <div key={question.id} className="flex items-start gap-3">
-                                <span className="flex-shrink-0 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
-                                  {index + 1}
-                                </span>
-                                <div className="flex-1">
-                                  <p className="text-gray-800">{question.text}</p>
-                                  {!question.isDefault && (
-                                    <Badge variant="secondary" className="mt-1 text-xs">
-                                      Question personnalisée
-                                    </Badge>
-                                  )}
+                        <div key={domain} className="relative">
+                          {/* Ligne de séparation colorée */}
+                          <div className={`h-1 w-full bg-gradient-to-r ${gradientClass} rounded-full mb-4`}></div>
+                          
+                          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm">
+                            {/* Header du domaine */}
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 bg-gradient-to-r ${gradientClass} rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
+                                  {domain.slice(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-gray-900">{domain}</h3>
+                                  <p className="text-sm text-gray-500">
+                                    {domainQuestions.length} question{domainQuestions.length > 1 ? 's' : ''} à traiter
+                                  </p>
                                 </div>
                               </div>
-                            ))}
+                              <Badge 
+                                variant="secondary" 
+                                className="bg-white/80 text-gray-700 border border-gray-300"
+                              >
+                                Domaine {domainIndex + 1}
+                              </Badge>
+                            </div>
+                            
+                            {/* Questions */}
+                            <div className="space-y-4">
+                              {domainQuestions.map((question, index) => (
+                                <div key={question.id} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+                                  <div className="flex items-start gap-4">
+                                    <div className={`flex-shrink-0 w-8 h-8 bg-gradient-to-r ${gradientClass} rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm`}>
+                                      {index + 1}
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-gray-800 leading-relaxed font-medium">
+                                        {question.text}
+                                      </p>
+                                      <div className="flex items-center gap-2 mt-2">
+                                        {!question.isDefault && (
+                                          <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                            ✨ Question personnalisée
+                                          </Badge>
+                                        )}
+                                        {question.isDefault && (
+                                          <Badge variant="outline" className="text-xs text-gray-500">
+                                            📋 Question standard
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       );
