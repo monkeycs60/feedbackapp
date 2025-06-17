@@ -133,6 +133,7 @@ model RoastRequest {
   maxPrice        Float    // Prix maximum fixé par le créateur
   deadline        DateTime?
   status          String   @default("open") // "open", "in_progress", "completed"
+  coverImage      String?  // URL de l'image de couverture
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

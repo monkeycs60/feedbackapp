@@ -1,5 +1,14 @@
 # Changelog
 
+## 2025-01-17-23:55
+### New Feature
+- **Upload d'image de couverture pour les roasts** : Intégration d'uploadthing pour permettre aux créateurs d'ajouter une image de couverture lors de la création d'une demande de roast
+- **Support des questions personnalisées par domaine** : Les questions sont maintenant stockées dans la base de données via le modèle RoastQuestion, permettant une personnalisation complète par domaine
+
+### Enhancement
+- **Mise à jour du formulaire de création de roast** : Ajout du champ d'upload d'image avec preview et gestion des erreurs
+- **Migration de la base de données** : Ajout du champ coverImage dans le modèle RoastRequest
+
 ## 2025-01-11-13:02
 - **Fixed**: Resolved flickering issue during onboarding flow transitions
 - **Feature**: Added loading.tsx file for onboarding routes to provide consistent loading UI

@@ -16,6 +16,7 @@ import { AlertCircle, Plus, X, GripVertical } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { FOCUS_AREAS, PRICING, APP_CATEGORIES, type FocusArea, type SelectedDomain, type DomainQuestion } from '@/lib/types/roast-request';
 import { createRoastRequest } from '@/lib/actions/roast-request';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 const formSchema = z.object({
   title: z.string().min(10, "Le titre doit faire au moins 10 caractères").max(100),
@@ -23,6 +24,7 @@ const formSchema = z.object({
   description: z.string().min(50, "La description doit faire au moins 50 caractères").max(1000),
   targetAudience: z.string().min(10, "Décris ton audience cible").max(200),
   category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
+  coverImage: z.string().optional(),
   selectedDomains: z.array(z.object({
     id: z.string(),
     questions: z.array(z.object({
@@ -195,7 +197,8 @@ export function NewRoastForm() {
         focusAreas: data.selectedDomains.map(d => d.id),
         maxPrice: data.totalPrice,
         isUrgent: false, // Plus d'urgence
-        selectedDomains: data.selectedDomains // Envoyer aussi les domaines avec questions
+        selectedDomains: data.selectedDomains, // Envoyer aussi les domaines avec questions
+        coverImage: data.coverImage
       };
       await createRoastRequest(transformedData);
       // La redirection est gérée dans l'action
@@ -271,6 +274,16 @@ export function NewRoastForm() {
                 {form.formState.errors.category && (
                   <p className="text-red-500 text-sm mt-1">{form.formState.errors.category.message}</p>
                 )}
+              </div>
+
+              <div>
+                <Label>Image de couverture (optionnel)</Label>
+                <p className="text-sm text-gray-600 mb-2">Ajoute une capture d&apos;écran pour illustrer ton app</p>
+                <ImageUpload
+                  value={form.watch('coverImage')}
+                  onChange={(url) => form.setValue('coverImage', url)}
+                  disabled={isLoading}
+                />
               </div>
             </CardContent>
           </Card>

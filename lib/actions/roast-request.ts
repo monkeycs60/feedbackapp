@@ -33,6 +33,7 @@ const roastRequestSchema = z.object({
   deadline: z.date().optional(),
   isUrgent: z.boolean().default(false),
   additionalContext: z.string().max(500).optional(),
+  coverImage: z.string().optional(), // URL de l'image uploadée
   // Nouveau : pour gérer les questions
   selectedDomains: z.array(z.object({
     id: z.string(),
@@ -82,7 +83,8 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
         focusAreas: validData.focusAreas,
         maxPrice: validData.maxPrice,
         deadline: validData.deadline,
-        status: 'open'
+        status: 'open',
+        coverImage: validData.coverImage
       }
     });
 
