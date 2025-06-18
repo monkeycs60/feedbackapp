@@ -113,9 +113,6 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
     }, {});
   };
 
-  console.log({feedbacks});
-
-
   return (
     <div className="space-y-6">
       {/* Stats globaux */}

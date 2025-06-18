@@ -47,7 +47,8 @@ export function CreatorDashboardContent({ roastRequests }: CreatorDashboardConte
           ...feedback,
           roastRequest: {
             id: roast.id,
-            title: roast.title
+            title: roast.title,
+            questions: roast.questions
           }
         }))
       );

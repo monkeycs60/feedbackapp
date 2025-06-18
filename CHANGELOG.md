@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-06-18-23:20
+### Critical Bugfix - Dashboard Domain Counting
+- **Fixed Dashboard "Domaines couverts: 0" Issue**: Resolved data transformation problem in creator dashboard
+  - Fixed `CreatorDashboardContent` component to preserve `roastRequest.questions` when flattening feedback data
+  - Dashboard FeedbacksList now correctly shows domain counts instead of always showing 0
+  - Data flow now properly maintains question information from database to component
+
 ## 2025-06-18-23:15
 ### Critical Bugfix
 - **Fixed Missing Questions Relation**: Resolved "feedback.roastRequest.questions is undefined" error

@@ -58,8 +58,6 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
     );
   }
 
-  console.log(feedbacks);
-
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Feedbacks reçus</h2>
