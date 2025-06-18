@@ -322,7 +322,8 @@ export function RoastFeedbackForm({ roastRequest, existingFeedback }: RoastFeedb
                           </Label>
                           <Textarea
                             id={fieldName}
-                            {...form.register(fieldName)}
+                            value={response}
+                            onChange={(e) => form.setValue(`questionResponses.${question.id}`, e.target.value)}
                             placeholder="Votre réponse détaillée..."
                             rows={3}
                             className="resize-none"

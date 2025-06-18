@@ -93,16 +93,16 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
     : 0;
 
   // Grouper les questions par domaine pour chaque feedback
-  const getQuestionsByDomain = (feedback: any) => {
+  const getQuestionsByDomain = (feedback: FeedbackDisplayV2Props['feedbacks'][0]) => {
     if (!feedback.roastRequest.questions) return {};
     
-    return feedback.roastRequest.questions.reduce((acc: any, question: RoastQuestion) => {
+    return feedback.roastRequest.questions.reduce((acc: Record<string, Array<RoastQuestion & { response: string | null }>>, question: RoastQuestion) => {
       if (!acc[question.domain]) {
         acc[question.domain] = [];
       }
       
       // Chercher la réponse correspondante
-      const response = feedback.questionResponses.find((qr: QuestionResponse) => qr.questionId === question.id);
+      const response = feedback.questionResponses?.find((qr: QuestionResponse) => qr.questionId === question.id);
       
       acc[question.domain].push({
         ...question,
@@ -113,10 +113,8 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
     }, {});
   };
 
-  // Tous les feedbacks utilisent maintenant le nouveau format
-  const hasQuestionResponses = (feedback: any) => {
-    return feedback.questionResponses && feedback.questionResponses.length > 0;
-  };
+  console.log({feedbacks});
+
 
   return (
     <div className="space-y-6">
@@ -276,13 +274,19 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                           <div>
                             <h5 className="font-medium mb-2">Questions traitées</h5>
                             <p className="text-2xl font-bold text-blue-600">
-                              {feedback.questionResponses.length}
+                              {feedback.questionResponses?.length || 0}
                             </p>
                           </div>
                           <div>
                             <h5 className="font-medium mb-2">Domaines couverts</h5>
                             <p className="text-2xl font-bold text-purple-600">
-                              {Object.keys(getQuestionsByDomain(feedback)).length}
+                              {feedback.questionResponses?.length > 0 && feedback.roastRequest.questions ? 
+                                [...new Set(
+                                  feedback.questionResponses
+                                    .map(qr => feedback.roastRequest.questions?.find(q => q.id === qr.questionId)?.domain)
+                                    .filter(Boolean)
+                                )].length : 0
+                              }
                             </p>
                           </div>
                         </div>
@@ -311,14 +315,14 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                       
                       <TabsContent value="questions" className="mt-4">
                         <div className="space-y-6">
-                          {Object.entries(getQuestionsByDomain(feedback)).map(([domain, questions]: [string, any]) => (
+                          {Object.entries(getQuestionsByDomain(feedback)).map(([domain, questions]) => (
                             <div key={domain}>
                               <h5 className="font-medium text-lg text-gray-900 mb-3 flex items-center gap-2">
                                 <MessageSquare className="h-5 w-5" />
                                 {domain}
                               </h5>
                               <div className="space-y-4">
-                                {questions.map((question: any, index: number) => (
+                                {questions.map((question, index: number) => (
                                   <div key={question.id} className="bg-white rounded-lg p-4 border">
                                     <div className="flex items-start gap-3">
                                       <span className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">

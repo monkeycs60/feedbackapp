@@ -139,6 +139,19 @@ export async function getUserRoastRequests() {
               include: {
                 roasterProfile: true
               }
+            },
+            questionResponses: true,
+            roastRequest: {
+              select: {
+                id: true,
+                title: true,
+                questions: {
+                  orderBy: [
+                    { domain: 'asc' },
+                    { order: 'asc' }
+                  ]
+                }
+              }
             }
           }
         },
@@ -265,6 +278,19 @@ export async function getRoastRequestById(id: string) {
             roaster: {
               include: {
                 roasterProfile: true
+              }
+            },
+            questionResponses: true,
+            roastRequest: {
+              select: {
+                id: true,
+                title: true,
+                questions: {
+                  orderBy: [
+                    { domain: 'asc' },
+                    { order: 'asc' }
+                  ]
+                }
               }
             }
           }

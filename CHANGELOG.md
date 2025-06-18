@@ -1,5 +1,25 @@
 # Changelog
 
+## 2025-06-18-23:15
+### Critical Bugfix
+- **Fixed Missing Questions Relation**: Resolved "feedback.roastRequest.questions is undefined" error
+  - Added `roastRequest.questions` relation to feedback queries in `getUserRoastRequests()` and `getRoastRequestById()`
+  - Components can now properly access question data for domain calculations and response matching
+  - Fixed domain counting in both `FeedbacksList` and `FeedbackDisplayV2` components
+
+## 2025-01-18-21:45
+### Bugfixes & Query Improvements
+- **Fixed Dashboard Display Issues**: Resolved "Questions traitées: 0" and "Domaines couverts: N/A" issues
+  - Updated `getUserRoastRequests()` and `getRoastRequestById()` to include `questionResponses`
+  - Fixed undefined `questionResponses.length` errors with proper null checks
+  - **Fixed "Domaines couverts: N/A"**: Now correctly calculates domains from actual question responses instead of all available questions
+- **Form Validation Fixes**: Corrected TypeScript errors in feedback form
+  - Fixed dynamic field registration for question responses
+  - Improved form handling with proper `setValue` usage
+- **Type Safety Improvements**: Replaced `any` types with proper TypeScript interfaces
+  - Better type definitions for question response mapping
+  - Cleaner component interfaces
+
 ## 2025-01-18-21:30
 ### Complete Feedback System Cleanup
 - **Legacy Field Removal**: Completely removed unused legacy feedback fields from database schema

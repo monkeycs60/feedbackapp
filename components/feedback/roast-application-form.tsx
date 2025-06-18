@@ -19,7 +19,6 @@ import {
 	Users,
 } from 'lucide-react';
 import { applyForRoast } from '@/lib/actions/roast-application';
-import { PRICING } from '@/lib/types/roast-request';
 
 const applicationSchema = z.object({
 	motivation: z

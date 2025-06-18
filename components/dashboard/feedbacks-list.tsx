@@ -58,6 +58,8 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
     );
   }
 
+  console.log(feedbacks);
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Feedbacks reçus</h2>
@@ -133,9 +135,12 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
                     Domaines couverts
                   </h4>
                   <p className="text-lg font-semibold text-purple-600">
-                    {feedback.roastRequest.questions ? 
-                      [...new Set(feedback.roastRequest.questions.map(q => q.domain))].length :
-                      'N/A'
+                    {feedback.questionResponses && feedback.questionResponses.length > 0 && feedback.roastRequest.questions ? 
+                      [...new Set(
+                        feedback.questionResponses
+                          .map(qr => feedback.roastRequest.questions?.find(q => q.id === qr.questionId)?.domain)
+                          .filter(Boolean)
+                      )].length : 0
                     }
                   </p>
                 </div>
