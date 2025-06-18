@@ -119,7 +119,7 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
         competitorComparison: validData.competitorComparison || null,
         screenshots: validData.screenshots || [],
         finalPrice: validData.finalPrice,
-        status: 'pending'
+        status: 'completed'
       }
     });
 
@@ -139,7 +139,8 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
     });
 
     revalidatePath('/marketplace');
-    redirect('/marketplace');
+    revalidatePath('/dashboard');
+    redirect('/dashboard');
   } catch (error) {
     // Allow Next.js redirects to pass through
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
@@ -173,6 +174,22 @@ export async function getUserFeedbacks() {
   } catch (error) {
     console.error('Erreur récupération feedbacks:', error);
     return [];
+  }
+}
+
+export async function getFeedbackByRoastRequest(roastRequestId: string) {
+  try {
+    const user = await getCurrentUser();
+
+    return await prisma.feedback.findFirst({
+      where: {
+        roastRequestId: roastRequestId,
+        roasterId: user.id
+      }
+    });
+  } catch (error) {
+    console.error('Erreur récupération feedback:', error);
+    return null;
   }
 }
 

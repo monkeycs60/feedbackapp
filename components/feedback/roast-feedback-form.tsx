@@ -38,11 +38,24 @@ interface RoastFeedbackFormProps {
     focusAreas: string[];
     questions: RoastQuestion[];
   };
+  existingFeedback?: {
+    id: string;
+    firstImpression: string;
+    strengthsFound: string[];
+    weaknessesFound: string[];
+    actionableSteps: string[];
+    competitorComparison: string | null;
+    screenshots: string[];
+    finalPrice: number;
+    status: string;
+  } | null;
 }
 
-export function RoastFeedbackForm({ roastRequest }: RoastFeedbackFormProps) {
+export function RoastFeedbackForm({ roastRequest, existingFeedback }: RoastFeedbackFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const isCompleted = existingFeedback?.status === 'completed';
 
   // Calculer le prix automatiquement basé sur la grille tarifaire
   const calculatePrice = () => {
@@ -102,6 +115,57 @@ export function RoastFeedbackForm({ roastRequest }: RoastFeedbackFormProps) {
       setIsLoading(false);
     }
   };
+
+  // Si le feedback est déjà terminé, afficher un résumé
+  if (isCompleted) {
+    return (
+      <Card className="h-fit">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            Feedback terminé
+          </CardTitle>
+          <p className="text-sm text-gray-600">
+            Votre feedback a été soumis avec succès
+          </p>
+          <div className="flex items-center gap-2">
+            <Badge className="bg-green-100 text-green-800">
+              <Euro className="w-3 h-3 mr-1" />
+              {existingFeedback?.finalPrice || finalPrice}€ gagné
+            </Badge>
+            <Badge variant="outline" className="bg-green-50 text-green-700">
+              Statut: Terminé
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Alert>
+              <CheckCircle className="h-4 w-4" />
+              <AlertDescription>
+                Merci pour votre feedback détaillé ! Le créateur pourra maintenant consulter vos réponses et améliorer son application.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">Résumé de votre feedback</h4>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div>
+                  <span className="font-medium">Date de soumission:</span> {existingFeedback ? new Date(existingFeedback.id).toLocaleDateString('fr-FR') : 'Aujourd\'hui'}
+                </div>
+                <div>
+                  <span className="font-medium">Rémunération:</span> {existingFeedback?.finalPrice || finalPrice}€
+                </div>
+                <div>
+                  <span className="font-medium">Questions traitées:</span> {roastRequest.questions.length} questions
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="h-fit">

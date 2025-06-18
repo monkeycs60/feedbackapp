@@ -1,6 +1,7 @@
 import { requireOnboardingComplete } from '@/lib/auth-guards';
 import { getRoastRequestById } from '@/lib/actions/roast-request';
 import { hasAppliedForRoast } from '@/lib/actions/roast-application';
+import { getFeedbackByRoastRequest } from '@/lib/actions/feedback';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
@@ -26,6 +27,7 @@ export default async function RoastPage({ params }: RoastPageProps) {
   const { id } = await params;
   const roastRequest = await getRoastRequestById(id);
   const hasApplied = await hasAppliedForRoast(id);
+  const existingFeedback = await getFeedbackByRoastRequest(id);
   
   if (!roastRequest) {
     notFound();
@@ -263,7 +265,10 @@ export default async function RoastPage({ params }: RoastPageProps) {
           {/* Formulaire de candidature ou de feedback */}
           <div className="lg:sticky lg:top-8">
             {isAcceptedRoaster && roastRequest.status === 'in_progress' ? (
-              <RoastFeedbackForm roastRequest={roastRequest} />
+              <RoastFeedbackForm 
+                roastRequest={roastRequest} 
+                existingFeedback={existingFeedback}
+              />
             ) : (
               <RoastApplicationForm roastRequest={roastRequest} hasApplied={hasApplied} />
             )}
