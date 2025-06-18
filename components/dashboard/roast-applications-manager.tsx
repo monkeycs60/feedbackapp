@@ -206,6 +206,12 @@ export function RoastApplicationsManager({ roastRequest, applications }: RoastAp
                 {isLoading ? 'Sélection...' : `Sélectionner ${selectedApplications.length} roaster${selectedApplications.length > 1 ? 's' : ''}`}
               </Button>
             )}
+            
+            {!canSelect && roastRequest.status === 'in_progress' && (
+              <Badge variant="outline" className="text-sm">
+                Sélection terminée - Roast en cours
+              </Badge>
+            )}
           </div>
 
           {canSelect && (

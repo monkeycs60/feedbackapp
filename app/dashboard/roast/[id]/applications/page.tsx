@@ -28,15 +28,15 @@ export default async function ApplicationsPage({ params }: ApplicationsPageProps
 
   const statusColors = {
     open: 'bg-green-100 text-green-800',
-    collecting_applications: 'bg-blue-100 text-blue-800',
-    in_progress: 'bg-yellow-100 text-yellow-800',
+    collecting_applications: 'bg-orange-100 text-orange-800',
+    in_progress: 'bg-blue-100 text-blue-800',
     completed: 'bg-gray-100 text-gray-800',
     cancelled: 'bg-red-100 text-red-800'
   };
 
   const statusLabels = {
     open: 'Ouvert',
-    collecting_applications: 'Collecte de candidatures',
+    collecting_applications: 'Candidatures en cours',
     in_progress: 'En cours',
     completed: 'Terminé',
     cancelled: 'Annulé'

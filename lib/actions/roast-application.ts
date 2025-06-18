@@ -316,3 +316,62 @@ export async function hasAppliedForRoast(roastRequestId: string) {
     return false;
   }
 }
+
+/**
+ * Récupère les candidatures acceptées d'un roaster
+ */
+export async function getRoasterAcceptedApplications() {
+  try {
+    const user = await getCurrentUser();
+
+    const applications = await prisma.roastApplication.findMany({
+      where: {
+        roasterId: user.id,
+        status: {
+          in: ['accepted', 'auto_selected']
+        }
+      },
+      include: {
+        roastRequest: {
+          include: {
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                creatorProfile: {
+                  select: {
+                    company: true
+                  }
+                }
+              }
+            },
+            questions: {
+              orderBy: [
+                { domain: 'asc' },
+                { order: 'asc' }
+              ]
+            },
+            feedbacks: {
+              where: {
+                roasterId: user.id
+              },
+              select: {
+                id: true,
+                status: true,
+                createdAt: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        selectedAt: 'desc'
+      }
+    });
+
+    return applications;
+  } catch (error) {
+    console.error('Erreur récupération candidatures acceptées:', error);
+    return [];
+  }
+}

@@ -1,9 +1,12 @@
 import { requireOnboardingComplete } from '@/lib/auth-guards';
 import { getUserRoastRequests, getAvailableRoastRequests } from '@/lib/actions/roast-request';
+import { getRoasterAcceptedApplications } from '@/lib/actions/roast-application';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { RoastRequestsList } from '@/components/dashboard/roast-requests-list';
 import { DashboardStats } from '@/components/dashboard/dashboard-stats';
 import { AvailableRoastsList } from '@/components/dashboard/available-roasts-list';
+import { AcceptedApplicationsList } from '@/components/dashboard/accepted-applications-list';
+import { RoasterStats } from '@/components/dashboard/roaster-stats';
 import { RoleSwitch } from '@/components/dashboard/role-switch';
 import { AddSecondRolePrompt } from '@/components/dashboard/add-second-role-prompt';
 import { auth } from '@/lib/auth';
@@ -40,11 +43,13 @@ export default async function DashboardPage() {
   // Récupérer les données selon le rôle
   let roastRequests: Awaited<ReturnType<typeof getUserRoastRequests>> = [];
   let availableRoasts: Awaited<ReturnType<typeof getAvailableRoastRequests>> = [];
+  let acceptedApplications: Awaited<ReturnType<typeof getRoasterAcceptedApplications>> = [];
   
   if (currentRole === 'creator' && hasCreatorProfile) {
     roastRequests = await getUserRoastRequests();
   } else if (currentRole === 'roaster' && hasRoasterProfile) {
     availableRoasts = await getAvailableRoastRequests();
+    acceptedApplications = await getRoasterAcceptedApplications();
   }
 
   return (
@@ -84,16 +89,25 @@ export default async function DashboardPage() {
                 </div>
               </>
             ) : (
-              <div className="mt-8">
+              <div className="space-y-8 mt-8">
+                {/* Missions acceptées */}
+                <AcceptedApplicationsList applications={acceptedApplications} />
+                
+                {/* Apps disponibles */}
                 <AvailableRoastsList availableRoasts={availableRoasts} />
               </div>
             )}
           </div>
           
           <div className="lg:col-span-1">
-            {!canSwitchRoles && (
+            {currentRole === 'roaster' && hasRoasterProfile ? (
+              <RoasterStats 
+                acceptedApplications={acceptedApplications}
+                roasterProfile={fullUser.roasterProfile}
+              />
+            ) : !canSwitchRoles ? (
               <AddSecondRolePrompt currentRole={currentRole} />
-            )}
+            ) : null}
           </div>
         </div>
       </div>

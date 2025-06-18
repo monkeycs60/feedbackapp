@@ -26,6 +26,7 @@ interface RoastRequestsListProps {
 export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
   const statusColors = {
     open: 'bg-green-100 text-green-800',
+    collecting_applications: 'bg-orange-100 text-orange-800',
     in_progress: 'bg-blue-100 text-blue-800',
     completed: 'bg-gray-100 text-gray-800',
     cancelled: 'bg-red-100 text-red-800'
@@ -33,6 +34,7 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 
   const statusLabels = {
     open: 'Ouvert',
+    collecting_applications: 'Candidatures en cours',
     in_progress: 'En cours',
     completed: 'Terminé',
     cancelled: 'Annulé'
@@ -125,7 +127,7 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
                   </div>
                   
                   <div className="flex gap-2">
-                    {(request.status === 'collecting_applications' || request.status === 'open') && request._count.applications && request._count.applications > 0 && (
+                    {request._count.applications && request._count.applications > 0 && (
                       <Button size="sm" asChild>
                         <Link href={`/dashboard/roast/${request.id}/applications`}>
                           <Users className="w-4 h-4 mr-1" />

@@ -26,6 +26,7 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
 
   const statusColors = {
     open: 'bg-green-100 text-green-800',
+    collecting_applications: 'bg-orange-100 text-orange-800',
     in_progress: 'bg-blue-100 text-blue-800',
     completed: 'bg-gray-100 text-gray-800',
     cancelled: 'bg-red-100 text-red-800'
@@ -33,6 +34,7 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
 
   const statusLabels = {
     open: 'Ouvert',
+    collecting_applications: 'Candidatures en cours',
     in_progress: 'En cours',
     completed: 'Terminé',
     cancelled: 'Annulé'
@@ -306,7 +308,7 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
             </Card>
 
             {/* Candidatures */}
-            {(roastRequest.status === 'collecting_applications' || roastRequest.status === 'open') && (
+            {(roastRequest.applications?.length || 0) > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -317,26 +319,17 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
                 <CardContent>
                   <div className="text-center space-y-3">
                     <div className="text-2xl font-bold text-blue-600">
-                      {/* This would need applications count from the data */}
                       {roastRequest.applications?.length || 0}
                     </div>
                     <p className="text-sm text-gray-600">
                       candidature{(roastRequest.applications?.length || 0) > 1 ? 's' : ''} reçue{(roastRequest.applications?.length || 0) > 1 ? 's' : ''}
                     </p>
                     
-                    {(roastRequest.applications?.length || 0) > 0 && (
-                      <Button asChild className="w-full">
-                        <Link href={`/dashboard/roast/${roastRequest.id}/applications`}>
-                          Gérer les candidatures
-                        </Link>
-                      </Button>
-                    )}
-                    
-                    {(roastRequest.applications?.length || 0) === 0 && (
-                      <p className="text-xs text-gray-500">
-                        Les candidatures apparaîtront ici
-                      </p>
-                    )}
+                    <Button asChild className="w-full">
+                      <Link href={`/dashboard/roast/${roastRequest.id}/applications`}>
+                        {roastRequest.status === 'in_progress' ? 'Voir les candidatures' : 'Gérer les candidatures'}
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
