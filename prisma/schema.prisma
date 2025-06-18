@@ -10,28 +10,24 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  name          String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  image         String?
-
-  // RoastMyApp specific fields
-  primaryRole       String?           @default("creator") // "creator" | "roaster" | "both"
-  hasTriedBothRoles Boolean          @default(false)
-  onboardingStep    Int              @default(0) // 0: not started, 4: completed
-  daysSinceSignup   Int              @default(0)
-
-  sessions      Session[]
-  accounts      Account[]
-  
-  // RoastMyApp relations
+  id                String             @id
+  email             String             @unique
+  emailVerified     Boolean            @default(false)
+  name              String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  image             String?
+  primaryRole       String?            @default("creator")
+  hasTriedBothRoles Boolean            @default(false)
+  onboardingStep    Int                @default(0)
+  daysSinceSignup   Int                @default(0)
+  accounts          Account[]
+  sessions          Session[]
   creatorProfile    CreatorProfile?
-  roasterProfile    RoasterProfile?
-  roastRequests     RoastRequest[]
   feedbacksGiven    Feedback[]
+  applications      RoastApplication[]
+  roastRequests     RoastRequest[]
+  roasterProfile    RoasterProfile?
 }
 
 model Session {
@@ -75,115 +71,113 @@ model Verification {
 model CreatorProfile {
   id             String   @id @default(cuid())
   userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
   company        String?
   projectsPosted Int      @default(0)
   totalSpent     Float    @default(0)
   avgRating      Float    @default(0)
-  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("creator_profiles")
 }
 
 model RoasterProfile {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  specialties      String[] // ["UX", "Dev", "Business", "Marketing"]
-  languages        String[] @default(["Français"])
-  experience       String   @default("Débutant") // "Débutant", "Intermédiaire", "Expert"
-  portfolio        String?
-  bio              String?
-  
-  // Métriques
-  rating           Float    @default(0)
-  completedRoasts  Int      @default(0)
-  totalEarned      Float    @default(0)
-  completionRate   Float    @default(100)
-  avgResponseTime  Int      @default(24) // heures
-  
-  // Disponibilité
-  maxActiveRoasts  Int      @default(3)
-  currentActive    Int      @default(0)
-  
-  // Status
-  level            String   @default("rookie") // "rookie", "verified", "expert", "master"
-  verified         Boolean  @default(false)
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  specialties     String[]
+  languages       String[] @default(["Français"])
+  experience      String   @default("Débutant")
+  portfolio       String?
+  bio             String?
+  rating          Float    @default(0)
+  completedRoasts Int      @default(0)
+  totalEarned     Float    @default(0)
+  completionRate  Float    @default(100)
+  avgResponseTime Int      @default(24)
+  maxActiveRoasts Int      @default(3)
+  currentActive   Int      @default(0)
+  level           String   @default("rookie")
+  verified        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("roaster_profiles")
 }
 
 model RoastRequest {
-  id              String   @id @default(cuid())
-  creatorId       String
-  creator         User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  
-  title           String
-  appUrl          String
-  description     String
-  targetAudience  String?
-  focusAreas      String[] // ["UX", "Onboarding", "Pricing"]
-  maxPrice        Float    // Prix maximum fixé par le créateur
-  deadline        DateTime?
-  status          String   @default("open") // "open", "in_progress", "completed"
-  coverImage      String?  // URL de l'image de couverture
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  feedbacks       Feedback[]
-  questions       RoastQuestion[]
-  
+  id                 String             @id @default(cuid())
+  creatorId          String
+  title              String
+  appUrl             String
+  description        String
+  targetAudience     String?
+  focusAreas         String[]
+  maxPrice           Float
+  deadline           DateTime?
+  status             String             @default("open")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  coverImage         String?
+  feedbacksRequested Int                @default(1)
+  feedbacks          Feedback[]
+  applications       RoastApplication[]
+  questions          RoastQuestion[]
+  creator            User               @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
   @@map("roast_requests")
 }
 
 model RoastQuestion {
-  id              String   @id @default(cuid())
-  roastRequestId  String
-  roastRequest    RoastRequest @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
-  
-  domain          String   // Le domaine associé (UX, Onboarding, etc.)
-  text            String   // Le texte de la question
-  order           Int      // L'ordre de la question
-  isDefault       Boolean  @default(false) // Si c'est une question par défaut
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  id             String       @id @default(cuid())
+  roastRequestId String
+  domain         String
+  text           String
+  order          Int
+  isDefault      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  roastRequest   RoastRequest @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+
   @@map("roast_questions")
 }
 
+model RoastApplication {
+  id             String       @id @default(cuid())
+  roastRequestId String
+  roasterId      String
+  motivation     String?
+  status         String       @default("pending")
+  score          Float        @default(0)
+  selectedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  roastRequest   RoastRequest @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+  roaster        User         @relation(fields: [roasterId], references: [id], onDelete: Cascade)
+
+  @@unique([roastRequestId, roasterId])
+  @@map("roast_applications")
+}
+
 model Feedback {
-  id                String      @id @default(cuid())
-  roastRequestId    String
-  roastRequest      RoastRequest @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
-  roasterId         String
-  roaster           User        @relation(fields: [roasterId], references: [id], onDelete: Cascade)
-  
-  // Contenu structuré
-  firstImpression   String
-  strengthsFound    String[]
-  weaknessesFound   String[]
-  actionableSteps   String[]
+  id                   String       @id @default(cuid())
+  roastRequestId       String
+  roasterId            String
+  firstImpression      String
+  strengthsFound       String[]
+  weaknessesFound      String[]
+  actionableSteps      String[]
   competitorComparison String?
-  screenshots       String[]
-  
-  // Évaluation
-  aiQualityScore    Float?      // 0-100
-  creatorRating     Int?        // 1-5
-  finalPrice        Float?
-  
-  status            String      @default("pending") // "pending", "completed", "disputed"
-  
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  
+  screenshots          String[]
+  aiQualityScore       Float?
+  creatorRating        Int?
+  finalPrice           Float?
+  status               String       @default("pending")
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  roastRequest         RoastRequest @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+  roaster              User         @relation(fields: [roasterId], references: [id], onDelete: Cascade)
+
   @@map("feedbacks")
 }

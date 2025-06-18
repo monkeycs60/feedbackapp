@@ -14,6 +14,7 @@ type AvailableRoast = {
   targetAudience: string | null;
   focusAreas: string[];
   maxPrice: number;
+  feedbacksRequested: number;
   deadline?: Date | null;
   createdAt: Date;
   creator: {
@@ -24,8 +25,10 @@ type AvailableRoast = {
     } | null;
   };
   feedbacks: { id: string; status: string }[];
+  applications: { id: string; status: string }[];
   _count: {
     feedbacks: number;
+    applications: number;
   };
 };
 
@@ -51,13 +54,14 @@ function formatTimeAgo(date: Date) {
 
 function getRoastPriority(roast: AvailableRoast): 'high' | 'medium' | 'low' {
   const hoursOld = (new Date().getTime() - roast.createdAt.getTime()) / (1000 * 60 * 60);
-  const feedbackCount = roast._count.feedbacks;
+  const applicationCount = roast._count.applications;
+  const spotsRemaining = roast.feedbacksRequested - applicationCount;
   
-  // Récent ET sans feedback = priorité haute
-  if (hoursOld < 24 && feedbackCount === 0) return 'high';
+  // Récent ET places disponibles = priorité haute
+  if (hoursOld < 24 && spotsRemaining > 0) return 'high';
   
-  // Plus d'une semaine OU beaucoup de feedbacks = priorité basse
-  if (hoursOld > 168 || feedbackCount > 2) return 'low';
+  // Plus d'une semaine OU toutes les places prises = priorité basse
+  if (hoursOld > 168 || spotsRemaining <= 0) return 'low';
   
   return 'medium';
 }
@@ -186,7 +190,7 @@ export function AvailableRoastsList({ availableRoasts }: AvailableRoastsListProp
 
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>{roast._count.feedbacks} roast(s) en cours</span>
+                    <span>{roast._count.applications} candidature{roast._count.applications > 1 ? 's' : ''} • {roast.feedbacksRequested} place{roast.feedbacksRequested > 1 ? 's' : ''}</span>
                     <Link 
                       href={roast.appUrl} 
                       target="_blank" 

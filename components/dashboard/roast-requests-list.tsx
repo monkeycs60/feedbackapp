@@ -11,6 +11,7 @@ interface RoastRequestsListProps {
     description: string;
     status: string;
     maxPrice: number;
+    feedbacksRequested: number;
     createdAt: Date;
     focusAreas: string[];
     feedbacks: Array<{ id: string; status: string }>;
@@ -111,7 +112,7 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
-                    <span>{request._count.feedbacks} feedback{request._count.feedbacks > 1 ? 's' : ''}</span>
+                    <span>{request._count.feedbacks}/{request.feedbacksRequested} feedback{request.feedbacksRequested > 1 ? 's' : ''} demandé{request.feedbacksRequested > 1 ? 's' : ''}</span>
                   </div>
                 </div>
 

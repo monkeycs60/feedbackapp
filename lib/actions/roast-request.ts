@@ -30,6 +30,7 @@ const roastRequestSchema = z.object({
   category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
   focusAreas: z.array(z.string()).min(1, "Sélectionne au moins un domaine"),
   maxPrice: z.number().min(2, "Le prix minimum est de 2€"),
+  feedbacksRequested: z.number().min(1, "Au moins 1 feedback").max(20, "Maximum 20 feedbacks"),
   deadline: z.date().optional(),
   isUrgent: z.boolean().default(false),
   additionalContext: z.string().max(500).optional(),
@@ -82,6 +83,7 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
         targetAudience: validData.targetAudience,
         focusAreas: validData.focusAreas,
         maxPrice: validData.maxPrice,
+        feedbacksRequested: validData.feedbacksRequested,
         deadline: validData.deadline,
         status: 'open',
         coverImage: validData.coverImage
@@ -184,7 +186,10 @@ export async function getAvailableRoastRequests() {
   try {
     return await prisma.roastRequest.findMany({
       where: { 
-        status: 'open' 
+        OR: [
+          { status: 'open' },
+          { status: 'collecting_applications' }
+        ]
       },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -202,8 +207,14 @@ export async function getAvailableRoastRequests() {
         feedbacks: {
           select: { id: true, status: true }
         },
+        applications: {
+          select: { id: true, status: true }
+        },
         _count: {
-          select: { feedbacks: true }
+          select: { 
+            feedbacks: true,
+            applications: true 
+          }
         },
         questions: {
           orderBy: [

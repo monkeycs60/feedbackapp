@@ -63,7 +63,7 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
             </div>
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              <span>{roastRequest.feedbacks.length} feedback{roastRequest.feedbacks.length > 1 ? 's' : ''}</span>
+              <span>{roastRequest.feedbacks.length}/{roastRequest.feedbacksRequested} feedback{roastRequest.feedbacksRequested > 1 ? 's' : ''} demandé{roastRequest.feedbacksRequested > 1 ? 's' : ''}</span>
             </div>
           </div>
         </div>

@@ -1,7 +1,8 @@
 import { requireOnboardingComplete } from '@/lib/auth-guards';
 import { getRoastRequestById } from '@/lib/actions/roast-request';
+import { hasAppliedForRoast } from '@/lib/actions/roast-application';
 import { notFound } from 'next/navigation';
-import { RoastFeedbackForm } from '@/components/feedback/roast-feedback-form';
+import { RoastApplicationForm } from '@/components/feedback/roast-application-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,12 +21,13 @@ export default async function RoastPage({ params }: RoastPageProps) {
   
   const { id } = await params;
   const roastRequest = await getRoastRequestById(id);
+  const hasApplied = await hasAppliedForRoast(id);
   
   if (!roastRequest) {
     notFound();
   }
 
-  if (roastRequest.status !== 'open') {
+  if (roastRequest.status !== 'open' && roastRequest.status !== 'collecting_applications') {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -61,8 +63,14 @@ export default async function RoastPage({ params }: RoastPageProps) {
                 Retour au marketplace
               </Link>
             </Button>
-            <Badge className="bg-green-100 text-green-800">
-              Ouvert aux feedbacks
+            <Badge className={
+              roastRequest.status === 'open' ? "bg-green-100 text-green-800" :
+              roastRequest.status === 'collecting_applications' ? "bg-blue-100 text-blue-800" :
+              "bg-gray-100 text-gray-800"
+            }>
+              {roastRequest.status === 'open' ? 'Ouvert aux candidatures' :
+               roastRequest.status === 'collecting_applications' ? 'Collecte de candidatures' :
+               'Fermé'}
             </Badge>
           </div>
           
@@ -80,7 +88,7 @@ export default async function RoastPage({ params }: RoastPageProps) {
               <span>Par {roastRequest.creator.name || 'Créateur anonyme'}</span>
             </div>
             <div className="text-lg font-semibold text-green-600">
-              Budget: {roastRequest.maxPrice}€
+              Budget: {roastRequest.maxPrice}€ • {roastRequest.feedbacksRequested} feedback{roastRequest.feedbacksRequested > 1 ? 's' : ''} demandé{roastRequest.feedbacksRequested > 1 ? 's' : ''}
             </div>
           </div>
         </div>
@@ -231,9 +239,9 @@ export default async function RoastPage({ params }: RoastPageProps) {
             )}
           </div>
 
-          {/* Formulaire de feedback */}
+          {/* Formulaire de candidature */}
           <div className="lg:sticky lg:top-8">
-            <RoastFeedbackForm roastRequest={roastRequest} />
+            <RoastApplicationForm roastRequest={roastRequest} hasApplied={hasApplied} />
           </div>
         </div>
       </div>

@@ -25,6 +25,7 @@ const formSchema = z.object({
   targetAudience: z.string().min(10, "Décris ton audience cible").max(200),
   category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
   coverImage: z.string().optional(),
+  feedbacksRequested: z.number().min(1, "Au moins 1 feedback").max(20, "Maximum 20 feedbacks"),
   selectedDomains: z.array(z.object({
     id: z.string(),
     questions: z.array(z.object({
@@ -51,12 +52,14 @@ export function NewRoastForm() {
     defaultValues: {
       selectedDomains: [],
       totalPrice: 0,
-      category: undefined
+      category: undefined,
+      feedbacksRequested: 1
     }
   });
 
   const selectedDomains = form.watch('selectedDomains') || [];
   const description = form.watch('description') || '';
+  const feedbacksRequested = form.watch('feedbacksRequested') || 1;
 
   // Calculer le prix total
   const calculatePrice = () => {
@@ -65,9 +68,9 @@ export function NewRoastForm() {
       const additionalQuestions = domain.questions.filter(q => !q.isDefault).length;
       return total + additionalQuestions;
     }, 0) * PRICING.ADDITIONAL_QUESTION;
-    const newTotal = domainsPrice + additionalQuestionsPrice;
-    form.setValue('totalPrice', newTotal);
-    return newTotal;
+    const feedbacksPrice = (domainsPrice + additionalQuestionsPrice) * feedbacksRequested;
+    form.setValue('totalPrice', feedbacksPrice);
+    return feedbacksPrice;
   };
 
   const toggleDomain = (domainId: FocusArea) => {
@@ -198,7 +201,8 @@ export function NewRoastForm() {
         maxPrice: data.totalPrice,
         isUrgent: false, // Plus d'urgence
         selectedDomains: data.selectedDomains, // Envoyer aussi les domaines avec questions
-        coverImage: data.coverImage
+        coverImage: data.coverImage,
+        feedbacksRequested: data.feedbacksRequested
       };
       await createRoastRequest(transformedData);
       // La redirection est gérée dans l'action
@@ -479,6 +483,75 @@ export function NewRoastForm() {
             </Card>
           )}
 
+          {/* Étape 5: Nombre de feedbacks */}
+          {selectedDomains.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Badge variant="outline">5</Badge>
+                  Nombre de feedbacks souhaités
+                </CardTitle>
+                <p className="text-sm text-gray-600">Plus de feedbacks = plus d&apos;opinions diverses et complètes</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <Label htmlFor="feedbacksRequested">
+                    {feedbacksRequested} feedback{feedbacksRequested > 1 ? 's' : ''} demandé{feedbacksRequested > 1 ? 's' : ''}
+                  </Label>
+                  <input
+                    id="feedbacksRequested"
+                    type="range"
+                    min="1"
+                    max="20"
+                    step="1"
+                    value={feedbacksRequested}
+                    onChange={(e) => form.setValue('feedbacksRequested', parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>1</span>
+                    <span>5</span>
+                    <span>10</span>
+                    <span>15</span>
+                    <span>20</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-xs text-gray-600 mt-2">
+                    <div className="text-center">
+                      <span className="font-medium">1-3</span>
+                      <p>Feedback ciblé</p>
+                    </div>
+                    <div className="text-center">
+                      <span className="font-medium">4-7</span>
+                      <p>Consensus solide</p>
+                    </div>
+                    <div className="text-center">
+                      <span className="font-medium">8-15</span>
+                      <p>Vision complète</p>
+                    </div>
+                    <div className="text-center">
+                      <span className="font-medium">16-20</span>
+                      <p>Étude approfondie</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <h4 className="font-medium text-blue-900 mb-2">Avantages des feedbacks multiples :</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• <strong>Diversité d&apos;expertise</strong> : UX, dev, business, marketing</li>
+                    <li>• <strong>Points de consensus</strong> : Identifier les vrais problèmes</li>
+                    <li>• <strong>Perspectives variées</strong> : Débutants vs experts</li>
+                    <li>• <strong>Couverture complète</strong> : Aucun aspect oublié</li>
+                  </ul>
+                </div>
+                
+                {form.formState.errors.feedbacksRequested && (
+                  <p className="text-red-500 text-sm">{form.formState.errors.feedbacksRequested.message}</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Submit */}
           <div className="flex gap-4">
             <Button 
@@ -519,6 +592,13 @@ export function NewRoastForm() {
                 <div className="flex justify-between">
                   <span>Questions supplémentaires ({selectedDomains.reduce((total, domain) => total + domain.questions.filter(q => !q.isDefault).length, 0)})</span>
                   <span>+{selectedDomains.reduce((total, domain) => total + domain.questions.filter(q => !q.isDefault).length, 0) * PRICING.ADDITIONAL_QUESTION}€</span>
+                </div>
+              )}
+
+              {selectedDomains.length > 0 && feedbacksRequested > 1 && (
+                <div className="flex justify-between">
+                  <span>× {feedbacksRequested} feedbacks</span>
+                  <span>×{feedbacksRequested}</span>
                 </div>
               )}
 
