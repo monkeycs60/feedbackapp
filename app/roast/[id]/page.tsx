@@ -1,8 +1,12 @@
 import { requireOnboardingComplete } from '@/lib/auth-guards';
 import { getRoastRequestById } from '@/lib/actions/roast-request';
 import { hasAppliedForRoast } from '@/lib/actions/roast-application';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { RoastApplicationForm } from '@/components/feedback/roast-application-form';
+import { RoastFeedbackForm } from '@/components/feedback/roast-feedback-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,7 +31,22 @@ export default async function RoastPage({ params }: RoastPageProps) {
     notFound();
   }
 
-  if (roastRequest.status !== 'open' && roastRequest.status !== 'collecting_applications') {
+  // Vérifier si l'utilisateur actuel a une candidature acceptée
+  const session = await auth.api.getSession({ headers: await headers() });
+  const userApplication = await prisma.roastApplication.findUnique({
+    where: {
+      roastRequestId_roasterId: {
+        roastRequestId: id,
+        roasterId: session?.user?.id || ''
+      }
+    }
+  });
+  
+  const isAcceptedRoaster = userApplication?.status === 'accepted' || userApplication?.status === 'auto_selected';
+
+  // Si le roast n'est pas ouvert ET que l'utilisateur n'est pas un roaster accepté
+  if (!['open', 'collecting_applications', 'in_progress'].includes(roastRequest.status) || 
+      (roastRequest.status === 'in_progress' && !isAcceptedRoaster)) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -65,11 +84,13 @@ export default async function RoastPage({ params }: RoastPageProps) {
             </Button>
             <Badge className={
               roastRequest.status === 'open' ? "bg-green-100 text-green-800" :
-              roastRequest.status === 'collecting_applications' ? "bg-blue-100 text-blue-800" :
+              roastRequest.status === 'collecting_applications' ? "bg-orange-100 text-orange-800" :
+              roastRequest.status === 'in_progress' && isAcceptedRoaster ? "bg-blue-100 text-blue-800" :
               "bg-gray-100 text-gray-800"
             }>
               {roastRequest.status === 'open' ? 'Ouvert aux candidatures' :
-               roastRequest.status === 'collecting_applications' ? 'Collecte de candidatures' :
+               roastRequest.status === 'collecting_applications' ? 'Candidatures en cours' :
+               roastRequest.status === 'in_progress' && isAcceptedRoaster ? 'Mission acceptée' :
                'Fermé'}
             </Badge>
           </div>
@@ -239,9 +260,13 @@ export default async function RoastPage({ params }: RoastPageProps) {
             )}
           </div>
 
-          {/* Formulaire de candidature */}
+          {/* Formulaire de candidature ou de feedback */}
           <div className="lg:sticky lg:top-8">
-            <RoastApplicationForm roastRequest={roastRequest} hasApplied={hasApplied} />
+            {isAcceptedRoaster && roastRequest.status === 'in_progress' ? (
+              <RoastFeedbackForm roastRequest={roastRequest} />
+            ) : (
+              <RoastApplicationForm roastRequest={roastRequest} hasApplied={hasApplied} />
+            )}
           </div>
         </div>
       </div>
