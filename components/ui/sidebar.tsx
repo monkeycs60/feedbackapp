@@ -1,27 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { 
   Home, 
   Plus, 
-  MessageSquareText, 
   Users, 
-  Settings,
-  BarChart3,
-  FileText,
-  Star,
   Search,
-  Activity
+  ArrowRightLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRightLeft } from "lucide-react";
 import { switchUserRole } from "@/lib/actions/onboarding";
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition, useEffect, useCallback } from "react";
 
 interface SidebarProps {
   className?: string;
@@ -29,27 +21,71 @@ interface SidebarProps {
   hasRoasterProfile?: boolean;
 }
 
+interface UserData {
+  primaryRole: 'creator' | 'roaster';
+  hasCreatorProfile: boolean;
+  hasRoasterProfile: boolean;
+}
+
 export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfile = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = authClient.useSession();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   
+  // Helper function to fetch user data
+  const fetchUserData = useCallback(async () => {
+    if (!session?.user?.id) return;
+    
+    try {
+      const response = await fetch('/api/user/profiles');
+      if (response.ok) {
+        const data = await response.json();
+        setUserData({
+          primaryRole: data.user?.primaryRole || 'creator',
+          hasCreatorProfile: !!data.creatorProfile,
+          hasRoasterProfile: !!data.roasterProfile
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+      // Fallback to props if API fails
+      setUserData({
+        primaryRole: 'creator',
+        hasCreatorProfile,
+        hasRoasterProfile
+      });
+    }
+  }, [session?.user?.id, hasCreatorProfile, hasRoasterProfile]);
+  
+  // Fetch user data with profiles info
+  useEffect(() => {
+    fetchUserData();
+  }, [session?.user?.id, hasCreatorProfile, hasRoasterProfile, fetchUserData]);
+
   if (!session?.user) return null;
 
-  const currentRole = session.user.primaryRole;
-  const canSwitchRoles = hasCreatorProfile && hasRoasterProfile;
-
+  // Use userData if available, fallback to props
+  const currentRole = userData?.primaryRole || 'creator';
+  const finalHasCreatorProfile = userData?.hasCreatorProfile ?? hasCreatorProfile;
+  const finalHasRoasterProfile = userData?.hasRoasterProfile ?? hasRoasterProfile;
+  const canSwitchRoles = finalHasCreatorProfile && finalHasRoasterProfile;
+  
   const handleRoleSwitch = () => {
     const newRole = currentRole === 'creator' ? 'roaster' : 'creator';
     
     startTransition(async () => {
       try {
         await switchUserRole(newRole);
+        
+        // Refetch user data to update sidebar UI
+        await fetchUserData();
+        
+        // Refresh the router to update the dashboard content
         router.refresh();
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Une erreur est survenue');
+        console.error('Erreur lors du changement de rôle:', error);
       }
     });
   };
@@ -146,14 +182,14 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
         <div className="space-y-1">
-          {navigationItems.map((item) => {
+          {navigationItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || 
               (item.href !== '/dashboard' && pathname.startsWith(item.href));
             
             return (
               <Link
-                key={item.href}
+                key={`nav-${currentRole}-${item.href}-${index}`}
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors group",
@@ -185,13 +221,13 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
 
         {/* Common items */}
         <div className="space-y-1">
-          {commonItems.map((item) => {
+          {commonItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             
             return (
               <Link
-                key={item.href}
+                key={`common-${item.href}-${index}`}
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors group",

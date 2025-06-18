@@ -53,7 +53,7 @@ export function LoginForm() {
           return;
         }
         
-        router.push("/");
+        router.push("/dashboard");
       } else {
         if (!data.name) {
           setError("name", { message: "Name is required for signup" });

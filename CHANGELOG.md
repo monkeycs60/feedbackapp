@@ -1,5 +1,85 @@
 # Changelog
 
+## 2025-06-19-00:25
+### UX Enhancement - Smooth Role Switching Without Hard Reload
+- **Implemented Smooth Role Switching**: Replaced hard page reload with clean router refresh
+  - Removed `window.location.replace('/dashboard')` in favor of `router.refresh()`
+  - Leveraged existing `revalidatePath('/dashboard')` in `switchUserRole` action for server-side cache invalidation
+  - Role switching now provides seamless user experience without browser history disruption
+- **Fixed Sidebar State Management**: Resolved issue where role indicator didn't update after switching
+  - Added `fetchUserData()` helper with `useCallback` for proper memoization
+  - Role switch now refetches user data to update sidebar UI immediately
+  - Sidebar now correctly shows "Mode Créateur" vs "Mode Roaster" after each switch
+  - Fixed subsequent role switches not working by ensuring proper state updates
+- **Enhanced React Performance**: Added proper React keys to navigation items
+  - Navigation items now use `key={nav-${currentRole}-${item.href}-${index}}` to prevent unnecessary re-renders
+  - Common items use `key={common-${item.href}-${index}}` for optimal performance
+  - Role-based keys ensure proper component updates when switching between creator/roaster modes
+- **Improved Architecture**: Clean separation between server-side revalidation and client-side UI updates
+  - Server action handles database update and path revalidation
+  - Client-side router refresh ensures UI consistency without full page reload
+  - Professional user experience maintained throughout role transitions
+
+## 2025-06-19-00:20
+### TypeScript & Session Management Fixes - Role Switching Finally Working
+- **Fixed TypeScript Errors in Sidebar**: Resolved `primaryRole` property access issues
+  - Better Auth session doesn't include custom user fields by default
+  - Implemented custom `useEffect` hook to fetch complete user data via `/api/user/profiles`
+  - Enhanced API endpoint to return user info including `primaryRole` and profile flags
+  - Sidebar now correctly accesses `userData.primaryRole` instead of `session.user.primaryRole`
+- **Robust User Data Fetching**: Intelligent fallback system for user information
+  - Primary: Fetch from API for complete user data including role and profiles
+  - Fallback: Use component props if API fails
+  - Ensures role switching button appears when user has both profiles
+- **Session Management Completely Fixed**: Role switching now works reliably
+  - Database updates verified (user Michel has both creator and roaster profiles)
+  - API returns correct user data with current role
+  - `window.location.replace('/dashboard')` forces complete reload with fresh session
+  - UI updates immediately and consistently after role switch
+
+## 2025-06-19-00:10
+### Critical Fixes - Contrast & Navigation Issues Resolved
+- **Major Contrast Improvements**: Completely resolved readability issues reported by user
+  - Updated main content background to `oklch(0.85 0 0)` - very light gray for excellent readability
+  - Cards now use `oklch(0.92 0 0)` - near-white background with subtle gray tint
+  - Text colors inverted to very dark (`oklch(0.15 0 0)`) for maximum contrast
+  - Maintained dark sidebar (`oklch(0.08 0 0)`) for professional visual separation
+  - Interface now provides comfortable reading without eye strain
+- **Fixed Role Switching Completely**: Resolved persistent role switching bugs
+  - Verified user Michel has both creator and roaster profiles in database
+  - Replaced `window.location.href` with `window.location.replace('/dashboard')` to force complete page reload
+  - This approach clears browser cache and ensures fresh session data is loaded
+  - Role indicator and navigation now update correctly and immediately after switching
+- **Enhanced Post-Login Experience**: Improved user flow after authentication
+  - Modified home page (`/`) to automatically redirect authenticated users to `/dashboard`
+  - Eliminated "Hello World" placeholder that was confusing users post-login
+  - Seamless navigation flow from login → dashboard
+- **Robust Session Management**: Ensured consistent user state across application
+  - Better handling of server-side session updates with client-side cache invalidation
+  - Removed debug logs for cleaner production code
+  - Professional user experience with reliable role switching
+
+## 2025-06-18-23:55
+### Final UX Polish - Contrast & Role Switching Fixes
+- **Significant Contrast Improvements**: Enhanced readability across all dashboard pages
+  - Lightened main content background from `oklch(0.15 0 0)` to `oklch(0.25 0 0)` for much better readability
+  - Cards and components now use `oklch(0.30 0 0)` for optimal contrast without eye strain
+  - Maintained dark sidebar (`oklch(0.08 0 0)`) for professional contrast separation
+  - Text and UI elements now have proper contrast ratios for comfortable viewing
+- **Fixed Role Switching Functionality**: Resolved session update issues after role changes
+  - Replaced `router.refresh()` with `window.location.reload()` for immediate UI updates
+  - Role indicator and navigation now update correctly after switching between creator/roaster modes
+  - Eliminated confusion where old role was displayed after switching
+- **Universal Role Switch Access**: Made role switching available on all authenticated pages
+  - Created `/api/user/profiles` endpoint to fetch user profile information
+  - Enhanced `DashboardLayout` to automatically retrieve user profiles when not provided as props
+  - Role switch button now appears consistently in sidebar across all pages (`/marketplace`, `/profile`, etc.)
+  - Intelligent prop handling: uses server-side props when available, falls back to API fetch when needed
+- **Improved User Experience Flow**: Streamlined navigation and role management
+  - Consistent role switching experience regardless of current page
+  - Better feedback during role transition with loading states
+  - Professional appearance maintained across all authenticated routes
+
 ## 2025-06-18-23:45
 ### Navigation & UX Refinements - Post-Launch Fixes
 - **Fixed Color Contrast Issues**: Improved readability and visual comfort on dashboard pages
