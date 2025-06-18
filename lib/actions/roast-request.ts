@@ -134,7 +134,13 @@ export async function getUserRoastRequests() {
       orderBy: { createdAt: 'desc' },
       include: {
         feedbacks: {
-          select: { id: true, status: true }
+          include: {
+            roaster: {
+              include: {
+                roasterProfile: true
+              }
+            }
+          }
         },
         applications: {
           select: { id: true, status: true }
@@ -257,16 +263,8 @@ export async function getRoastRequestById(id: string) {
         feedbacks: {
           include: {
             roaster: {
-              select: {
-                id: true,
-                name: true,
-                roasterProfile: {
-                  select: {
-                    rating: true,
-                    completedRoasts: true,
-                    level: true
-                  }
-                }
+              include: {
+                roasterProfile: true
               }
             }
           }

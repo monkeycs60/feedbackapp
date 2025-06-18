@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface DashboardStatsProps {
   roastRequests: Array<{
@@ -7,9 +8,11 @@ interface DashboardStatsProps {
     maxPrice: number;
     feedbacks: Array<{ id: string; status: string }>;
   }>;
+  activeFilter: 'all' | 'active' | 'completed' | 'feedbacks';
+  onFilterChange: (filter: 'all' | 'active' | 'completed' | 'feedbacks') => void;
 }
 
-export function DashboardStats({ roastRequests }: DashboardStatsProps) {
+export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: DashboardStatsProps) {
   const stats = {
     totalRequests: roastRequests.length,
     activeRequests: roastRequests.filter(r => r.status === 'open' || r.status === 'in_progress').length,
@@ -20,7 +23,13 @@ export function DashboardStats({ roastRequests }: DashboardStatsProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card>
+      <Card 
+        className={cn(
+          "cursor-pointer transition-all hover:shadow-lg",
+          activeFilter === 'all' && "ring-2 ring-blue-500 shadow-lg"
+        )}
+        onClick={() => onFilterChange('all')}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-gray-600">Demandes total</CardTitle>
         </CardHeader>
@@ -29,7 +38,13 @@ export function DashboardStats({ roastRequests }: DashboardStatsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className={cn(
+          "cursor-pointer transition-all hover:shadow-lg",
+          activeFilter === 'active' && "ring-2 ring-blue-500 shadow-lg"
+        )}
+        onClick={() => onFilterChange('active')}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-gray-600">En cours</CardTitle>
         </CardHeader>
@@ -38,7 +53,13 @@ export function DashboardStats({ roastRequests }: DashboardStatsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className={cn(
+          "cursor-pointer transition-all hover:shadow-lg",
+          activeFilter === 'completed' && "ring-2 ring-green-500 shadow-lg"
+        )}
+        onClick={() => onFilterChange('completed')}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-gray-600">Terminées</CardTitle>
         </CardHeader>
@@ -47,7 +68,13 @@ export function DashboardStats({ roastRequests }: DashboardStatsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className={cn(
+          "cursor-pointer transition-all hover:shadow-lg",
+          activeFilter === 'feedbacks' && "ring-2 ring-purple-500 shadow-lg"
+        )}
+        onClick={() => onFilterChange('feedbacks')}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-gray-600">Feedbacks reçus</CardTitle>
         </CardHeader>

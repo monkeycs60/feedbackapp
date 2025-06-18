@@ -2,13 +2,12 @@ import { requireOnboardingComplete } from '@/lib/auth-guards';
 import { getUserRoastRequests, getAvailableRoastRequests } from '@/lib/actions/roast-request';
 import { getRoasterAcceptedApplications } from '@/lib/actions/roast-application';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
-import { RoastRequestsList } from '@/components/dashboard/roast-requests-list';
-import { DashboardStats } from '@/components/dashboard/dashboard-stats';
 import { AvailableRoastsList } from '@/components/dashboard/available-roasts-list';
 import { AcceptedApplicationsList } from '@/components/dashboard/accepted-applications-list';
 import { RoasterStats } from '@/components/dashboard/roaster-stats';
 import { RoleSwitch } from '@/components/dashboard/role-switch';
 import { AddSecondRolePrompt } from '@/components/dashboard/add-second-role-prompt';
+import { CreatorDashboardContent } from '@/components/dashboard/creator-dashboard-content';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
@@ -82,12 +81,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             {currentRole === 'creator' ? (
-              <>
-                <DashboardStats roastRequests={roastRequests} />
-                <div className="mt-8">
-                  <RoastRequestsList roastRequests={roastRequests} />
-                </div>
-              </>
+              <CreatorDashboardContent roastRequests={roastRequests} />
             ) : (
               <div className="space-y-8 mt-8">
                 {/* Missions acceptées */}

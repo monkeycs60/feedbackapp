@@ -1,5 +1,26 @@
 # Changelog
 
+## 2025-01-18-16:00
+### New Feature
+- **Enhanced Feedback Display for Creators**: Comprehensive feedback viewing system for creators
+  - **Dashboard Feedback Filtering**: Added clickable stat cards that act as filter buttons (All, Active, Completed, Feedbacks)
+  - **Feedback List View**: New component showing feedback summaries across all roasts
+  - **Detailed Feedback Display**: Rich feedback presentation with expandable cards, tabbed content, and statistics
+  - **Backend Support**: New server actions for retrieving and filtering creator feedbacks
+
+### Enhancement
+- **UI/UX Improvements**: 
+  - Feedback cards with roaster info (avatar, rating, level, completed roasts)
+  - Tabbed interface for organized content (Overview, Strengths, Weaknesses, Actions)
+  - Visual indicators with icons and colors for better readability
+  - Statistics summary showing total feedbacks, completion rate, average rating, and investment
+  - Responsive screenshot grid display
+
+### Technical
+- Added `getCreatorFeedbacks()`, `getCreatorFeedbackStats()`, and `getFullFeedbackDetails()` functions
+- Created `CreatorDashboardContent`, `FeedbacksList`, and `FeedbackDisplay` components
+- Updated data queries to include full feedback and roaster profile information
+
 ## 2025-01-17-23:55
 ### New Feature
 - **Upload d'image de couverture pour les roasts** : Intégration d'uploadthing pour permettre aux créateurs d'ajouter une image de couverture lors de la création d'une demande de roast

@@ -108,7 +108,7 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
     }
 
     // Créer le feedback
-    const feedback = await prisma.feedback.create({
+    await prisma.feedback.create({
       data: {
         roastRequestId: validData.roastRequestId,
         roasterId: user.id,
@@ -273,5 +273,155 @@ export async function deleteFeedback(id: string) {
   } catch (error) {
     console.error('Erreur suppression feedback:', error);
     throw new Error('Erreur lors de la suppression');
+  }
+}
+
+export async function getCreatorFeedbacks(status: 'all' | 'pending' | 'completed' | 'disputed' = 'all') {
+  try {
+    const user = await getCurrentUser();
+
+    // Vérifier que l'utilisateur a un profil créateur
+    const creator = await prisma.creatorProfile.findUnique({
+      where: { userId: user.id }
+    });
+
+    if (!creator) {
+      throw new Error("Profil créateur introuvable");
+    }
+
+    const where = {
+      roastRequest: {
+        creatorId: creator.id
+      },
+      ...(status !== 'all' && { status })
+    };
+
+    const feedbacks = await prisma.feedback.findMany({
+      where,
+      include: {
+        roastRequest: {
+          select: {
+            id: true,
+            title: true
+          }
+        },
+        roaster: {
+          include: {
+            roasterProfile: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return feedbacks;
+  } catch (error) {
+    console.error('Erreur récupération feedbacks créateur:', error);
+    return [];
+  }
+}
+
+export async function getCreatorFeedbackStats() {
+  try {
+    const user = await getCurrentUser();
+
+    const creator = await prisma.creatorProfile.findUnique({
+      where: { userId: user.id }
+    });
+
+    if (!creator) {
+      throw new Error("Profil créateur introuvable");
+    }
+
+    const stats = await prisma.feedback.groupBy({
+      by: ['status'],
+      where: {
+        roastRequest: {
+          creatorId: creator.id
+        }
+      },
+      _count: true
+    });
+
+    const totalFeedbacks = await prisma.feedback.count({
+      where: {
+        roastRequest: {
+          creatorId: creator.id
+        }
+      }
+    });
+
+    const avgRating = await prisma.feedback.aggregate({
+      where: {
+        roastRequest: {
+          creatorId: creator.id
+        },
+        creatorRating: { not: null }
+      },
+      _avg: {
+        creatorRating: true
+      }
+    });
+
+    const statsMap = stats.reduce((acc, stat) => {
+      acc[stat.status] = stat._count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      total: totalFeedbacks,
+      pending: statsMap.pending || 0,
+      completed: statsMap.completed || 0,
+      disputed: statsMap.disputed || 0,
+      averageRating: avgRating._avg.creatorRating || 0
+    };
+  } catch (error) {
+    console.error('Erreur récupération stats feedbacks:', error);
+    return {
+      total: 0,
+      pending: 0,
+      completed: 0,
+      disputed: 0,
+      averageRating: 0
+    };
+  }
+}
+
+export async function getFullFeedbackDetails(feedbackId: string) {
+  try {
+    const user = await getCurrentUser();
+
+    const feedback = await prisma.feedback.findUnique({
+      where: { id: feedbackId },
+      include: {
+        roastRequest: {
+          include: {
+            creator: true
+          }
+        },
+        roaster: {
+          include: {
+            roasterProfile: true
+          }
+        }
+      }
+    });
+
+    if (!feedback) {
+      throw new Error("Feedback introuvable");
+    }
+
+    // Vérifier que l'utilisateur est le créateur ou le roaster
+    const isCreator = feedback.roastRequest.creator.id === user.id;
+    const isRoaster = feedback.roasterId === user.id;
+
+    if (!isCreator && !isRoaster) {
+      throw new Error("Accès non autorisé");
+    }
+
+    return feedback;
+  } catch (error) {
+    console.error('Erreur récupération détails feedback:', error);
+    return null;
   }
 }

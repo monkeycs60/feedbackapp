@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, Globe, Target, Users, MessageSquare, ImageIcon, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { FeedbackDisplay } from '@/components/dashboard/feedback-display';
 
 interface RoastDetailPageProps {
   params: Promise<{
@@ -243,30 +244,9 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
               </Card>
             )}
 
-            {/* Feedbacks reçus */}
+            {/* Feedbacks reçus - Affichage proéminent */}
             {roastRequest.feedbacks.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Feedbacks reçus</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {roastRequest.feedbacks.map((feedback) => (
-                      <div key={feedback.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium">
-                            {feedback.roaster.name || 'Roaster anonyme'}
-                          </span>
-                          <Badge variant="outline">{feedback.status}</Badge>
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          Feedback en cours de création...
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <FeedbackDisplay feedbacks={roastRequest.feedbacks} />
             )}
           </div>
 
