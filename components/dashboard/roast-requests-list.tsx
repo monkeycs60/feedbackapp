@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, MessageSquare, Euro, ExternalLink } from 'lucide-react';
+import { Calendar, MessageSquare, Euro, ExternalLink, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface RoastRequestsListProps {
@@ -15,8 +15,10 @@ interface RoastRequestsListProps {
     createdAt: Date;
     focusAreas: string[];
     feedbacks: Array<{ id: string; status: string }>;
+    applications?: Array<{ id: string; status: string }>;
     _count: {
       feedbacks: number;
+      applications?: number;
     };
   }>;
 }
@@ -123,6 +125,14 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
                   </div>
                   
                   <div className="flex gap-2">
+                    {(request.status === 'collecting_applications' || request.status === 'open') && request._count.applications && request._count.applications > 0 && (
+                      <Button size="sm" asChild>
+                        <Link href={`/dashboard/roast/${request.id}/applications`}>
+                          <Users className="w-4 h-4 mr-1" />
+                          Candidatures ({request._count.applications})
+                        </Link>
+                      </Button>
+                    )}
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/dashboard/roast/${request.id}`}>
                         <ExternalLink className="w-4 h-4 mr-1" />

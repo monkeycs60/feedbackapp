@@ -136,8 +136,14 @@ export async function getUserRoastRequests() {
         feedbacks: {
           select: { id: true, status: true }
         },
+        applications: {
+          select: { id: true, status: true }
+        },
         _count: {
-          select: { feedbacks: true }
+          select: { 
+            feedbacks: true,
+            applications: true 
+          }
         },
         questions: {
           orderBy: [
@@ -264,6 +270,9 @@ export async function getRoastRequestById(id: string) {
               }
             }
           }
+        },
+        applications: {
+          select: { id: true, status: true }
         },
         questions: {
           orderBy: [

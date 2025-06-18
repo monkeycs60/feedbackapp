@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Globe, Target, Users, MessageSquare, ImageIcon } from 'lucide-react';
+import { Calendar, Globe, Target, Users, MessageSquare, ImageIcon, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -304,6 +304,43 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
                 </a>
               </CardContent>
             </Card>
+
+            {/* Candidatures */}
+            {(roastRequest.status === 'collecting_applications' || roastRequest.status === 'open') && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <UserCheck className="w-5 h-5" />
+                    Candidatures
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center space-y-3">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {/* This would need applications count from the data */}
+                      {roastRequest.applications?.length || 0}
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      candidature{(roastRequest.applications?.length || 0) > 1 ? 's' : ''} reçue{(roastRequest.applications?.length || 0) > 1 ? 's' : ''}
+                    </p>
+                    
+                    {(roastRequest.applications?.length || 0) > 0 && (
+                      <Button asChild className="w-full">
+                        <Link href={`/dashboard/roast/${roastRequest.id}/applications`}>
+                          Gérer les candidatures
+                        </Link>
+                      </Button>
+                    )}
+                    
+                    {(roastRequest.applications?.length || 0) === 0 && (
+                      <p className="text-xs text-gray-500">
+                        Les candidatures apparaîtront ici
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Actions */}
             <Card>
