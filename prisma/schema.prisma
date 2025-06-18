@@ -161,23 +161,33 @@ model RoastApplication {
 }
 
 model Feedback {
-  id                   String       @id @default(cuid())
+  id                   String             @id @default(cuid())
   roastRequestId       String
   roasterId            String
-  firstImpression      String
-  strengthsFound       String[]
-  weaknessesFound      String[]
-  actionableSteps      String[]
-  competitorComparison String?
+  generalFeedback      String             // Feedback général et recommandations
   screenshots          String[]
   aiQualityScore       Float?
   creatorRating        Int?
   finalPrice           Float?
-  status               String       @default("pending")
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  roastRequest         RoastRequest @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
-  roaster              User         @relation(fields: [roasterId], references: [id], onDelete: Cascade)
+  status               String             @default("pending")
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  roastRequest         RoastRequest       @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+  roaster              User               @relation(fields: [roasterId], references: [id], onDelete: Cascade)
+  questionResponses    QuestionResponse[]
 
   @@map("feedbacks")
+}
+
+model QuestionResponse {
+  id         String   @id @default(cuid())
+  feedbackId String
+  questionId String
+  response   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, questionId])
+  @@map("question_responses")
 }

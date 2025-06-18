@@ -19,17 +19,26 @@ interface FeedbacksListProps {
         rating: number;
       } | null;
     };
-    firstImpression: string;
-    strengthsFound: string[];
-    weaknessesFound: string[];
-    actionableSteps: string[];
-    competitorComparison: string | null;
+    generalFeedback: string;
     finalPrice: number | null;
     createdAt: Date;
     roastRequest: {
       id: string;
       title: string;
+      questions?: Array<{
+        id: string;
+        domain: string;
+        text: string;
+        order: number;
+        isDefault: boolean;
+      }>;
     };
+    questionResponses?: Array<{
+      id: string;
+      questionId: string;
+      response: string;
+      createdAt: Date;
+    }>;
   }>;
 }
 
@@ -104,59 +113,31 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
           <CardContent>
             <div className="space-y-3">
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-1">Première impression</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-1">Feedback général</h4>
                 <p className="text-sm text-gray-600 line-clamp-2">
-                  {feedback.firstImpression}
+                  {feedback.generalFeedback}
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <h4 className="text-sm font-medium text-green-700 mb-1">
-                    Points forts ({feedback.strengthsFound.length})
-                  </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    {feedback.strengthsFound.slice(0, 2).map((strength, index) => (
-                      <li key={index} className="truncate">• {strength}</li>
-                    ))}
-                    {feedback.strengthsFound.length > 2 && (
-                      <li className="text-gray-400">
-                        +{feedback.strengthsFound.length - 2} autres...
-                      </li>
-                    )}
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium text-red-700 mb-1">
-                    Points faibles ({feedback.weaknessesFound.length})
-                  </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    {feedback.weaknessesFound.slice(0, 2).map((weakness, index) => (
-                      <li key={index} className="truncate">• {weakness}</li>
-                    ))}
-                    {feedback.weaknessesFound.length > 2 && (
-                      <li className="text-gray-400">
-                        +{feedback.weaknessesFound.length - 2} autres...
-                      </li>
-                    )}
-                  </ul>
-                </div>
-                
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <h4 className="text-sm font-medium text-blue-700 mb-1">
-                    Actions ({feedback.actionableSteps.length})
+                    Questions traitées
                   </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    {feedback.actionableSteps.slice(0, 2).map((step, index) => (
-                      <li key={index} className="truncate">• {step}</li>
-                    ))}
-                    {feedback.actionableSteps.length > 2 && (
-                      <li className="text-gray-400">
-                        +{feedback.actionableSteps.length - 2} autres...
-                      </li>
-                    )}
-                  </ul>
+                  <p className="text-lg font-semibold text-blue-600">
+                    {feedback.questionResponses?.length || 0}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-purple-700 mb-1">
+                    Domaines couverts
+                  </h4>
+                  <p className="text-lg font-semibold text-purple-600">
+                    {feedback.roastRequest.questions ? 
+                      [...new Set(feedback.roastRequest.questions.map(q => q.domain))].length :
+                      'N/A'
+                    }
+                  </p>
                 </div>
               </div>
             </div>

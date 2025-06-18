@@ -24,14 +24,12 @@ async function getCurrentUser() {
 
 const feedbackSchema = z.object({
   roastRequestId: z.string(),
-  firstImpression: z.string().min(10, "Première impression trop courte"),
-  strengthsFound: z.array(z.string()).min(1, "Au moins un point fort requis"),
-  weaknessesFound: z.array(z.string()).min(1, "Au moins un point faible requis"),
-  actionableSteps: z.array(z.string()).min(1, "Au moins une action recommandée"),
-  competitorComparison: z.string().optional(),
+  questionResponses: z.record(z.string(), z.string().min(10, "Réponse trop courte (min 10 caractères)")),
+  generalFeedback: z.string().min(50, "Feedback général trop court (min 50 caractères)"),
   screenshots: z.array(z.string()).optional(),
   finalPrice: z.number().min(1, "Prix minimum de 1€"),
 });
+
 
 export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
   try {
@@ -107,21 +105,30 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
       throw new Error(`Le prix ne peut pas dépasser le budget maximum de ${roastRequest.maxPrice}€`);
     }
 
-    // Créer le feedback
-    await prisma.feedback.create({
+    // Créer le feedback principal
+    const feedback = await prisma.feedback.create({
       data: {
         roastRequestId: validData.roastRequestId,
         roasterId: user.id,
-        firstImpression: validData.firstImpression,
-        strengthsFound: validData.strengthsFound,
-        weaknessesFound: validData.weaknessesFound,
-        actionableSteps: validData.actionableSteps,
-        competitorComparison: validData.competitorComparison || null,
+        generalFeedback: validData.generalFeedback,
         screenshots: validData.screenshots || [],
         finalPrice: validData.finalPrice,
         status: 'completed'
       }
     });
+
+    // Créer les réponses aux questions
+    if (validData.questionResponses && Object.keys(validData.questionResponses).length > 0) {
+      const questionResponsesData = Object.entries(validData.questionResponses).map(([questionId, response]) => ({
+        feedbackId: feedback.id,
+        questionId,
+        response
+      }));
+
+      await prisma.questionResponse.createMany({
+        data: questionResponsesData
+      });
+    }
 
     // Mettre à jour les statistiques du roaster
     await prisma.roasterProfile.update({
@@ -187,6 +194,7 @@ export async function getFeedbackByRoastRequest(roastRequestId: string) {
         roasterId: user.id
       },
       include: {
+        questionResponses: true,
         roastRequest: {
           include: {
             questions: {
@@ -302,14 +310,16 @@ export async function getCreatorFeedbacks(status: 'all' | 'pending' | 'completed
         roastRequest: {
           select: {
             id: true,
-            title: true
+            title: true,
+            questions: true
           }
         },
         roaster: {
           include: {
             roasterProfile: true
           }
-        }
+        },
+        questionResponses: true
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -396,14 +406,16 @@ export async function getFullFeedbackDetails(feedbackId: string) {
       include: {
         roastRequest: {
           include: {
-            creator: true
+            creator: true,
+            questions: true
           }
         },
         roaster: {
           include: {
             roasterProfile: true
           }
-        }
+        },
+        questionResponses: true
       }
     });
 

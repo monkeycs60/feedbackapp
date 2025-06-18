@@ -1,5 +1,55 @@
 # Changelog
 
+## 2025-01-18-21:30
+### Complete Feedback System Cleanup
+- **Legacy Field Removal**: Completely removed unused legacy feedback fields from database schema
+  - Removed `firstImpression`, `strengthsFound`, `weaknessesFound`, `actionableSteps`, `competitorComparison`
+  - Clean schema now only contains `generalFeedback` and `questionResponses` relation
+- **Simplified Codebase**: Removed all legacy compatibility code and simplified components
+- **Enhanced Roast Form Display**: Implemented proper display of actual question responses in `/roast/[id]`
+  - Shows specific response for each question asked
+  - Displays general feedback section separately
+  - Clean, organized presentation by domain
+
+### Backend Improvements
+- **Streamlined `createFeedback()`**: Now only handles the correct question-response format
+- **Updated Queries**: All feedback functions now return clean, consistent data structure
+- **Proper Question Response Retrieval**: `getFeedbackByRoastRequest` includes question responses
+
+### Frontend Enhancements
+- **Precise Response Display**: Roast feedback forms now show exact responses to each question
+- **Better UX**: Clear separation between domain questions and general feedback
+- **Simplified Components**: Removed legacy format handling, cleaner code
+
+This cleanup ensures the feedback system perfectly matches the form structure with no legacy baggage.
+
+## 2025-01-18-21:00
+### Major Refactor
+- **Feedback Structure Overhaul**: Completely refactored feedback system to match the actual form structure
+  - **New Data Model**: Added `QuestionResponse` model to store individual responses to roast questions
+  - **Schema Migration**: Migrated existing feedbacks while preserving data integrity
+  - **Database Changes**: Added `generalFeedback` field and `questionResponses` relation, made legacy fields optional
+
+### Backend Changes
+- **Updated `createFeedback()`**: Now supports both new question-based format and legacy format for compatibility
+- **Enhanced Queries**: Updated all feedback retrieval functions to include question responses and roast questions
+- **Data Migration**: Automatic conversion of legacy feedback format to new structure during database migration
+
+### Frontend Updates
+- **New `FeedbackDisplayV2` Component**: Complete rewrite of feedback display with:
+  - Question-by-domain organization with actual responses
+  - Tabbed interface separating overview, questions, and general feedback
+  - Backward compatibility with legacy feedback format
+- **Updated Form Processing**: Feedback forms now correctly save responses to individual questions
+- **Enhanced Dashboard**: Feedback lists now show appropriate data based on format (questions count vs legacy categories)
+
+### Technical
+- **Backward Compatibility**: Maintained full compatibility with existing feedbacks while enabling new structure
+- **Graceful Migration**: Existing data converted to new format during migration
+- **Type Safety**: Updated TypeScript interfaces to handle both formats
+
+This refactor ensures feedbacks now properly reflect the actual form structure with responses to specific questions per domain, while maintaining all existing functionality.
+
 ## 2025-01-18-16:00
 ### New Feature
 - **Enhanced Feedback Display for Creators**: Comprehensive feedback viewing system for creators

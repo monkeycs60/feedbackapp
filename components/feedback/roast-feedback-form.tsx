@@ -40,18 +40,17 @@ interface RoastFeedbackFormProps {
   };
   existingFeedback?: {
     id: string;
-    firstImpression: string;
-    strengthsFound: string[];
-    weaknessesFound: string[];
-    actionableSteps: string[];
-    competitorComparison: string | null;
+    generalFeedback: string;
     screenshots: string[];
     finalPrice: number;
     status: string;
     createdAt: Date;
-    roastRequest?: {
-      questions: RoastQuestion[];
-    };
+    questionResponses: Array<{
+      id: string;
+      questionId: string;
+      response: string;
+      createdAt: Date;
+    }>;
   } | null;
 }
 
@@ -61,36 +60,11 @@ export function RoastFeedbackForm({ roastRequest, existingFeedback }: RoastFeedb
   
   const isCompleted = existingFeedback?.status === 'completed';
 
-  // Fonction pour mapper l'ancien format de feedback vers les réponses par questions
-  const mapFeedbackToQuestionResponses = () => {
-    if (!existingFeedback) return {};
-    
-    // Pour l'instant, on mappe vers un format générique
-    // Dans une vraie app, il faudrait stocker les réponses par question ID
-    const responses: Record<string, string> = {};
-    
-    // Mapper les données existantes vers un format textuel
-    const feedbackText = `
-Première impression: ${existingFeedback.firstImpression}
-
-Points forts identifiés:
-${existingFeedback.strengthsFound.map(s => `• ${s}`).join('\n')}
-
-Points faibles identifiés:
-${existingFeedback.weaknessesFound.map(w => `• ${w}`).join('\n')}
-
-Actions recommandées:
-${existingFeedback.actionableSteps.map(a => `• ${a}`).join('\n')}
-
-${existingFeedback.competitorComparison ? `Comparaison concurrentielle: ${existingFeedback.competitorComparison}` : ''}
-    `.trim();
-
-    // Pour chaque question, on assigne le texte complet (solution temporaire)
-    roastRequest.questions.forEach(question => {
-      responses[`questionResponses.${question.id}`] = feedbackText;
-    });
-
-    return responses;
+  // Fonction pour récupérer la réponse à une question spécifique
+  const getQuestionResponse = (questionId: string): string => {
+    if (!existingFeedback?.questionResponses) return '';
+    const response = existingFeedback.questionResponses.find(qr => qr.questionId === questionId);
+    return response?.response || '';
   };
 
   // Calculer le prix automatiquement basé sur la grille tarifaire
@@ -131,16 +105,11 @@ ${existingFeedback.competitorComparison ? `Comparaison concurrentielle: ${existi
     setError(null);
     
     try {
-      // Transformer les réponses en format attendu par l'API
-      const responses = Object.values(data.questionResponses);
-      
+      // Utiliser la nouvelle structure avec réponses par questions
       await createFeedback({
         roastRequestId: roastRequest.id,
-        firstImpression: data.generalFeedback,
-        strengthsFound: responses.filter((_, i) => i % 3 === 0), // Répartir les réponses
-        weaknessesFound: responses.filter((_, i) => i % 3 === 1),
-        actionableSteps: responses.filter((_, i) => i % 3 === 2),
-        competitorComparison: data.generalFeedback,
+        questionResponses: data.questionResponses,
+        generalFeedback: data.generalFeedback,
         finalPrice: finalPrice,
       });
       // La redirection est gérée dans l'action
@@ -200,6 +169,25 @@ ${existingFeedback.competitorComparison ? `Comparaison concurrentielle: ${existi
         <div className="space-y-6">
           <h3 className="text-lg font-semibold text-gray-900">Vos réponses</h3>
           
+          {/* Feedback général */}
+          {existingFeedback?.generalFeedback && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5" />
+                  Feedback général et recommandations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="whitespace-pre-wrap text-sm text-gray-700">
+                    {existingFeedback.generalFeedback}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           {Object.entries(questionsByDomain).map(([domain, questions]) => (
             <Card key={domain}>
               <CardHeader>
@@ -223,17 +211,15 @@ ${existingFeedback.competitorComparison ? `Comparaison concurrentielle: ${existi
                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                           <div className="whitespace-pre-wrap text-sm text-gray-700">
                             {existingFeedback ? (
-                              <div className="space-y-2">
-                                <div><strong>Première impression:</strong> {existingFeedback.firstImpression}</div>
-                                <div><strong>Points forts:</strong> {existingFeedback.strengthsFound.join(', ')}</div>
-                                <div><strong>Points faibles:</strong> {existingFeedback.weaknessesFound.join(', ')}</div>
-                                <div><strong>Actions recommandées:</strong> {existingFeedback.actionableSteps.join(', ')}</div>
-                                {existingFeedback.competitorComparison && (
-                                  <div><strong>Comparaison:</strong> {existingFeedback.competitorComparison}</div>
-                                )}
-                              </div>
+                              getQuestionResponse(question.id) || (
+                                <div className="text-gray-400 italic">
+                                  Aucune réponse fournie pour cette question
+                                </div>
+                              )
                             ) : (
-                              "Réponse non disponible"
+                              <div className="text-gray-400 italic">
+                                Réponse non disponible
+                              </div>
                             )}
                           </div>
                         </div>

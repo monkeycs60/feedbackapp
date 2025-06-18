@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, Globe, Target, Users, MessageSquare, ImageIcon, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FeedbackDisplay } from '@/components/dashboard/feedback-display';
+import { FeedbackDisplayV2 } from '@/components/dashboard/feedback-display-v2';
 
 interface RoastDetailPageProps {
   params: Promise<{
@@ -246,7 +246,7 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
 
             {/* Feedbacks reçus - Affichage proéminent */}
             {roastRequest.feedbacks.length > 0 && (
-              <FeedbackDisplay feedbacks={roastRequest.feedbacks} />
+              <FeedbackDisplayV2 feedbacks={roastRequest.feedbacks} />
             )}
           </div>
 
