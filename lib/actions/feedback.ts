@@ -68,12 +68,26 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
       throw new Error("Demande de roast non trouvée");
     }
 
-    if (roastRequest.status !== 'open') {
+    if (!['open', 'in_progress'].includes(roastRequest.status)) {
       throw new Error("Cette demande n'est plus ouverte");
     }
 
     if (roastRequest.creatorId === user.id) {
       throw new Error("Vous ne pouvez pas faire un feedback sur votre propre demande");
+    }
+
+    // Vérifier que l'utilisateur a une candidature acceptée
+    const userApplication = await prisma.roastApplication.findUnique({
+      where: {
+        roastRequestId_roasterId: {
+          roastRequestId: validData.roastRequestId,
+          roasterId: user.id
+        }
+      }
+    });
+
+    if (!userApplication || !['accepted', 'auto_selected'].includes(userApplication.status)) {
+      throw new Error("Vous devez avoir une candidature acceptée pour soumettre un feedback");
     }
 
     // Vérifier que l'utilisateur n'a pas déjà soumis un feedback pour cette demande
