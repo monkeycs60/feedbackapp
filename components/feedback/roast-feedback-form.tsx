@@ -48,6 +48,10 @@ interface RoastFeedbackFormProps {
     screenshots: string[];
     finalPrice: number;
     status: string;
+    createdAt: Date;
+    roastRequest?: {
+      questions: RoastQuestion[];
+    };
   } | null;
 }
 
@@ -56,6 +60,38 @@ export function RoastFeedbackForm({ roastRequest, existingFeedback }: RoastFeedb
   const [error, setError] = useState<string | null>(null);
   
   const isCompleted = existingFeedback?.status === 'completed';
+
+  // Fonction pour mapper l'ancien format de feedback vers les réponses par questions
+  const mapFeedbackToQuestionResponses = () => {
+    if (!existingFeedback) return {};
+    
+    // Pour l'instant, on mappe vers un format générique
+    // Dans une vraie app, il faudrait stocker les réponses par question ID
+    const responses: Record<string, string> = {};
+    
+    // Mapper les données existantes vers un format textuel
+    const feedbackText = `
+Première impression: ${existingFeedback.firstImpression}
+
+Points forts identifiés:
+${existingFeedback.strengthsFound.map(s => `• ${s}`).join('\n')}
+
+Points faibles identifiés:
+${existingFeedback.weaknessesFound.map(w => `• ${w}`).join('\n')}
+
+Actions recommandées:
+${existingFeedback.actionableSteps.map(a => `• ${a}`).join('\n')}
+
+${existingFeedback.competitorComparison ? `Comparaison concurrentielle: ${existingFeedback.competitorComparison}` : ''}
+    `.trim();
+
+    // Pour chaque question, on assigne le texte complet (solution temporaire)
+    roastRequest.questions.forEach(question => {
+      responses[`questionResponses.${question.id}`] = feedbackText;
+    });
+
+    return responses;
+  };
 
   // Calculer le prix automatiquement basé sur la grille tarifaire
   const calculatePrice = () => {
@@ -116,54 +152,100 @@ export function RoastFeedbackForm({ roastRequest, existingFeedback }: RoastFeedb
     }
   };
 
-  // Si le feedback est déjà terminé, afficher un résumé
+  // Si le feedback est déjà terminé, afficher les questions avec les réponses
   if (isCompleted) {
+    const questionsByDomain = roastRequest.focusAreas.reduce((acc, domain) => {
+      const domainQuestions = roastRequest.questions
+        .filter(q => q.domain === domain)
+        .sort((a, b) => a.order - b.order);
+      acc[domain] = domainQuestions;
+      return acc;
+    }, {} as Record<string, RoastQuestion[]>);
+
     return (
-      <Card className="h-fit">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            Feedback terminé
-          </CardTitle>
-          <p className="text-sm text-gray-600">
-            Votre feedback a été soumis avec succès
-          </p>
-          <div className="flex items-center gap-2">
-            <Badge className="bg-green-100 text-green-800">
-              <Euro className="w-3 h-3 mr-1" />
-              {existingFeedback?.finalPrice || finalPrice}€ gagné
-            </Badge>
-            <Badge variant="outline" className="bg-green-50 text-green-700">
-              Statut: Terminé
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+      <div className="space-y-6">
+        <Card className="h-fit">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              Feedback terminé
+            </CardTitle>
+            <p className="text-sm text-gray-600">
+              Votre feedback a été soumis avec succès
+            </p>
+            <div className="flex items-center gap-2">
+              <Badge className="bg-green-100 text-green-800">
+                <Euro className="w-3 h-3 mr-1" />
+                {existingFeedback?.finalPrice || finalPrice}€ gagné
+              </Badge>
+              <Badge variant="outline" className="bg-green-50 text-green-700">
+                Statut: Terminé
+              </Badge>
+            </div>
+            <div className="text-sm text-gray-600 mt-2">
+              Soumis le {existingFeedback ? new Date(existingFeedback.createdAt).toLocaleDateString('fr-FR') : 'aujourd\'hui'}
+            </div>
+          </CardHeader>
+          <CardContent>
             <Alert>
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 Merci pour votre feedback détaillé ! Le créateur pourra maintenant consulter vos réponses et améliorer son application.
               </AlertDescription>
             </Alert>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Résumé de votre feedback</h4>
-              <div className="space-y-2 text-sm text-gray-600">
-                <div>
-                  <span className="font-medium">Date de soumission:</span> {existingFeedback ? new Date(existingFeedback.id).toLocaleDateString('fr-FR') : 'Aujourd\'hui'}
-                </div>
-                <div>
-                  <span className="font-medium">Rémunération:</span> {existingFeedback?.finalPrice || finalPrice}€
-                </div>
-                <div>
-                  <span className="font-medium">Questions traitées:</span> {roastRequest.questions.length} questions
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        {/* Affichage des questions avec réponses */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold text-gray-900">Vos réponses</h3>
+          
+          {Object.entries(questionsByDomain).map(([domain, questions]) => (
+            <Card key={domain}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5" />
+                  {domain}
+                </CardTitle>
+                <p className="text-sm text-gray-600">
+                  {questions.length} question{questions.length > 1 ? 's' : ''} traitée{questions.length > 1 ? 's' : ''}
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {questions.map((question, index) => (
+                  <div key={question.id} className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 mb-2">{question.text}</h4>
+                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <div className="whitespace-pre-wrap text-sm text-gray-700">
+                            {existingFeedback ? (
+                              <div className="space-y-2">
+                                <div><strong>Première impression:</strong> {existingFeedback.firstImpression}</div>
+                                <div><strong>Points forts:</strong> {existingFeedback.strengthsFound.join(', ')}</div>
+                                <div><strong>Points faibles:</strong> {existingFeedback.weaknessesFound.join(', ')}</div>
+                                <div><strong>Actions recommandées:</strong> {existingFeedback.actionableSteps.join(', ')}</div>
+                                {existingFeedback.competitorComparison && (
+                                  <div><strong>Comparaison:</strong> {existingFeedback.competitorComparison}</div>
+                                )}
+                              </div>
+                            ) : (
+                              "Réponse non disponible"
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
     );
   }
 

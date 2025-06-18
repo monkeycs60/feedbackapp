@@ -185,6 +185,18 @@ export async function getFeedbackByRoastRequest(roastRequestId: string) {
       where: {
         roastRequestId: roastRequestId,
         roasterId: user.id
+      },
+      include: {
+        roastRequest: {
+          include: {
+            questions: {
+              orderBy: [
+                { domain: 'asc' },
+                { order: 'asc' }
+              ]
+            }
+          }
+        }
       }
     });
   } catch (error) {
