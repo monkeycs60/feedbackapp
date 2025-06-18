@@ -1,13 +1,12 @@
 import { requireOnboardingComplete } from '@/lib/auth-guards';
 import { getUserRoastRequests, getAvailableRoastRequests } from '@/lib/actions/roast-request';
 import { getRoasterAcceptedApplications } from '@/lib/actions/roast-application';
-import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { AvailableRoastsList } from '@/components/dashboard/available-roasts-list';
 import { AcceptedApplicationsList } from '@/components/dashboard/accepted-applications-list';
 import { RoasterStats } from '@/components/dashboard/roaster-stats';
-import { RoleSwitch } from '@/components/dashboard/role-switch';
 import { AddSecondRolePrompt } from '@/components/dashboard/add-second-role-prompt';
 import { CreatorDashboardContent } from '@/components/dashboard/creator-dashboard-content';
+import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
@@ -52,30 +51,18 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <DashboardHeader />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Salut {user.name} ! 👋
-            </h1>
-            <p className="text-gray-600">
-              {currentRole === 'creator' 
-                ? 'Voici tes demandes de roast et leur progression'
-                : 'Voici les apps disponibles pour du roasting'
-              }
-            </p>
-          </div>
-          
-          {canSwitchRoles && (
-            <RoleSwitch 
-              currentRole={currentRole}
-              hasCreatorProfile={hasCreatorProfile}
-              hasRoasterProfile={hasRoasterProfile}
-            />
-          )}
+    <DashboardLayout
+      hasCreatorProfile={hasCreatorProfile}
+      hasRoasterProfile={hasRoasterProfile}
+    >
+      <div className="space-y-8">
+        <div>
+          <p className="text-lg text-gray-400">
+            {currentRole === 'creator' 
+              ? 'Voici tes demandes de roast et leur progression'
+              : 'Voici les apps disponibles pour du roasting'
+            }
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -83,7 +70,7 @@ export default async function DashboardPage() {
             {currentRole === 'creator' ? (
               <CreatorDashboardContent roastRequests={roastRequests} />
             ) : (
-              <div className="space-y-8 mt-8">
+              <div className="space-y-8">
                 {/* Missions acceptées */}
                 <AcceptedApplicationsList applications={acceptedApplications} />
                 
@@ -105,6 +92,6 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

@@ -8,6 +8,7 @@ import { Calendar, Globe, Target, Users, MessageSquare, ImageIcon, UserCheck } f
 import Link from 'next/link';
 import Image from 'next/image';
 import { FeedbackDisplayV2 } from '@/components/dashboard/feedback-display-v2';
+import { DashboardLayout } from '@/components/layout/dashboard-layout';
 
 interface RoastDetailPageProps {
   params: Promise<{
@@ -42,8 +43,8 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <DashboardLayout>
+      <div className="space-y-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
@@ -55,11 +56,11 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
             </Badge>
           </div>
           
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-100 mb-2">
             {roastRequest.title}
           </h1>
           
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-6 text-sm text-gray-400">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               <span>Créé le {new Date(roastRequest.createdAt).toLocaleDateString('fr-FR')}</span>
@@ -340,6 +341,6 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

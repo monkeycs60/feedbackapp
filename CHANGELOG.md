@@ -1,5 +1,51 @@
 # Changelog
 
+## 2025-06-18-23:45
+### Navigation & UX Refinements - Post-Launch Fixes
+- **Fixed Color Contrast Issues**: Improved readability and visual comfort on dashboard pages
+  - Adjusted background colors to prevent eye strain from overly dark themes
+  - Enhanced contrast between sidebar (dark) and main content (medium dark) areas
+  - Updated CSS variables for better color balance in dark mode
+- **Corrected Navigation Routes**: Fixed all sidebar links to point to existing pages
+  - Updated creator navigation to use correct `/dashboard/new-roast` route
+  - Fixed roaster navigation to use `/marketplace` instead of `/dashboard/marketplace`
+  - Cleaned up profile link to use `/profile` instead of `/dashboard/profile`
+- **Improved Sidebar UX**: Integrated user greeting and role switching into sidebar header
+  - Moved "Salut [name]!" greeting from dashboard body to sidebar top
+  - Integrated RoleSwitch button directly in sidebar with dark theme styling
+  - Removed redundant UI elements from dashboard main content
+  - Enhanced sidebar header with user info, role indicator, and seamless role switching
+- **Applied Layout Consistency**: Extended DashboardLayout to all authenticated pages
+  - Updated `/marketplace` page with proper dark theme and sidebar navigation
+  - Modernized `/profile` page with card-based layout and dark theme
+  - Consistent spacing and typography across all dashboard pages
+- **Enhanced Professional Appearance**: Polished the overall user interface
+  - Better visual hierarchy with proper content organization
+  - Improved button styling and hover states for dark theme
+  - Professional color palette with orange accents throughout
+
+## 2025-06-18-23:30
+### Major UX Enhancement - Navigation & Dark Theme
+- **Complete Navigation Redesign**: Implemented professional sidebar navigation for SaaS-like experience
+  - Created dynamic sidebar with role-based navigation (creator vs roaster modes)
+  - Sidebar includes role indicator, organized menu sections, and contextual navigation
+  - Navigation items adapt based on user's primary role with proper icons and descriptions
+- **Streamlined Navbar**: Reduced navbar to essential profile and authentication functions only
+  - Removed dashboard link from navbar (now in sidebar)
+  - Clean, minimal navbar focused on user profile and auth actions
+- **Global Dark Theme Implementation**: Applied consistent dark theme across all authenticated pages
+  - Enhanced CSS variables for proper dark mode support
+  - All dashboard pages now use dark gray backgrounds with proper contrast
+  - Consistent color scheme matching onboarding and navbar
+- **New Dashboard Layout System**: Created reusable `DashboardLayout` component
+  - Automatic authentication checks and redirects
+  - Consistent spacing and styling across all dashboard pages
+  - Responsive design with proper sidebar and content areas
+- **Enhanced User Experience**: Improved navigation flow and visual consistency
+  - Role-based navigation prevents confusion between creator and roaster functions
+  - Professional appearance suitable for SaaS applications
+  - Better organization of features and improved discoverability
+
 ## 2025-06-18-23:20
 ### Critical Bugfix - Dashboard Domain Counting
 - **Fixed Dashboard "Domaines couverts: 0" Issue**: Resolved data transformation problem in creator dashboard

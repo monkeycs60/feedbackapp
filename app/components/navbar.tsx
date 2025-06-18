@@ -57,13 +57,6 @@ export function Navbar() {
               </div>
               
               <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-gray-900 border border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white h-9 px-4 py-2"
-              >
-                Dashboard
-              </Link>
-              
-              <Link
                 href="/profile"
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-gray-900 border border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white h-9 px-4 py-2"
               >
