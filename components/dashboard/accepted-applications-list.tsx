@@ -1,20 +1,18 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   CheckCircle, 
-  Clock, 
-  User, 
-  Calendar, 
   MessageSquare, 
   ExternalLink,
   Star,
-  Award,
-  ArrowRight
+  ArrowRight,
+  Users
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 type AcceptedApplication = {
   id: string;
@@ -30,6 +28,7 @@ type AcceptedApplication = {
     maxPrice: number;
     feedbacksRequested: number;
     createdAt: Date;
+    coverImage?: string | null;
     creator: {
       id: string;
       name: string | null;
@@ -56,19 +55,32 @@ interface AcceptedApplicationsListProps {
 }
 
 export function AcceptedApplicationsList({ applications }: AcceptedApplicationsListProps) {
+  // Séparer les missions par statut
+  const ongoingMissions = applications.filter(app => {
+    const hasFeedback = app.roastRequest.feedbacks.length > 0;
+    const feedbackStatus = app.roastRequest.feedbacks[0]?.status || 'not_started';
+    return !hasFeedback || (feedbackStatus !== 'completed');
+  });
+  
+  const completedMissions = applications.filter(app => {
+    const hasFeedback = app.roastRequest.feedbacks.length > 0;
+    const feedbackStatus = app.roastRequest.feedbacks[0]?.status || 'not_started';
+    return hasFeedback && feedbackStatus === 'completed';
+  });
+
   if (applications.length === 0) {
     return (
-      <Card>
+      <Card className="bg-gray-800/50 border-gray-700">
         <CardContent className="py-12 text-center">
           <CheckCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-100 mb-2">
             Aucune mission acceptée
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-300 mb-6">
             Vos candidatures acceptées apparaîtront ici. 
             Consultez le marketplace pour postuler à de nouvelles missions !
           </p>
-          <Button asChild>
+          <Button asChild className="bg-orange-500 hover:bg-orange-600">
             <Link href="/marketplace">
               Voir le marketplace
             </Link>
@@ -78,168 +90,182 @@ export function AcceptedApplicationsList({ applications }: AcceptedApplicationsL
     );
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-900">
-          Mes missions acceptées ({applications.length})
-        </h2>
-        <div className="text-sm text-gray-600">
-          Triées par date de sélection
+  const renderMissionCard = (application: AcceptedApplication) => {
+    const roast = application.roastRequest;
+    const hasFeedback = roast.feedbacks.length > 0;
+    const feedbackStatus = roast.feedbacks[0]?.status || 'not_started';
+    const earnings = Math.round(roast.maxPrice / roast.feedbacksRequested);
+    const isCompleted = hasFeedback && feedbackStatus === 'completed';
+    
+    return (
+      <Card key={application.id} className="bg-white border hover:border-gray-300 transition-all duration-200 hover:shadow-lg overflow-hidden group relative">
+        {/* Badge de gains amélioré */}
+        <div className="absolute top-2 right-2 z-10">
+          <div className={`px-3 py-1.5 rounded-lg text-xs font-bold text-white shadow-lg transform rotate-3 ${
+            isCompleted 
+              ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+              : 'bg-gradient-to-r from-blue-500 to-purple-500'
+          }`}>
+            {isCompleted ? `+${earnings}€` : `~${earnings}€`}
+          </div>
+          <div className="text-center mt-1">
+            <span className="text-xs text-gray-500 font-medium">
+              {isCompleted ? 'Gagné' : 'Potentiel'}
+            </span>
+          </div>
         </div>
-      </div>
-
-      <div className="grid gap-6">
-        {applications.map((application) => {
-          const roast = application.roastRequest;
-          const hasFeedback = roast.feedbacks.length > 0;
-          const feedbackStatus = roast.feedbacks[0]?.status || 'not_started';
-          
-          const getStatusBadge = () => {
-            if (!hasFeedback) {
-              return <Badge className="bg-orange-100 text-orange-800">À commencer</Badge>;
-            }
+        
+        <CardContent className="p-0">
+          <div className="flex h-36">
+            {/* App Cover Image */}
+            <div className="w-32 h-36 flex-shrink-0 relative bg-gray-100">
+              {roast.coverImage ? (
+                <Image
+                  src={roast.coverImage}
+                  alt={roast.title}
+                  fill
+                  className="object-cover"
+                  sizes="128px"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-orange-500/30 to-purple-500/30 flex items-center justify-center">
+                  <ExternalLink className="h-7 w-7 text-gray-400" />
+                </div>
+              )}
+            </div>
             
-            switch (feedbackStatus) {
-              case 'pending':
-                return <Badge className="bg-blue-100 text-blue-800">En cours</Badge>;
-              case 'completed':
-                return <Badge className="bg-green-100 text-green-800">Terminé</Badge>;
-              default:
-                return <Badge className="bg-gray-100 text-gray-800">Brouillon</Badge>;
-            }
-          };
-
-          const getActionButton = () => {
-            if (!hasFeedback) {
-              return (
-                <Button asChild className="bg-blue-600 hover:bg-blue-700">
-                  <Link href={`/roast/${roast.id}`}>
-                    <ArrowRight className="w-4 h-4 mr-2" />
-                    Commencer le feedback
-                  </Link>
-                </Button>
-              );
-            }
-            
-            return (
-              <Button asChild variant="outline">
-                <Link href={`/roast/${roast.id}`}>
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  {feedbackStatus === 'completed' ? 'Voir le feedback' : 'Continuer le feedback'}
-                </Link>
-              </Button>
-            );
-          };
-
-          return (
-            <Card key={application.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{roast.title}</h3>
-                      {getStatusBadge()}
-                      <Badge variant="outline" className="bg-green-50 text-green-700">
-                        {application.status === 'auto_selected' ? 'Sélection auto' : 'Sélectionné'}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                      <div className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        <span>{roast.creator.name}</span>
-                        {roast.creator.creatorProfile?.company && (
-                          <>
-                            <span>•</span>
-                            <span>{roast.creator.creatorProfile.company}</span>
-                          </>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Sélectionné le {application.selectedAt ? new Date(application.selectedAt).toLocaleDateString('fr-FR') : 'N/A'}</span>
-                      </div>
-                    </div>
-                    
-                    <p className="text-gray-700 line-clamp-2 mb-4">
-                      {roast.description}
-                    </p>
+            {/* Content */}
+            <div className="flex-1 p-4 flex flex-col justify-between pr-20">
+              <div>
+                <div className="mb-2">
+                  <h3 className="text-lg font-semibold text-gray-800 group-hover:text-orange-500 transition-colors line-clamp-1 mb-1">
+                    {roast.title}
+                  </h3>
+                  
+                  <div className="text-sm text-gray-500">
+                    {roast.creator.name}
+                    {roast.creator.creatorProfile?.company && (
+                      <span className="text-gray-400"> • {roast.creator.creatorProfile.company}</span>
+                    )}
+                  </div>
+                </div>
+                
+                <p className="text-gray-600 text-sm line-clamp-2 mb-3 leading-relaxed">
+                  {roast.description}
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1.5 text-yellow-600">
+                    <Star className="h-4 w-4" />
+                    <span className="font-medium">{application.score}/100</span>
                   </div>
                   
-                  <div className="text-right ml-4">
-                    <div className="text-xl font-bold text-green-600 mb-1">
-                      ~{Math.round(roast.maxPrice / roast.feedbacksRequested)}€
-                    </div>
-                    <div className="text-sm text-gray-500">estimation</div>
+                  <div className="flex items-center gap-1.5 text-blue-600">
+                    <Users className="h-4 w-4" />
+                    <span className="font-medium">1/{roast.feedbacksRequested}</span>
                   </div>
+                  
+                  <span className="text-gray-500 text-sm">
+                    {roast.questions.length} question{roast.questions.length > 1 ? 's' : ''}
+                  </span>
                 </div>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                <div className="space-y-4">
-                  {/* Domaines à traiter */}
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-700 mb-2">Domaines à analyser :</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {roast.focusAreas.map((area) => (
-                        <Badge key={area} variant="secondary" className="text-xs">
-                          {area}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Questions à traiter */}
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-700 mb-2">
-                      Questions spécifiques ({roast.questions.length}) :
-                    </h4>
-                    <div className="bg-gray-50 rounded-lg p-3 max-h-32 overflow-y-auto">
-                      <div className="space-y-2">
-                        {roast.questions.slice(0, 3).map((question, index) => (
-                          <div key={question.id} className="text-sm text-gray-700">
-                            <span className="font-medium">{question.domain}:</span> {question.text}
-                          </div>
-                        ))}
-                        {roast.questions.length > 3 && (
-                          <div className="text-sm text-gray-500 italic">
-                            +{roast.questions.length - 3} autres questions...
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Statistiques de performance */}
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        <span>Score: {application.score}/100</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Award className="w-4 h-4 text-blue-500" />
-                        <span>1/{roast.feedbacksRequested} roaster{roast.feedbacksRequested > 1 ? 's' : ''}</span>
-                      </div>
-                      <Link 
-                        href={roast.appUrl} 
-                        target="_blank" 
-                        className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        Tester l'app
-                      </Link>
-                    </div>
-
-                    {getActionButton()}
-                  </div>
+                
+                <div className="flex items-center justify-between">
+                  <Link 
+                    href={roast.appUrl} 
+                    target="_blank" 
+                    className="flex items-center gap-1.5 text-blue-500 hover:text-blue-600 transition-colors text-sm font-medium"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    <span>Tester l&apos;app</span>
+                  </Link>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Focus Areas Tags */}
+          {roast.focusAreas.length > 0 && (
+            <div className="px-4 pb-3">
+              <div className="flex flex-wrap gap-2">
+                {roast.focusAreas.slice(0, 3).map((area) => (
+                  <Badge key={area} variant="secondary" className="bg-gray-100 text-gray-600 text-xs px-2 py-1">
+                    {area}
+                  </Badge>
+                ))}
+                {roast.focusAreas.length > 3 && (
+                  <Badge variant="secondary" className="bg-gray-100 text-gray-500 text-xs px-2 py-1">
+                    +{roast.focusAreas.length - 3}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Action Button */}
+          <div className="px-4 pb-4">
+            <Button 
+              asChild 
+              size="sm"
+              className={`w-full ${
+                isCompleted 
+                  ? 'bg-green-500 hover:bg-green-600' 
+                  : 'bg-orange-500 hover:bg-orange-600'
+              } text-white font-medium`}
+            >
+              <Link href={`/roast/${roast.id}`}>
+                {!hasFeedback ? (
+                  <><ArrowRight className="w-4 h-4 mr-2" />Commencer le feedback</>
+                ) : isCompleted ? (
+                  <><MessageSquare className="w-4 h-4 mr-2" />Voir le feedback</>
+                ) : (
+                  <><MessageSquare className="w-4 h-4 mr-2" />Continuer le feedback</>
+                )}
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Missions en cours / à commencer */}
+      {ongoingMissions.length > 0 && (
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="text-lg font-semibold text-white">
+              Missions en cours ({ongoingMissions.length})
+            </h2>
+            <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30">
+              À compléter
+            </Badge>
+          </div>
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+            {ongoingMissions.map(renderMissionCard)}
+          </div>
+        </div>
+      )}
+      
+      {/* Missions terminées */}
+      {completedMissions.length > 0 && (
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="text-lg font-semibold text-white">
+              Missions terminées ({completedMissions.length})
+            </h2>
+            <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+              Complétées
+            </Badge>
+          </div>
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+            {completedMissions.map(renderMissionCard)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
