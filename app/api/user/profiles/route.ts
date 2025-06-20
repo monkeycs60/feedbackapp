@@ -30,10 +30,11 @@ export async function GET() {
         id: user.id,
         name: user.name,
         email: user.email,
-        primaryRole: user.primaryRole
+        image: user.image
       },
-      creatorProfile: user.creatorProfile,
-      roasterProfile: user.roasterProfile
+      hasCreatorProfile: !!user.creatorProfile,
+      hasRoasterProfile: !!user.roasterProfile,
+      primaryRole: user.primaryRole as "creator" | "roaster" | null
     });
   } catch (error) {
     console.error("Erreur récupération profils:", error);
