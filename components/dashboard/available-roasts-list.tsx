@@ -150,7 +150,7 @@ export function AvailableRoastsList({
 					return (
 						<Card
 							key={roast.id}
-							className='bg-white border hover:border-gray-300 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-orange-500/10 group overflow-hidden'>
+							className='bg-white border py-0 hover:border-gray-300 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-orange-500/10 group overflow-hidden'>
 							<div className='flex'>
 								<div className='w-1/3 relative'>
 									{roast.coverImage ? (
