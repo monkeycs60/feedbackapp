@@ -52,16 +52,7 @@ export default async function DashboardPage() {
       hasCreatorProfile={hasCreatorProfile}
       hasRoasterProfile={hasRoasterProfile}
     >
-      <div className="space-y-8">
-        <div>
-          <p className="text-lg font-bold">
-            {currentRole === 'creator' 
-              ? 'Voici tes demandes de roast et leur progression'
-              : 'Voici les apps disponibles pour du roasting'
-            }
-          </p>
-        </div>
-
+      <div className="space-y-8 pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             {currentRole === 'creator' ? (
