@@ -77,9 +77,9 @@ function PriorityIndicator({
 	priority: 'high' | 'medium' | 'low';
 }) {
 	const colors = {
-		high: 'bg-red-500/20 text-red-300 border-red-500/30',
-		medium: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-		low: 'bg-green-500/20 text-green-300 border-green-500/30',
+		high: 'bg-red-100 text-red-700 border-red-200/50',
+		medium: 'bg-yellow-100 text-yellow-700 border-yellow-200/50',
+		low: 'bg-green-100 text-green-700 border-green-200/50',
 	};
 
 	const labels = {
@@ -141,7 +141,7 @@ export function AvailableRoastsList({
 				</div>
 			</div>
 
-			<div className='grid gap-6'>
+			<div className='grid gap-4'>
 				{sortedRoasts.map((roast) => {
 					const priority = getRoastPriority(roast);
 					const spotsLeft =
@@ -150,137 +150,131 @@ export function AvailableRoastsList({
 					return (
 						<Card
 							key={roast.id}
-							className='bg-gray-800/90 border-gray-700 hover:border-gray-600 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-orange-500/10 group overflow-hidden'>
-							<CardContent className='p-6'>
-								<div className='flex items-start gap-6'>
-									{/* Creator Avatar */}
-									<div className='flex-shrink-0'>
-										<div className='w-24 h-24 relative rounded-md overflow-hidden border-2 border-gray-700 group-hover:border-orange-500/50 transition-all'>
-											{roast.coverImage ? (
-												<Image
-													src={roast.coverImage}
-													alt={
-														roast.creator.name || 'Creator avatar'
-													}
-													fill
-													className='object-cover'
-													sizes='96px'
-												/>
-											) : (
-												<div className='w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 flex items-center justify-center'>
-													<ExternalLink className='h-8 w-8 text-gray-400' />
-												</div>
-											)}
+							className='bg-white border hover:border-gray-300 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-orange-500/10 group overflow-hidden'>
+							<div className='flex'>
+								<div className='w-1/3 relative'>
+									{roast.coverImage ? (
+										<Image
+											src={roast.coverImage}
+											alt={roast.title}
+											fill
+											className='object-cover'
+											sizes='(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 224px'
+										/>
+									) : (
+										<div className='w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 flex items-center justify-center'>
+											<ExternalLink className='h-8 w-8 text-gray-400' />
 										</div>
-									</div>
+									)}
+								</div>
 
-									{/* Main Content */}
-									<div className='flex-1'>
-										<div className='flex justify-between items-start mb-2'>
-											<h3 className='text-xl font-bold text-white group-hover:text-orange-300 transition-colors line-clamp-2 leading-tight'>
+								<div className='w-2/3 p-4 flex flex-col justify-between'>
+									<div>
+										<div className='flex justify-between items-start mb-1'>
+											<h3 className='text-lg font-bold text-gray-800 group-hover:text-orange-500 transition-colors line-clamp-2 leading-tight pr-2'>
 												{roast.title}
 											</h3>
-											<div className='hidden sm:block'>
+											<div className='hidden sm:block flex-shrink-0'>
 												<PriorityIndicator priority={priority} />
 											</div>
 										</div>
 
-										<div className='flex items-center gap-2 text-sm text-gray-400 mb-4'>
+										<div className='flex items-center gap-2 text-sm text-gray-500 mb-3'>
 											<span>{roast.creator.name}</span>
-											<span className='text-gray-600'>•</span>
+											<span className='text-gray-400'>•</span>
 											<span>{formatTimeAgo(roast.createdAt)}</span>
 										</div>
 
-										<p className='text-gray-300 text-sm line-clamp-3 mb-5'>
+										<p className='text-gray-600 text-sm line-clamp-2 mb-4'>
 											{roast.description}
 										</p>
 
 										{roast.focusAreas.length > 0 && (
-											<div className='mb-5'>
+											<div className='mb-4'>
 												<div className='flex flex-wrap gap-2'>
 													{roast.focusAreas
-														.slice(0, 4)
+														.slice(0, 3)
 														.map((area) => (
 															<Badge
 																key={area}
 																variant='secondary'
-																className='bg-gray-700/60 text-gray-300 border-gray-600 text-xs px-2.5 py-1'>
+																className='bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-0.5'>
 																{area}
 															</Badge>
 														))}
-													{roast.focusAreas.length > 4 && (
+													{roast.focusAreas.length > 3 && (
 														<Badge
 															variant='secondary'
-															className='bg-gray-700/60 text-gray-400 border-gray-600 text-xs px-2.5 py-1'>
-															+{roast.focusAreas.length - 4}{' '}
-															autres
+															className='bg-gray-100 text-gray-500 border-gray-200 text-xs px-2 py-0.5'>
+															+{roast.focusAreas.length - 3}
 														</Badge>
 													)}
 												</div>
 											</div>
 										)}
+									</div>
 
-										<div className='border-t border-gray-700/80 pt-4'>
-											<div className='flex items-center justify-between'>
-												<div className='flex items-center gap-x-5 gap-y-2 text-sm flex-wrap'>
-													<div className='flex items-center gap-1.5 text-green-400 font-medium'>
-														<Euro className='h-4 w-4' />
-														<span>Jusqu'à {roast.maxPrice}€</span>
-													</div>
-
-													<div className='flex items-center gap-1.5 text-blue-400 font-medium'>
-														<Users className='h-4 w-4' />
-														<span>
-															{spotsLeft > 0
-																? `${spotsLeft} place${
-																		spotsLeft > 1 ? 's' : ''
-																  } restante${
-																		spotsLeft > 1 ? 's' : ''
-																  }`
-																: 'Complet'}
-														</span>
-													</div>
-
-													<span className='text-xs text-gray-500 hidden md:inline'>
-														{roast._count.applications}{' '}
-														candidature
-														{roast._count.applications !== 1
-															? 's'
-															: ''}
+									<div className='border-t pt-3'>
+										<div className='flex items-end justify-between'>
+											<div className='flex items-center gap-x-4 gap-y-2 text-sm flex-wrap'>
+												<div className='flex items-center gap-1.5 text-green-600 font-medium'>
+													<Euro className='h-4 w-4' />
+													<span>
+														Jusqu&apos;à {roast.maxPrice}€
 													</span>
 												</div>
 
-												<div className='flex items-center gap-3'>
-													<Button
-														variant='outline'
-														size='sm'
-														asChild
-														className='border-blue-500/50 text-blue-300 hover:bg-blue-500/10 hover:text-blue-200'>
-														<Link
-															href={roast.appUrl}
-															target='_blank'>
-															<ExternalLink className='h-3 w-3 mr-1.5' />
-															Voir l'app
-														</Link>
-													</Button>
-
-													<Button
-														asChild
-														size='sm'
-														className='bg-orange-500 hover:bg-orange-600 text-white font-semibold'
-														disabled={spotsLeft <= 0}>
-														<Link href={`/roast/${roast.id}`}>
-															{spotsLeft > 0
-																? 'Postuler'
-																: 'Complet'}
-														</Link>
-													</Button>
+												<div className='flex items-center gap-1.5 text-blue-600 font-medium'>
+													<Users className='h-4 w-4' />
+													<span>
+														{spotsLeft > 0
+															? `${spotsLeft} place${
+																	spotsLeft > 1 ? 's' : ''
+															  } restante${
+																	spotsLeft > 1 ? 's' : ''
+															  }`
+															: 'Complet'}
+													</span>
 												</div>
+
+												<span className='text-xs text-gray-400 hidden md:inline'>
+													{roast._count.applications} candidature
+													{roast._count.applications !== 1
+														? 's'
+														: ''}
+												</span>
+											</div>
+
+											<div className='flex items-center gap-2 flex-shrink-0'>
+												<Button
+													variant='outline'
+													size='sm'
+													asChild
+													className='text-gray-600 border-gray-300 hover:text-gray-800 hover:bg-gray-50'>
+													<Link
+														href={roast.appUrl}
+														target='_blank'>
+														<ExternalLink className='h-3 w-3 mr-1.5' />
+														Voir l&apos;app
+													</Link>
+												</Button>
+
+												<Button
+													asChild
+													size='sm'
+													className='bg-orange-500 hover:bg-orange-600 text-white font-semibold'
+													disabled={spotsLeft <= 0}>
+													<Link href={`/roast/${roast.id}`}>
+														{spotsLeft > 0
+															? 'Postuler'
+															: 'Complet'}
+													</Link>
+												</Button>
 											</div>
 										</div>
 									</div>
 								</div>
-							</CardContent>
+							</div>
 						</Card>
 					);
 				})}
