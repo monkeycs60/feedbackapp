@@ -17,7 +17,7 @@ export const metadata = {
 };
 
 export default async function DashboardPage() {
-  const user = await requireOnboardingComplete();
+  await requireOnboardingComplete();
   
   // Récupérer les informations complètes de l'utilisateur avec ses profils
   const session = await auth.api.getSession({ headers: await headers() });

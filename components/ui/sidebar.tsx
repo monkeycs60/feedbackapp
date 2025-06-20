@@ -8,7 +8,8 @@ import {
   Plus, 
   Users, 
   Search,
-  ArrowRightLeft
+  ArrowRightLeft,
+  UserPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -219,6 +220,29 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
             );
           })}
         </div>
+
+        {/* Add second role link */}
+        {!canSwitchRoles && (
+          <>
+            <div className="border-t border-gray-800 my-4" />
+            <div className="space-y-1">
+              <Link
+                href="/onboarding/role-selection?add_role=true"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors group bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 hover:from-purple-500/20 hover:to-blue-500/20"
+              >
+                <UserPlus className="h-4 w-4 flex-shrink-0 text-purple-400" />
+                <div className="flex flex-col">
+                  <span className="font-medium text-purple-300">
+                    Deviens {currentRole === 'creator' ? 'Roaster' : 'Créateur'}
+                  </span>
+                  <span className="text-xs text-purple-400/70">
+                    Débloquer l&apos;autre rôle
+                  </span>
+                </div>
+              </Link>
+            </div>
+          </>
+        )}
       </nav>
 
       {/* Footer */}
