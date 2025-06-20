@@ -97,8 +97,8 @@ export function AcceptedApplicationsList({
 		const domains = Array.from(new Set(roast.questions.map(q => q.domain)));
 
 		return (
-			<Card key={application.id} className='group gap-2 hover:shadow-lg py-0 transition-all duration-200 overflow-hidden'>
-				<div className='relative h-48 overflow-hidden'>
+			<Card key={application.id} className='group hover:shadow-lg py-0 gap-1 transition-all duration-200 overflow-hidden'>
+				<div className='relative h-44 overflow-hidden'>
 					{roast.coverImage ? (
 						<Image
 							src={roast.coverImage}
@@ -108,19 +108,12 @@ export function AcceptedApplicationsList({
 							sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
 						/>
 					) : (
-						<div className='w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 flex items-center justify-center'>
-							<ExternalLink className='h-12 w-12 text-muted-foreground/50' />
+						<div className='w-full h-full bg-muted flex items-center justify-center'>
+							<ExternalLink className='h-10 w-10 text-muted-foreground/30' />
 						</div>
 					)}
 					{/* Overlay gradient for better text readability */}
 					<div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent' />
-					
-					{/* Earnings badge */}
-					<div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-sm font-semibold text-white ${
-						isCompleted ? 'bg-gray-800' : 'bg-gray-700'
-					}`}>
-						{isCompleted ? `+${earnings}€` : `~${earnings}€`}
-					</div>
 					
 					{/* Title on image */}
 					<div className='absolute bottom-3 left-3 right-3'>
@@ -130,7 +123,7 @@ export function AcceptedApplicationsList({
 					</div>
 				</div>
 
-				<CardContent className='px-4 pb-3 flex flex-col gap-1'>
+				<CardContent className='px-4 pb-3 pt-3 space-y-2.5'>
 					{/* Creator info */}
 					<div className='flex items-center gap-2 text-sm'>
 						<Avatar className='h-6 w-6'>
@@ -147,37 +140,38 @@ export function AcceptedApplicationsList({
 					</div>
 
 					{/* Description */}
-					<p className='text-sm text-muted-foreground line-clamp-2 h-10'>
-						{roast.description}
-					</p>
+					<div className='h-10'>
+						<p className='text-sm text-muted-foreground line-clamp-2'>
+							{roast.description}
+						</p>
+					</div>
 
 					{/* Domain badges */}
 					{domains.length > 0 && (
-						<div className='flex flex-wrap gap-1 mt-1'>
+						<div className='flex flex-wrap gap-1'>
 							{domains.map((domain) => (
-								<Badge 
-									key={domain} 
-									variant='secondary' 
-									className='text-xs px-2 py-0.5'
+								<span 
+									key={domain}
+									className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground'
 								>
 									{domain}
-								</Badge>
+								</span>
 							))}
 						</div>
 					)}
 
 					{/* Meta info and action */}
-					<div className='flex items-center justify-between pt-2'>
-						<div className='flex items-center gap-3 text-xs text-muted-foreground'>
-							<span>{roast.questions.length} questions</span>
-							<span>•</span>
-							<span>{isCompleted ? 'Terminée' : 'En cours'}</span>
+					<div className='flex items-center justify-between pt-3 pb-2 border-t'>
+						<div className='flex items-center gap-3 text-sm'>
+							<span className='text-foreground font-medium'>
+								{earnings}€
+							</span>
 						</div>
 						
 						<Button 
 							asChild 
 							size='sm' 
-							variant={isCompleted ? 'secondary' : 'default'}
+							variant={isCompleted ? 'ghost' : 'default'}
 							className={!isCompleted ? 'bg-orange-500 hover:bg-orange-600' : ''}
 						>
 							<Link href={`/roast/${roast.id}`}>

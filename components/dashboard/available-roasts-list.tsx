@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink, Users, CheckCircle2 } from 'lucide-react';
@@ -71,29 +70,6 @@ function getRoastPriority(roast: AvailableRoast): 'high' | 'medium' | 'low' {
 	return 'medium';
 }
 
-function PriorityIndicator({
-	priority,
-}: {
-	priority: 'high' | 'medium' | 'low';
-}) {
-	const colors = {
-		high: 'bg-red-500/20 text-red-600 border-red-500/30 dark:bg-red-500/30 dark:text-red-400',
-		medium: 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30 dark:bg-yellow-500/30 dark:text-yellow-400',
-		low: 'bg-green-500/20 text-green-600 border-green-500/30 dark:bg-green-500/30 dark:text-green-400',
-	};
-
-	const labels = {
-		high: 'Forte',
-		medium: 'Moyenne',
-		low: 'Faible',
-	};
-
-	return (
-		<Badge variant='outline' className={`${colors[priority]} font-medium`}>
-			Priorité {labels[priority]}
-		</Badge>
-	);
-}
 
 export function AvailableRoastsList({
 	availableRoasts,
@@ -150,9 +126,9 @@ export function AvailableRoastsList({
 					return (
 						<Card
 							key={roast.id}
-							className='group hover:shadow-lg transition-all duration-200 overflow-hidden'>
+							className='group hover:shadow-lg py-0 gap-0 transition-all duration-200 overflow-hidden'>
 							{/* Image with overlay info */}
-							<div className='relative h-48 overflow-hidden'>
+							<div className='relative h-40 overflow-hidden'>
 								{roast.coverImage ? (
 									<Image
 										src={roast.coverImage}
@@ -162,86 +138,95 @@ export function AvailableRoastsList({
 										sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
 									/>
 								) : (
-									<div className='w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 flex items-center justify-center'>
-										<ExternalLink className='h-12 w-12 text-muted-foreground/50' />
+									<div className='w-full h-full bg-muted flex items-center justify-center'>
+										<ExternalLink className='h-10 w-10 text-muted-foreground/30' />
 									</div>
 								)}
 								
 								{/* Overlay gradient */}
-								<div className='absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent' />
+								<div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent' />
 								
 								{/* Priority badge */}
 								<div className='absolute top-3 left-3'>
-									<PriorityIndicator priority={priority} />
-								</div>
-								
-								{/* Price badge */}
-								<div className='absolute top-3 right-3 px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-full'>
-									{pricePerRoast}€/roast
+									<div className={`px-2 py-1 rounded text-xs font-medium ${
+										priority === 'high' 
+											? 'bg-black/70 text-white' 
+											: priority === 'medium'
+											? 'bg-black/50 text-white/90'
+											: 'bg-black/30 text-white/80'
+									}`}>
+										{priority === 'high' ? 'Urgent' : priority === 'medium' ? 'Normal' : 'Faible'}
+									</div>
 								</div>
 								
 								{/* Title on image */}
 								<div className='absolute bottom-3 left-3 right-3'>
-									<h3 className='text-lg font-bold text-white line-clamp-2 drop-shadow-lg'>
+									<h3 className='text-base font-bold text-white line-clamp-2 drop-shadow-lg'>
 										{roast.title}
 									</h3>
 								</div>
 							</div>
 
-							<CardContent className='p-4 space-y-3'>
+							<CardContent className='px-4 pb-3 pt-3 space-y-2.5'>
 								{/* Creator info & time */}
-								<div className='flex items-center justify-between text-sm'>
-									<div className='flex items-center gap-2'>
-										<span className='text-muted-foreground'>
-											{roast.creator.name}
-											{roast.creator.creatorProfile?.company && (
-												<span className='text-muted-foreground/70'> • {roast.creator.creatorProfile.company}</span>
-											)}
-										</span>
-									</div>
-									<span className='text-xs text-muted-foreground'>
+								<div className='flex items-center justify-between text-xs'>
+									<span className='text-muted-foreground'>
+										{roast.creator.name}
+										{roast.creator.creatorProfile?.company && (
+											<span className='text-muted-foreground/70'> • {roast.creator.creatorProfile.company}</span>
+										)}
+									</span>
+									<span className='text-muted-foreground/70'>
 										{formatTimeAgo(roast.createdAt)}
 									</span>
 								</div>
 
 								{/* Description */}
-								<p className='text-sm text-muted-foreground line-clamp-2 h-10'>
-									{roast.description}
-								</p>
+								<div className='h-10'>
+									<p className='text-sm text-muted-foreground line-clamp-2'>
+										{roast.description}
+									</p>
+								</div>
 
 								{/* Focus areas as badges */}
 								{roast.focusAreas.length > 0 && (
 									<div className='flex flex-wrap gap-1'>
 										{roast.focusAreas.slice(0, 3).map((area) => (
-											<Badge
+											<span
 												key={area}
-												variant='secondary'
-												className='text-xs px-2 py-0.5'>
+												className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground'>
 												{area}
-											</Badge>
+											</span>
 										))}
 										{roast.focusAreas.length > 3 && (
-											<Badge
-												variant='secondary'
-												className='text-xs px-2 py-0.5 opacity-70'>
+											<span className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground/70'>
 												+{roast.focusAreas.length - 3}
-											</Badge>
+											</span>
 										)}
 									</div>
 								)}
 
 								{/* Stats & actions */}
-								<div className='flex items-center justify-between pt-2 border-t'>
+								<div className='flex items-center justify-between pt-3 pb-2 border-t'>
 									<div className='flex items-center gap-3 text-sm'>
-										{/* Spots left */}
-										<div className='flex items-center gap-1 text-muted-foreground'>
-											<Users className='h-4 w-4' />
-											<span className={spotsLeft > 0 ? 'text-blue-600 font-medium' : 'text-red-600'}>
-												{spotsLeft > 0
-													? `${spotsLeft}/${roast.feedbacksRequested}`
-													: 'Complet'}
+										{/* Price */}
+										<span className='text-foreground font-medium'>
+											{pricePerRoast}€
+										</span>
+										
+										{/* Spots left - more explicit */}
+										{spotsLeft > 0 ? (
+											<div className='flex items-center gap-1.5 px-2 py-0.5 bg-muted rounded'>
+												<Users className='h-3.5 w-3.5' />
+												<span className='font-medium text-foreground'>
+													{spotsLeft} place{spotsLeft > 1 ? 's' : ''}
+												</span>
+											</div>
+										) : (
+											<span className='text-muted-foreground line-through'>
+												Complet
 											</span>
-										</div>
+										)}
 										
 										{/* View app link */}
 										<Link
@@ -249,7 +234,6 @@ export function AvailableRoastsList({
 											target='_blank'
 											className='flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors'>
 											<ExternalLink className='h-3 w-3' />
-											<span className='text-xs'>App</span>
 										</Link>
 									</div>
 
@@ -257,7 +241,7 @@ export function AvailableRoastsList({
 									<Button
 										asChild
 										size='sm'
-										variant={spotsLeft > 0 ? 'default' : 'secondary'}
+										variant={spotsLeft > 0 ? 'default' : 'ghost'}
 										className={spotsLeft > 0 ? 'bg-orange-500 hover:bg-orange-600' : ''}
 										disabled={spotsLeft <= 0}>
 										<Link href={`/roast/${roast.id}`}>
