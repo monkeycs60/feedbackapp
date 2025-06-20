@@ -3,10 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	CheckCircle,
-	ExternalLink,
-} from 'lucide-react';
+import { CheckCircle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -96,60 +93,103 @@ export function AcceptedApplicationsList({
 		const earnings = Math.round(roast.maxPrice / roast.feedbacksRequested);
 		const isCompleted = hasFeedback && feedbackStatus === 'completed';
 
-		return (
-			<div key={application.id} className='group flex flex-col'>
-				<Link href={`/roast/${roast.id}`}>
-					<div className='relative aspect-video w-full overflow-hidden rounded-xl cursor-pointer'>
-						{roast.coverImage ? (
-							<Image
-								src={roast.coverImage}
-								alt={roast.title}
-								fill
-								className='object-cover transition-transform duration-300 group-hover:scale-105'
-								sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw'
-							/>
-						) : (
-							<div className='w-full h-full bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center'>
-								<ExternalLink className='h-8 w-8 text-muted-foreground' />
-							</div>
-						)}
-						<div
-							className={`absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded-sm ${
-								isCompleted ? 'bg-green-500' : 'bg-orange-500'
-							}`}>
-							{isCompleted ? `+${earnings}€` : `~${earnings}€`}
-						</div>
-					</div>
-				</Link>
+		// Get unique domains from questions
+		const domains = Array.from(new Set(roast.questions.map(q => q.domain)));
 
-				<div className='mt-3 flex items-start gap-3'>
-					<div className='flex-shrink-0'>
-						<Avatar>
-							<AvatarFallback>
+		return (
+			<Card key={application.id} className='group gap-2 hover:shadow-lg py-0 transition-all duration-200 overflow-hidden'>
+				<div className='relative h-48 overflow-hidden'>
+					{roast.coverImage ? (
+						<Image
+							src={roast.coverImage}
+							alt={roast.title}
+							fill
+							className='object-cover transition-transform duration-300 group-hover:scale-105'
+							sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+						/>
+					) : (
+						<div className='w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 flex items-center justify-center'>
+							<ExternalLink className='h-12 w-12 text-muted-foreground/50' />
+						</div>
+					)}
+					{/* Overlay gradient for better text readability */}
+					<div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent' />
+					
+					{/* Earnings badge */}
+					<div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-sm font-semibold text-white ${
+						isCompleted ? 'bg-green-500' : 'bg-orange-500'
+					}`}>
+						{isCompleted ? `+${earnings}€` : `~${earnings}€`}
+					</div>
+					
+					{/* Title on image */}
+					<div className='absolute bottom-3 left-3 right-3'>
+						<h3 className='text-lg font-bold text-white line-clamp-2 drop-shadow-lg'>
+							{roast.title}
+						</h3>
+					</div>
+				</div>
+
+				<CardContent className='px-4 pb-3 flex flex-col gap-1'>
+					{/* Creator info */}
+					<div className='flex items-center gap-2 text-sm'>
+						<Avatar className='h-6 w-6'>
+							<AvatarFallback className='text-xs'>
 								{roast.creator.name?.charAt(0).toUpperCase() || 'C'}
 							</AvatarFallback>
 						</Avatar>
+						<span className='text-muted-foreground'>
+							{roast.creator.name}
+							{roast.creator.creatorProfile?.company && (
+								<span className='text-muted-foreground/70'> • {roast.creator.creatorProfile.company}</span>
+							)}
+						</span>
 					</div>
-					<div className='flex-1'>
-						<h3 className='font-semibold text-foreground line-clamp-2 leading-snug hover:text-accent-foreground'>
-							<Link href={`/roast/${roast.id}`}>{roast.title}</Link>
-						</h3>
-						<div className='text-sm text-muted-foreground mt-1'>
-							<div>{roast.creator.name}</div>
-							<div>
-								<span>
-									{roast.questions.length} question
-									{roast.questions.length > 1 ? 's' : ''}
-								</span>
-								<span className='mx-1.5'>·</span>
-								<span>{isCompleted ? 'Terminée' : 'En cours'}</span>
-							</div>
+
+					{/* Description */}
+					<p className='text-sm text-muted-foreground line-clamp-2 h-10'>
+						{roast.description}
+					</p>
+
+					{/* Domain badges */}
+					{domains.length > 0 && (
+						<div className='flex flex-wrap gap-1 mt-1'>
+							{domains.map((domain) => (
+								<Badge 
+									key={domain} 
+									variant='secondary' 
+									className='text-xs px-2 py-0.5'
+								>
+									{domain}
+								</Badge>
+							))}
 						</div>
+					)}
+
+					{/* Meta info and action */}
+					<div className='flex items-center justify-between pt-2'>
+						<div className='flex items-center gap-3 text-xs text-muted-foreground'>
+							<span>{roast.questions.length} questions</span>
+							<span>•</span>
+							<span>{isCompleted ? 'Terminée' : 'En cours'}</span>
+						</div>
+						
+						<Button 
+							asChild 
+							size='sm' 
+							variant={isCompleted ? 'secondary' : 'default'}
+							className={!isCompleted ? 'bg-orange-500 hover:bg-orange-600' : ''}
+						>
+							<Link href={`/roast/${roast.id}`}>
+								{isCompleted ? 'Voir' : 'Continuer'}
+							</Link>
+						</Button>
 					</div>
-				</div>
-			</div>
+				</CardContent>
+			</Card>
 		);
 	};
+
 
 	return (
 		<div className='space-y-6'>
@@ -164,7 +204,7 @@ export function AcceptedApplicationsList({
 							À compléter
 						</Badge>
 					</div>
-					<div className='grid gap-x-4 gap-y-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+					<div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
 						{ongoingMissions.map(renderMissionCard)}
 					</div>
 				</div>
@@ -181,7 +221,7 @@ export function AcceptedApplicationsList({
 							Complétées
 						</Badge>
 					</div>
-					<div className='grid gap-x-4 gap-y-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+					<div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
 						{completedMissions.map(renderMissionCard)}
 					</div>
 				</div>
