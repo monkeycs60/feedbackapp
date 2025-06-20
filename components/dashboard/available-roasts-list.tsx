@@ -215,7 +215,7 @@ export function AvailableRoastsList({
 									</div>
 
 									<div className='border-t pt-3'>
-										<div className='flex flex-col gap-2 items-end'>
+										<div className='flex flex-col gap-3 items-end'>
 											<div className='flex items-center gap-x-4 gap-y-2 text-sm flex-wrap'>
 												<div className='flex items-center gap-1.5 text-green-600 font-medium'>
 													<span>
