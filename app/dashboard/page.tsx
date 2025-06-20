@@ -11,71 +11,74 @@ import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = {
-  title: "Dashboard - RoastMyApp",
-  description: "Gérez vos demandes de roast et vos feedbacks"
+	title: 'Dashboard - RoastMyApp',
+	description: 'Gérez vos demandes de roast et vos feedbacks',
 };
 
 export default async function DashboardPage() {
-  await requireOnboardingComplete();
-  
-  // Récupérer les informations complètes de l'utilisateur avec ses profils
-  const session = await auth.api.getSession({ headers: await headers() });
-  const fullUser = await prisma.user.findUnique({
-    where: { id: session!.user!.id },
-    include: {
-      creatorProfile: true,
-      roasterProfile: true
-    }
-  });
+	await requireOnboardingComplete();
 
-  if (!fullUser) {
-    throw new Error('Utilisateur non trouvé');
-  }
+	// Récupérer les informations complètes de l'utilisateur avec ses profils
+	const session = await auth.api.getSession({ headers: await headers() });
+	const fullUser = await prisma.user.findUnique({
+		where: { id: session!.user!.id },
+		include: {
+			creatorProfile: true,
+			roasterProfile: true,
+		},
+	});
 
-  const currentRole = (fullUser.primaryRole as 'creator' | 'roaster') || 'creator';
-  const hasCreatorProfile = !!fullUser.creatorProfile;
-  const hasRoasterProfile = !!fullUser.roasterProfile;
-  const canSwitchRoles = hasCreatorProfile && hasRoasterProfile;
+	if (!fullUser) {
+		throw new Error('Utilisateur non trouvé');
+	}
 
-  // Récupérer les données selon le rôle
-  let roastRequests: Awaited<ReturnType<typeof getUserRoastRequests>> = [];
-  let acceptedApplications: Awaited<ReturnType<typeof getRoasterAcceptedApplications>> = [];
-  
-  if (currentRole === 'creator' && hasCreatorProfile) {
-    roastRequests = await getUserRoastRequests();
-  } else if (currentRole === 'roaster' && hasRoasterProfile) {
-    acceptedApplications = await getRoasterAcceptedApplications();
-  }
+	const currentRole =
+		(fullUser.primaryRole as 'creator' | 'roaster') || 'creator';
+	const hasCreatorProfile = !!fullUser.creatorProfile;
+	const hasRoasterProfile = !!fullUser.roasterProfile;
+	const canSwitchRoles = hasCreatorProfile && hasRoasterProfile;
 
-  return (
-    <DashboardLayout
-      hasCreatorProfile={hasCreatorProfile}
-      hasRoasterProfile={hasRoasterProfile}
-    >
-      <div className="space-y-8 pt-6">
-        <div className="gap-4 flex flex-col">
-          <div>
-            {currentRole === 'roaster' && hasRoasterProfile ? (
-              <RoasterStatsRealTime 
-                acceptedApplications={acceptedApplications}
-              />
-            ) : !canSwitchRoles ? (
-              <AddSecondRolePrompt currentRole={currentRole} />
-            ) : null}
-          </div>
-          <div>
-            {currentRole === 'creator' ? (
-              <CreatorDashboardContent roastRequests={roastRequests} />
-            ) : (
-              <div className="space-y-8">
-                {/* Missions acceptées */}
-                <AcceptedApplicationsList applications={acceptedApplications} />
-              </div>
-            )}
-          </div>
-          
-        </div>
-      </div>
-    </DashboardLayout>
-  );
+	// Récupérer les données selon le rôle
+	let roastRequests: Awaited<ReturnType<typeof getUserRoastRequests>> = [];
+	let acceptedApplications: Awaited<
+		ReturnType<typeof getRoasterAcceptedApplications>
+	> = [];
+
+	if (currentRole === 'creator' && hasCreatorProfile) {
+		roastRequests = await getUserRoastRequests();
+	} else if (currentRole === 'roaster' && hasRoasterProfile) {
+		acceptedApplications = await getRoasterAcceptedApplications();
+	}
+
+	return (
+		<DashboardLayout
+			hasCreatorProfile={hasCreatorProfile}
+			hasRoasterProfile={hasRoasterProfile}>
+			<div className='space-y-8 pt-6 bg-gray-900'>
+				<div className='gap-4 flex flex-col'>
+					<div>
+						{currentRole === 'roaster' && hasRoasterProfile ? (
+							<RoasterStatsRealTime
+								acceptedApplications={acceptedApplications}
+							/>
+						) : !canSwitchRoles ? (
+							<AddSecondRolePrompt currentRole={currentRole} />
+						) : null}
+					</div>
+					<div>
+						{currentRole === 'creator' ? (
+							<CreatorDashboardContent roastRequests={roastRequests} />
+						) : (
+							<div className='space-y-8'>
+								{/* Missions acceptées */}
+								<AcceptedApplicationsList
+									applications={acceptedApplications}
+								/>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+		</DashboardLayout>
+	);
 }

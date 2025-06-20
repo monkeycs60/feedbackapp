@@ -31,10 +31,10 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
         onClick={() => onFilterChange('all')}
       >
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">Demandes total</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Demandes total</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-gray-900" data-testid="stat-total-requests">{stats.totalRequests}</div>
+          <div className="text-2xl font-bold text-foreground" data-testid="stat-total-requests">{stats.totalRequests}</div>
         </CardContent>
       </Card>
 
@@ -46,10 +46,10 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
         onClick={() => onFilterChange('active')}
       >
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">En cours</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">En cours</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-blue-600" data-testid="stat-active-requests">{stats.activeRequests}</div>
+          <div className="text-2xl font-bold text-blue-400" data-testid="stat-active-requests">{stats.activeRequests}</div>
         </CardContent>
       </Card>
 
@@ -61,10 +61,10 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
         onClick={() => onFilterChange('completed')}
       >
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">Terminées</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Terminées</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600" data-testid="stat-completed-requests">{stats.completedRequests}</div>
+          <div className="text-2xl font-bold text-green-400" data-testid="stat-completed-requests">{stats.completedRequests}</div>
         </CardContent>
       </Card>
 
@@ -76,10 +76,10 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
         onClick={() => onFilterChange('feedbacks')}
       >
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">Feedbacks reçus</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Feedbacks reçus</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-purple-600" data-testid="stat-feedbacks-received">{stats.feedbacksReceived}</div>
+          <div className="text-2xl font-bold text-purple-400" data-testid="stat-feedbacks-received">{stats.feedbacksReceived}</div>
         </CardContent>
       </Card>
     </div>

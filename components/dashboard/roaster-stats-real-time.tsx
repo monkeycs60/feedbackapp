@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Star, TrendingUp } from 'lucide-react';
+import { Clock, Star } from 'lucide-react';
 import { getRoasterStatsRealTime } from '@/lib/actions/real-time-stats';
 
 type AcceptedApplication = {
@@ -24,11 +24,11 @@ export async function RoasterStatsRealTime({
 	// Calculer TOUTES les stats en temps réel
 	const stats = await getRoasterStatsRealTime();
 
-	// Calculer les missions de cette session seulement
-	const sessionCompleted = acceptedApplications.filter((app) => {
-		const feedback = app.roastRequest.feedbacks[0];
-		return feedback && feedback.status === 'completed';
-	}).length;
+	// Calculer les missions de cette session seulement (non utilisé pour l'instant)
+	// const sessionCompleted = acceptedApplications.filter((app) => {
+	// 	const feedback = app.roastRequest.feedbacks[0];
+	// 	return feedback && feedback.status === 'completed';
+	// }).length;
 
 	const getLevelBadge = (level: string) => {
 		const levelConfig = {

@@ -29,50 +29,50 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
       ];
 
   return (
-    <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+    <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/30">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <Plus className="h-5 w-5 text-purple-600" />
+            <CardTitle className="text-xl flex items-center gap-2 text-white">
+              <Plus className="h-5 w-5 text-purple-400" />
               Débloquer le mode {oppositeRoleLabel}
             </CardTitle>
-            <CardDescription className="mt-2">
+            <CardDescription className="mt-2 text-gray-300">
               Tu utilises actuellement RoastMyApp en tant que {currentRole === 'creator' ? 'Créateur' : 'Roaster'}.
               Découvre l&apos;autre côté de la plateforme !
             </CardDescription>
           </div>
-          <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+          <Badge variant="secondary" className="bg-purple-400/20 text-purple-300 border-purple-400/30">
             Nouveau
           </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-3 bg-white/70 rounded-lg">
+          <div className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/20">
             {oppositeRole === 'creator' ? (
-              <User className="h-8 w-8 text-blue-600 flex-shrink-0" />
+              <User className="h-8 w-8 text-blue-400 flex-shrink-0" />
             ) : (
-              <Star className="h-8 w-8 text-purple-600 flex-shrink-0" />
+              <Star className="h-8 w-8 text-purple-400 flex-shrink-0" />
             )}
             <div>
-              <p className="font-medium text-gray-900">
+              <p className="font-medium text-white">
                 Deviens aussi {oppositeRoleLabel}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-300">
                 Accède aux deux côtés de la plateforme et switch quand tu veux
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium text-gray-200">
               En devenant {oppositeRoleLabel}, tu pourras :
             </p>
             <ul className="space-y-1">
               {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                  <span className="text-purple-600 mt-0.5">•</span>
+                <li key={index} className="flex items-start gap-2 text-sm text-gray-300">
+                  <span className="text-orange-400 mt-0.5">•</span>
                   <span>{benefit}</span>
                 </li>
               ))}
@@ -80,7 +80,7 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
           </div>
 
           <Link href="/onboarding/role-selection?add_role=true">
-            <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
+            <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
               Ajouter le profil {oppositeRoleLabel}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

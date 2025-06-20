@@ -47,12 +47,12 @@ export function DashboardLayout({ children, hasCreatorProfile = false, hasRoaste
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-900">
       <Sidebar 
         hasCreatorProfile={finalCreatorProfile}
         hasRoasterProfile={finalRoasterProfile}
       />
-      <main className="ml-64 pt-4 pb-8">
+      <main className="ml-64 pt-4 pb-8 bg-gray-900">
         <div className="container mx-auto px-6">
           {children}
         </div>
