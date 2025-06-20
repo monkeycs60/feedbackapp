@@ -133,7 +133,7 @@ export function AvailableRoastsList({
 	return (
 		<div className='space-y-6'>
 			<div className='flex justify-between items-center'>
-				<h2 className='text-xl font-semibold text-white'>
+				<h2 className='text-lg font-semibold'>
 					Apps disponibles ({availableRoasts.length})
 				</h2>
 				<div className='text-sm text-gray-300'>
@@ -221,7 +221,7 @@ export function AvailableRoastsList({
 													<span>
 														{roast.maxPrice /
 															roast.feedbacksRequested}
-														€ / roast
+														€
 													</span>
 												</div>
 

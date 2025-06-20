@@ -14,14 +14,11 @@ export default async function MarketplacePage() {
 
 	return (
 		<DashboardLayout>
-			<div className='space-y-8'>
+			<div className='space-y-8 mt-6'>
 				<div>
-					<h1 className='text-3xl font-bold text-white mb-2'>
-						Marketplace Roaster
-					</h1>
-					<p className='text-gray-300'>
+					<p className='font-semibold'>
 						Découvrez les apps qui ont besoin de votre expertise et
-						candidatez pour les roasts qui vous intéressent.
+						candidatez pour les roasts qui vous intéressent
 					</p>
 				</div>
 				<AvailableRoastsList availableRoasts={availableRoasts} />
