@@ -57,7 +57,7 @@ export default async function DashboardPage() {
     >
       <div className="space-y-8">
         <div>
-          <p className="text-lg text-gray-400">
+          <p className="text-lg text-gray-300">
             {currentRole === 'creator' 
               ? 'Voici tes demandes de roast et leur progression'
               : 'Voici les apps disponibles pour du roasting'
