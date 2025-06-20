@@ -213,6 +213,7 @@ export async function getAvailableRoastRequests() {
       where: { 
         OR: [
           { status: 'open' },
+          { status: 'in_progress' },
           { status: 'collecting_applications' }
         ]
       },

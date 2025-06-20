@@ -1,7 +1,6 @@
 import { requireOnboardingComplete } from '@/lib/auth-guards';
-import { getUserRoastRequests, getAvailableRoastRequests } from '@/lib/actions/roast-request';
+import { getUserRoastRequests } from '@/lib/actions/roast-request';
 import { getRoasterAcceptedApplications } from '@/lib/actions/roast-application';
-import { AvailableRoastsList } from '@/components/dashboard/available-roasts-list';
 import { AcceptedApplicationsList } from '@/components/dashboard/accepted-applications-list';
 import { RoasterStats } from '@/components/dashboard/roaster-stats';
 import { AddSecondRolePrompt } from '@/components/dashboard/add-second-role-prompt';
@@ -40,13 +39,11 @@ export default async function DashboardPage() {
 
   // Récupérer les données selon le rôle
   let roastRequests: Awaited<ReturnType<typeof getUserRoastRequests>> = [];
-  let availableRoasts: Awaited<ReturnType<typeof getAvailableRoastRequests>> = [];
   let acceptedApplications: Awaited<ReturnType<typeof getRoasterAcceptedApplications>> = [];
   
   if (currentRole === 'creator' && hasCreatorProfile) {
     roastRequests = await getUserRoastRequests();
   } else if (currentRole === 'roaster' && hasRoasterProfile) {
-    availableRoasts = await getAvailableRoastRequests();
     acceptedApplications = await getRoasterAcceptedApplications();
   }
 
@@ -73,9 +70,6 @@ export default async function DashboardPage() {
               <div className="space-y-8">
                 {/* Missions acceptées */}
                 <AcceptedApplicationsList applications={acceptedApplications} />
-                
-                {/* Apps disponibles */}
-                <AvailableRoastsList availableRoasts={availableRoasts} />
               </div>
             )}
           </div>

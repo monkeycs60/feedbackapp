@@ -141,7 +141,7 @@ export function AvailableRoastsList({
 				</div>
 			</div>
 
-			<div className='grid gap-4'>
+			<div className='grid gap-6 grid-cols-1 lg:grid-cols-2'>
 				{sortedRoasts.map((roast) => {
 					const priority = getRoastPriority(roast);
 					const spotsLeft =
@@ -218,9 +218,10 @@ export function AvailableRoastsList({
 										<div className='flex items-end justify-between'>
 											<div className='flex items-center gap-x-4 gap-y-2 text-sm flex-wrap'>
 												<div className='flex items-center gap-1.5 text-green-600 font-medium'>
-													<Euro className='h-4 w-4' />
 													<span>
-														Jusqu&apos;à {roast.maxPrice}€
+														{roast.maxPrice /
+															roast.feedbacksRequested}
+														€ / roast
 													</span>
 												</div>
 
