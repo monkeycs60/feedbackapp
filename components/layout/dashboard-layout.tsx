@@ -33,10 +33,10 @@ export function DashboardLayout({ children, hasCreatorProfile = false, hasRoaste
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center space-x-3">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-600 border-t-orange-500"></div>
-          <span className="text-gray-400">Chargement...</span>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-orange-500"></div>
+          <span className="text-muted-foreground">Chargement...</span>
         </div>
       </div>
     );
@@ -47,12 +47,12 @@ export function DashboardLayout({ children, hasCreatorProfile = false, hasRoaste
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-background">
       <Sidebar 
         hasCreatorProfile={finalCreatorProfile}
         hasRoasterProfile={finalRoasterProfile}
       />
-      <main className="ml-64 pt-4 pb-8 bg-gray-900">
+      <main className="ml-64 pt-4 pb-8 bg-background">
         <div className="container mx-auto px-6">
           {children}
         </div>

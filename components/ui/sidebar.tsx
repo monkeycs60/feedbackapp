@@ -104,14 +104,14 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
 
   return (
     <div className={cn(
-      "flex h-full w-64 flex-col fixed left-0 top-16 bottom-0 bg-gray-900 border-r border-gray-800",
+      "flex h-full w-64 flex-col fixed left-0 top-16 bottom-0 bg-background border-r border-border",
       className
     )}>
       {/* User info and role switch */}
-      <div className="p-4 border-b border-gray-800 space-y-3">
+      <div className="p-4 border-b border-border space-y-3">
         {/* User name and greeting */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-100">
+          <h2 className="text-lg font-semibold text-foreground">
             Salut {session.user.name} ! 👋
           </h2>
           <div className="flex items-center gap-2 mt-1">
@@ -119,7 +119,7 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
               "h-2 w-2 rounded-full",
               currentRole === 'creator' ? "bg-orange-500" : "bg-blue-500"
             )} />
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-muted-foreground">
               {currentRole === 'creator' ? 'Mode Créateur' : 'Mode Roaster'}
             </span>
           </div>
@@ -132,11 +132,11 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
             size="sm"
             onClick={handleRoleSwitch}
             disabled={isPending}
-            className="w-full bg-gray-800 border-gray-700 hover:bg-gray-700 text-gray-300 hover:text-gray-100"
+            className="w-full bg-secondary border-border hover:bg-accent text-foreground hover:text-accent-foreground"
           >
             {isPending ? (
               <>
-                <div className="h-3 w-3 animate-spin rounded-full border border-gray-500 border-t-orange-500 mr-2"></div>
+                <div className="h-3 w-3 animate-spin rounded-full border border-muted border-t-orange-500 mr-2"></div>
                 Changement...
               </>
             ) : (
@@ -165,18 +165,18 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors group",
                   isActive 
                     ? "bg-orange-500/10 text-orange-400 border border-orange-500/20" 
-                    : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <Icon className={cn(
                   "h-4 w-4 flex-shrink-0",
-                  isActive ? "text-orange-400" : "text-gray-500 group-hover:text-gray-300"
+                  isActive ? "text-orange-400" : "text-muted-foreground group-hover:text-accent-foreground"
                 )} />
                 <div className="flex flex-col">
                   <span className="font-medium">{item.label}</span>
                   <span className={cn(
                     "text-xs",
-                    isActive ? "text-orange-400/70" : "text-gray-500"
+                    isActive ? "text-orange-400/70" : "text-muted-foreground/70"
                   )}>
                     {item.description}
                   </span>
@@ -187,7 +187,7 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
         </div>
 
         {/* Separator */}
-        <div className="border-t border-gray-800 my-4" />
+        <div className="border-t border-border my-4" />
 
         {/* Common items */}
         <div className="space-y-1">
@@ -202,19 +202,19 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors group",
                   isActive 
-                    ? "bg-gray-800 text-gray-200" 
-                    : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
+                    ? "bg-accent text-accent-foreground" 
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <Icon className={cn(
                   "h-4 w-4 flex-shrink-0",
-                  isActive ? "text-gray-300" : "text-gray-500 group-hover:text-gray-300"
+                  isActive ? "text-accent-foreground" : "text-muted-foreground group-hover:text-accent-foreground"
                 )} />
                 <div className="flex flex-col">
                   <span className="font-medium">{item.label}</span>
                   <span className={cn(
                     "text-xs",
-                    isActive ? "text-gray-400" : "text-gray-500"
+                    isActive ? "text-muted-foreground" : "text-muted-foreground/70"
                   )}>
                     {item.description}
                   </span>
@@ -227,7 +227,7 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
         {/* Add second role link */}
         {!canSwitchRoles && (
           <>
-            <div className="border-t border-gray-800 my-4" />
+            <div className="border-t border-border my-4" />
             <div className="space-y-1">
               <Link
                 href="/onboarding/role-selection?add_role=true"
@@ -249,8 +249,8 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-800">
-        <div className="text-xs text-gray-500 text-center">
+      <div className="p-4 border-t border-border">
+        <div className="text-xs text-muted-foreground text-center">
           <div className="mb-1">RoastMyApp v1.0</div>
           <Link 
             href="/docs" 

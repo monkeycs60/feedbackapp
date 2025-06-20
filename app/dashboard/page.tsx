@@ -54,7 +54,7 @@ export default async function DashboardPage() {
 		<DashboardLayout
 			hasCreatorProfile={hasCreatorProfile}
 			hasRoasterProfile={hasRoasterProfile}>
-			<div className='space-y-8 pt-6 bg-gray-900'>
+			<div className='space-y-8 pt-6'>
 				<div className='gap-4 flex flex-col'>
 					<div>
 						{currentRole === 'roaster' && hasRoasterProfile ? (

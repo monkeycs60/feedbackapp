@@ -33,11 +33,11 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-xl flex items-center gap-2 text-white">
+            <CardTitle className="text-xl flex items-center gap-2">
               <Plus className="h-5 w-5 text-purple-400" />
               Débloquer le mode {oppositeRoleLabel}
             </CardTitle>
-            <CardDescription className="mt-2 text-gray-300">
+            <CardDescription className="mt-2">
               Tu utilises actuellement RoastMyApp en tant que {currentRole === 'creator' ? 'Créateur' : 'Roaster'}.
               Découvre l&apos;autre côté de la plateforme !
             </CardDescription>
@@ -56,22 +56,22 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
               <Star className="h-8 w-8 text-purple-400 flex-shrink-0" />
             )}
             <div>
-              <p className="font-medium text-white">
+              <p className="font-medium text-foreground">
                 Deviens aussi {oppositeRoleLabel}
               </p>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-muted-foreground">
                 Accède aux deux côtés de la plateforme et switch quand tu veux
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-200">
+            <p className="text-sm font-medium">
               En devenant {oppositeRoleLabel}, tu pourras :
             </p>
             <ul className="space-y-1">
               {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-gray-300">
+                <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
                   <span className="text-orange-400 mt-0.5">•</span>
                   <span>{benefit}</span>
                 </li>

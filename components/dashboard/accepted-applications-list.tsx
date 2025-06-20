@@ -71,13 +71,13 @@ export function AcceptedApplicationsList({
 
 	if (applications.length === 0) {
 		return (
-			<Card className='bg-gray-800/50 border-gray-700'>
+			<Card>
 				<CardContent className='py-12 text-center'>
-					<CheckCircle className='mx-auto h-12 w-12 text-gray-400 mb-4' />
-					<h3 className='text-lg font-medium text-gray-100 mb-2'>
+					<CheckCircle className='mx-auto h-12 w-12 text-muted-foreground mb-4' />
+					<h3 className='text-lg font-medium text-foreground mb-2'>
 						Aucune mission acceptée
 					</h3>
-					<p className='text-gray-300 mb-6'>
+					<p className='text-muted-foreground mb-6'>
 						Vos candidatures acceptées apparaîtront ici. Consultez le
 						marketplace pour postuler à de nouvelles missions !
 					</p>
@@ -109,8 +109,8 @@ export function AcceptedApplicationsList({
 								sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw'
 							/>
 						) : (
-							<div className='w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center'>
-								<ExternalLink className='h-8 w-8 text-gray-500' />
+							<div className='w-full h-full bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center'>
+								<ExternalLink className='h-8 w-8 text-muted-foreground' />
 							</div>
 						)}
 						<div
@@ -131,10 +131,10 @@ export function AcceptedApplicationsList({
 						</Avatar>
 					</div>
 					<div className='flex-1'>
-						<h3 className='font-semibold text-gray-100 line-clamp-2 leading-snug hover:text-white'>
+						<h3 className='font-semibold text-foreground line-clamp-2 leading-snug hover:text-accent-foreground'>
 							<Link href={`/roast/${roast.id}`}>{roast.title}</Link>
 						</h3>
-						<div className='text-sm text-gray-400 mt-1'>
+						<div className='text-sm text-muted-foreground mt-1'>
 							<div>{roast.creator.name}</div>
 							<div>
 								<span>
@@ -157,7 +157,7 @@ export function AcceptedApplicationsList({
 			{ongoingMissions.length > 0 && (
 				<div>
 					<div className='flex items-center gap-3 mb-4'>
-						<h2 className='text-lg font-semibold text-gray-200'>
+						<h2 className='text-lg font-semibold'>
 							Missions en cours ({ongoingMissions.length})
 						</h2>
 						<Badge className='bg-orange-500/20 text-orange-300 border-orange-500/30'>
@@ -174,7 +174,7 @@ export function AcceptedApplicationsList({
 			{completedMissions.length > 0 && (
 				<div>
 					<div className='flex items-center gap-3 mb-4'>
-						<h2 className='text-lg font-semibold text-gray-200'>
+						<h2 className='text-lg font-semibold'>
 							Missions terminées ({completedMissions.length})
 						</h2>
 						<Badge className='bg-green-500/20 text-green-300 border border-green-500/30'>

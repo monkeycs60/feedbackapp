@@ -83,7 +83,7 @@ export function RoleCard({ role, isSelected, onSelect, isDisabled = false, disab
         
         <ul className="space-y-2 mb-6">
           {config.benefits.map((benefit, index) => (
-            <li key={index} className="text-gray-200">
+            <li key={index}>
               {benefit}
             </li>
           ))}
