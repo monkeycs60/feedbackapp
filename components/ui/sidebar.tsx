@@ -51,6 +51,9 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
         
         // Refresh the router to update the dashboard content
         router.refresh();
+
+        //redirect to dashboard
+        router.push("/dashboard");
       } catch (error) {
         console.error('Erreur lors du changement de rôle:', error);
       }
