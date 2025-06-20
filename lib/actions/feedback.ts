@@ -130,14 +130,8 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
       });
     }
 
-    // Mettre à jour les statistiques du roaster
-    await prisma.roasterProfile.update({
-      where: { userId: user.id },
-      data: { 
-        completedRoasts: { increment: 1 },
-        totalEarned: { increment: validData.finalPrice }
-      }
-    });
+    // Ne plus mettre à jour les compteurs - on calculera en temps réel
+    // Ceci évite toute désynchronisation
 
     // Mettre à jour le statut du roast request si nécessaire
     await prisma.roastRequest.update({
@@ -267,14 +261,8 @@ export async function deleteFeedback(id: string) {
       where: { id }
     });
 
-    // Décrémenter les statistiques du roaster
-    await prisma.roasterProfile.update({
-      where: { userId: user.id },
-      data: { 
-        completedRoasts: { decrement: 1 },
-        totalEarned: { decrement: feedback.finalPrice || 0 }
-      }
-    });
+    // Ne plus décrémenter les compteurs - on calculera en temps réel
+    // Ceci évite toute désynchronisation
 
     revalidatePath('/marketplace');
     return { success: true };

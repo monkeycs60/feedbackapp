@@ -2,7 +2,7 @@ import { requireOnboardingComplete } from '@/lib/auth-guards';
 import { getUserRoastRequests } from '@/lib/actions/roast-request';
 import { getRoasterAcceptedApplications } from '@/lib/actions/roast-application';
 import { AcceptedApplicationsList } from '@/components/dashboard/accepted-applications-list';
-import { RoasterStats } from '@/components/dashboard/roaster-stats';
+import { RoasterStatsRealTime } from '@/components/dashboard/roaster-stats-real-time';
 import { AddSecondRolePrompt } from '@/components/dashboard/add-second-role-prompt';
 import { CreatorDashboardContent } from '@/components/dashboard/creator-dashboard-content';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
@@ -76,9 +76,8 @@ export default async function DashboardPage() {
           
           <div className="lg:col-span-1">
             {currentRole === 'roaster' && hasRoasterProfile ? (
-              <RoasterStats 
+              <RoasterStatsRealTime 
                 acceptedApplications={acceptedApplications}
-                roasterProfile={fullUser.roasterProfile}
               />
             ) : !canSwitchRoles ? (
               <AddSecondRolePrompt currentRole={currentRole} />
