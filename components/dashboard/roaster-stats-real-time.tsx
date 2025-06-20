@@ -48,71 +48,58 @@ export async function RoasterStatsRealTime({
 	};
 
 	return (
-		<div className='flex justify-between gap-6'>
-			{/* Niveau et rating */}
-			<Card className='w-full gap-2 py-2'>
-				<CardHeader className='pb-3'>
-					<CardTitle className='text-lg flex items-center gap-2'>
-						<Star className='w-5 h-5 text-yellow-500' />
-						Mon niveau
-					</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className='text-center space-y-2'>
+		<Card className='bg-gray-800/50 border-gray-700 text-white'>
+			<CardHeader>
+				<CardTitle className='text-lg font-medium text-gray-200'>
+					Vos statistiques
+				</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<div className='grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-700'>
+					<div className='flex flex-col items-center justify-center space-y-2 p-4'>
+						<div className='flex items-center gap-2 text-sm text-gray-400'>
+							<Star className='w-5 h-5 text-yellow-400' />
+							<span>Niveau</span>
+						</div>
 						{getLevelBadge(stats.level)}
-						<div className='text-2xl font-bold text-yellow-600'>
+						<div className='text-xl font-bold text-white'>
 							{stats.rating.toFixed(1)}/5
 						</div>
-						<p className='text-sm text-gray-600'>Note moyenne</p>
 					</div>
-				</CardContent>
-			</Card>
 
-			{/* Missions en cours */}
-			<Card className='w-full'>
-				<CardHeader className='pb-3'>
-					<CardTitle className='text-lg flex items-center gap-2'>
-						<Clock className='w-5 h-5 text-blue-500' />
-						Missions actives
-					</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className='text-center'>
-						<div className='text-2xl font-bold text-blue-600 mb-1'>
+					<div className='flex flex-col items-center justify-center space-y-3 p-4'>
+						<div className='flex items-center gap-2 text-sm text-gray-400'>
+							<Clock className='w-5 h-5 text-blue-400' />
+							<span>Missions Actives</span>
+						</div>
+						<div className='text-3xl font-bold text-blue-400'>
 							{stats.currentActive}
 						</div>
-						<p className='text-sm text-gray-600'>En cours</p>
+						<p className='text-sm text-gray-500'>En cours</p>
 					</div>
-				</CardContent>
-			</Card>
 
-			{/* Statistiques calculées en temps réel */}
-			<Card className='w-full'>
-				<CardHeader className='pb-3'>
-					<CardTitle className='text-lg flex items-center gap-2'>
-						<TrendingUp className='w-5 h-5 text-green-500' />
-						Statistiques
-					</CardTitle>
-				</CardHeader>
-				<CardContent className='space-y-4'>
-					<div className='flex justify-between items-center'>
-						<span className='text-sm text-gray-600'>Roasts terminés</span>
-						<span className='font-semibold'>{stats.completedRoasts}</span>
+					<div className='space-y-4 p-4 flex flex-col justify-center'>
+						<div className='flex justify-between items-center text-sm'>
+							<span className='text-gray-400'>Roasts terminés</span>
+							<span className='font-semibold text-white'>
+								{stats.completedRoasts}
+							</span>
+						</div>
+						<div className='flex justify-between items-center text-sm'>
+							<span className='text-gray-400'>Gains totaux</span>
+							<span className='font-semibold text-green-400'>
+								{stats.totalEarned.toFixed(0)}€
+							</span>
+						</div>
+						<div className='flex justify-between items-center text-sm'>
+							<span className='text-gray-400'>Taux de complétion</span>
+							<span className='font-semibold text-white'>
+								{stats.completionRate}%
+							</span>
+						</div>
 					</div>
-					<div className='flex justify-between items-center'>
-						<span className='text-sm text-gray-600'>Gains totaux</span>
-						<span className='font-semibold text-green-600'>
-							{stats.totalEarned.toFixed(0)}€
-						</span>
-					</div>
-					<div className='flex justify-between items-center'>
-						<span className='text-sm text-gray-600'>
-							Taux de complétion
-						</span>
-						<span className='font-semibold'>{stats.completionRate}%</span>
-					</div>
-				</CardContent>
-			</Card>
-		</div>
+				</div>
+			</CardContent>
+		</Card>
 	);
 }

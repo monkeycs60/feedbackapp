@@ -63,7 +63,7 @@ export default async function DashboardPage() {
               <AddSecondRolePrompt currentRole={currentRole} />
             ) : null}
           </div>
-          <div className="lg:col-span-2">
+          <div>
             {currentRole === 'creator' ? (
               <CreatorDashboardContent roastRequests={roastRequests} />
             ) : (

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 type AcceptedApplication = {
 	id: string;
@@ -98,134 +99,57 @@ export function AcceptedApplicationsList({
 		const isCompleted = hasFeedback && feedbackStatus === 'completed';
 
 		return (
-			<Card
-				key={application.id}
-				className='bg-white py-0 border  hover:border-gray-300 transition-all duration-200 hover:shadow-lg group relative'>
-				{/* Badge de gains amélioré */}
-				<div className='absolute -top-2 -right-2 z-10'>
-					<div
-						className={`px-3 py-1.5 rounded-lg text-xs font-bold text-white shadow-lg transform rotate-3 ${
-							isCompleted
-								? 'bg-gradient-to-r from-green-500 to-emerald-500'
-								: 'bg-gradient-to-r from-blue-500 to-purple-500'
-						}`}>
-						{isCompleted ? `+${earnings}€` : `~${earnings}€`}
-					</div>
-				</div>
-
-				<CardContent className='p-0 overflow-visible rounded-xl'>
-					<div className='flex flex-col'>
-						<div className='flex'>
-							{/* App Cover Image */}
-							<div className='w-32 h-36 flex-shrink-0 relative bg-gray-100 rounded-xl'>
-								{roast.coverImage ? (
-									<Image
-										src={roast.coverImage}
-										alt={roast.title}
-										fill
-										className='object-cover rounded-tl-lg rounded-br-lg'
-										sizes='128px'
-									/>
-								) : (
-									<div className='w-full h-full bg-gradient-to-br from-orange-500/30 to-purple-500/30 flex items-center justify-center'>
-										<ExternalLink className='h-7 w-7 text-gray-400' />
-									</div>
-								)}
-							</div>
-
-							{/* Content */}
-							<div className='p-4 flex flex-col justify-between'>
-								<div>
-									<div className='mb-2'>
-										<h3 className='text-lg font-semibold text-gray-800 group-hover:text-orange-500 transition-colors line-clamp-1 mb-1'>
-											{roast.title}
-										</h3>
-
-										<div className='text-sm text-gray-500'>
-											{roast.creator.name}
-											{roast.creator.creatorProfile?.company && (
-												<span className='text-gray-400'>
-													{' '}
-													• {roast.creator.creatorProfile.company}
-												</span>
-											)}
-										</div>
-									</div>
-
-									<p className='text-gray-600 max-w-52 text-sm line-clamp-2 mb-3 leading-relaxed'>
-										{roast.description}
-									</p>
-								</div>
-							</div>
-						</div>
-						{/* Focus Areas Tags */}
-						{roast.focusAreas.length > 0 && (
-							<div className='px-4 pb-2 pt-2'>
-								<div className='flex flex-wrap gap-2'>
-									{roast.focusAreas.slice(0, 3).map((area) => (
-										<Badge
-											key={area}
-											variant='secondary'
-											className='bg-gray-100 text-gray-600 text-xs px-2 py-1'>
-											{area}
-										</Badge>
-									))}
-									{roast.focusAreas.length > 3 && (
-										<Badge
-											variant='secondary'
-											className='bg-gray-100 text-gray-500 text-xs px-2 py-1'>
-											+{roast.focusAreas.length - 3}
-										</Badge>
-									)}
-									<span className='text-gray-500 text-sm'>
-										{roast.questions.length} question
-										{roast.questions.length > 1 ? 's' : ''}
-									</span>
-								</div>
+			<div key={application.id} className='group flex flex-col'>
+				<Link href={`/roast/${roast.id}`}>
+					<div className='relative aspect-video w-full overflow-hidden rounded-xl cursor-pointer'>
+						{roast.coverImage ? (
+							<Image
+								src={roast.coverImage}
+								alt={roast.title}
+								fill
+								className='object-cover transition-transform duration-300 group-hover:scale-105'
+								sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw'
+							/>
+						) : (
+							<div className='w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center'>
+								<ExternalLink className='h-8 w-8 text-gray-500' />
 							</div>
 						)}
-
-						{/* Action Button */}
-						<div className='px-4 pb-4 flex justify-end gap-2'>
-							<Button asChild size={'sm'} variant={'ghost'}>
-								<Link
-									href={roast.appUrl}
-									target='_blank'
-									className='flex items-center gap-1.5 hover:scale-105 text-sm font-medium'>
-									<ExternalLink className='h-4 w-4' />
-								</Link>
-							</Button>
-							<Button
-								asChild
-								size='sm'
-								className={`${
-									isCompleted
-										? 'bg-green-500 hover:bg-green-600'
-										: 'bg-orange-500 hover:bg-orange-600'
-								} text-white font-medium`}>
-								<Link href={`/roast/${roast.id}`}>
-									{!hasFeedback ? (
-										<>
-											<ArrowRight className='w-4 h-4 mr-2' />
-											Commencer le feedback
-										</>
-									) : isCompleted ? (
-										<>
-											<MessageSquare className='w-4 h-4 mr-2' />
-											Voir le feedback
-										</>
-									) : (
-										<>
-											<MessageSquare className='w-4 h-4 mr-2' />
-											Continuer le feedback
-										</>
-									)}
-								</Link>
-							</Button>
+						<div
+							className={`absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded-sm ${
+								isCompleted ? 'bg-green-500' : 'bg-orange-500'
+							}`}>
+							{isCompleted ? `Gagné: ${earnings}€` : `~${earnings}€`}
 						</div>
 					</div>
-				</CardContent>
-			</Card>
+				</Link>
+
+				<div className='mt-3 flex items-start gap-3'>
+					<div className='flex-shrink-0'>
+						<Avatar>
+							<AvatarFallback>
+								{roast.creator.name?.charAt(0).toUpperCase() || 'C'}
+							</AvatarFallback>
+						</Avatar>
+					</div>
+					<div className='flex-1'>
+						<h3 className='font-semibold text-gray-100 line-clamp-2 leading-snug hover:text-white'>
+							<Link href={`/roast/${roast.id}`}>{roast.title}</Link>
+						</h3>
+						<div className='text-sm text-gray-400 mt-1'>
+							<div>{roast.creator.name}</div>
+							<div>
+								<span>
+									{roast.questions.length} question
+									{roast.questions.length > 1 ? 's' : ''}
+								</span>
+								<span className='mx-1.5'>·</span>
+								<span>{isCompleted ? 'Terminée' : 'En cours'}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		);
 	};
 
@@ -235,14 +159,14 @@ export function AcceptedApplicationsList({
 			{ongoingMissions.length > 0 && (
 				<div>
 					<div className='flex items-center gap-3 mb-4'>
-						<h2 className='text-lg font-semibold text-white'>
+						<h2 className='text-lg font-semibold text-gray-200'>
 							Missions en cours ({ongoingMissions.length})
 						</h2>
 						<Badge className='bg-orange-500/20 text-orange-300 border-orange-500/30'>
 							À compléter
 						</Badge>
 					</div>
-					<div className='grid gap-4 grid-cols-1 lg:grid-cols-2'>
+					<div className='grid gap-x-4 gap-y-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
 						{ongoingMissions.map(renderMissionCard)}
 					</div>
 				</div>
@@ -252,14 +176,14 @@ export function AcceptedApplicationsList({
 			{completedMissions.length > 0 && (
 				<div>
 					<div className='flex items-center gap-3 mb-4'>
-						<h2 className='text-lg font-semibold text-white'>
+						<h2 className='text-lg font-semibold text-gray-200'>
 							Missions terminées ({completedMissions.length})
 						</h2>
-						<Badge className='bg-green-500/20 text-green-300 border-green-500/30'>
+						<Badge className='bg-green-500/20 text-green-300 border border-green-500/30'>
 							Complétées
 						</Badge>
 					</div>
-					<div className='grid gap-4 grid-cols-1 lg:grid-cols-2'>
+					<div className='grid gap-x-4 gap-y-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
 						{completedMissions.map(renderMissionCard)}
 					</div>
 				</div>
