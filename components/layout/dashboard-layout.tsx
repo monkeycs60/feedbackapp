@@ -2,8 +2,9 @@
 
 import { Sidebar } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { useUserProfiles } from "@/lib/hooks/use-user-profiles";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,40 +13,25 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, hasCreatorProfile = false, hasRoasterProfile = false }: DashboardLayoutProps) {
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending: sessionPending } = authClient.useSession();
   const router = useRouter();
-  const [userProfiles, setUserProfiles] = useState({ hasCreator: hasCreatorProfile, hasRoaster: hasRoasterProfile });
+  const { data: profiles, isLoading: profilesLoading } = useUserProfiles();
 
   useEffect(() => {
-    if (!isPending && !session?.user) {
+    if (!sessionPending && !session?.user) {
       router.push("/login");
     }
-  }, [session, isPending, router]);
+  }, [session, sessionPending, router]);
 
-  // Fetch user profiles if not provided as props
-  useEffect(() => {
-    if (session?.user && (!hasCreatorProfile && !hasRoasterProfile)) {
-      fetch('/api/user/profiles')
-        .then(res => res.json())
-        .then(data => {
-          setUserProfiles({
-            hasCreator: !!data.creatorProfile,
-            hasRoaster: !!data.roasterProfile
-          });
-        })
-        .catch(error => {
-          console.error('Failed to fetch user profiles:', error);
-        });
-    } else if (hasCreatorProfile || hasRoasterProfile) {
-      // Si au moins une prop est fournie, les utiliser
-      setUserProfiles({
-        hasCreator: hasCreatorProfile,
-        hasRoaster: hasRoasterProfile
-      });
-    }
-  }, [session, hasCreatorProfile, hasRoasterProfile]);
+  // Calculer les profils finaux en utilisant les props ou les données de React Query
+  const finalCreatorProfile = hasCreatorProfile || !!profiles?.hasCreatorProfile;
+  const finalRoasterProfile = hasRoasterProfile || !!profiles?.hasRoasterProfile;
 
-  if (isPending) {
+  // Afficher le loader uniquement si la session est en cours de chargement
+  // ou si les profiles sont en cours de chargement et qu'aucune prop n'est fournie
+  const isLoading = sessionPending || (!hasCreatorProfile && !hasRoasterProfile && profilesLoading);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="flex items-center space-x-3">
@@ -59,9 +45,6 @@ export function DashboardLayout({ children, hasCreatorProfile = false, hasRoaste
   if (!session?.user) {
     return null;
   }
-
-  const finalCreatorProfile = hasCreatorProfile || userProfiles.hasCreator;
-  const finalRoasterProfile = hasRoasterProfile || userProfiles.hasRoaster;
 
   return (
     <div className="min-h-screen bg-background">

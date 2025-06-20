@@ -1,5 +1,21 @@
 # Changelog
 
+## 2025-06-20-14:30
+### Performance Enhancement - React Query Integration for User Profiles
+- **Implemented React Query for API Caching**: Eliminated flickering during navigation
+  - Created `QueryProvider` component with TanStack Query configuration
+  - Set cache stale time to 1 minute and garbage collection time to 5 minutes
+  - Disabled refetch on window focus for better user experience
+- **Created Custom Hook `useUserProfiles`**: Centralized user profile data fetching
+  - Replaced multiple `useEffect` calls with a single React Query hook
+  - Hook handles session-based caching with user ID as part of query key
+  - Returns typed `UserProfilesData` interface for type safety
+- **Updated Components to Use React Query**:
+  - `DashboardLayout`: Now uses `useUserProfiles` hook instead of `useEffect` with fetch
+  - `Sidebar`: Replaced `useState` and `useEffect` pattern with React Query data
+  - Added `useInvalidateUserProfiles` hook for manual cache invalidation after role switch
+- **Result**: Navigation between marketplace, dashboard, and profile is now instant without API calls or flickering
+
 ## 2025-06-19-00:25
 ### UX Enhancement - Smooth Role Switching Without Hard Reload
 - **Implemented Smooth Role Switching**: Replaced hard page reload with clean router refresh

@@ -13,7 +13,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { switchUserRole } from "@/lib/actions/onboarding";
-import { useState, useTransition, useEffect, useCallback } from "react";
+import { useTransition } from "react";
+import { useUserProfiles, useInvalidateUserProfiles } from "@/lib/hooks/use-user-profiles";
 
 interface SidebarProps {
   className?: string;
@@ -21,55 +22,20 @@ interface SidebarProps {
   hasRoasterProfile?: boolean;
 }
 
-interface UserData {
-  primaryRole: 'creator' | 'roaster';
-  hasCreatorProfile: boolean;
-  hasRoasterProfile: boolean;
-}
-
 export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfile = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = authClient.useSession();
   const [isPending, startTransition] = useTransition();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  
-  // Helper function to fetch user data
-  const fetchUserData = useCallback(async () => {
-    if (!session?.user?.id) return;
-    
-    try {
-      const response = await fetch('/api/user/profiles');
-      if (response.ok) {
-        const data = await response.json();
-        setUserData({
-          primaryRole: data.user?.primaryRole || 'creator',
-          hasCreatorProfile: !!data.creatorProfile,
-          hasRoasterProfile: !!data.roasterProfile
-        });
-      }
-    } catch (error) {
-      console.error('Failed to fetch user data:', error);
-      // Fallback to props if API fails
-      setUserData({
-        primaryRole: 'creator',
-        hasCreatorProfile,
-        hasRoasterProfile
-      });
-    }
-  }, [session?.user?.id, hasCreatorProfile, hasRoasterProfile]);
-  
-  // Fetch user data with profiles info
-  useEffect(() => {
-    fetchUserData();
-  }, [session?.user?.id, hasCreatorProfile, hasRoasterProfile, fetchUserData]);
+  const { data: profiles } = useUserProfiles();
+  const invalidateUserProfiles = useInvalidateUserProfiles();
 
   if (!session?.user) return null;
 
-  // Use userData if available, fallback to props
-  const currentRole = userData?.primaryRole || 'creator';
-  const finalHasCreatorProfile = userData?.hasCreatorProfile ?? hasCreatorProfile;
-  const finalHasRoasterProfile = userData?.hasRoasterProfile ?? hasRoasterProfile;
+  // Use profiles from React Query if available, fallback to props
+  const currentRole = profiles?.primaryRole || 'creator';
+  const finalHasCreatorProfile = profiles?.hasCreatorProfile ?? hasCreatorProfile;
+  const finalHasRoasterProfile = profiles?.hasRoasterProfile ?? hasRoasterProfile;
   const canSwitchRoles = finalHasCreatorProfile && finalHasRoasterProfile;
   
   const handleRoleSwitch = () => {
@@ -79,8 +45,8 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
       try {
         await switchUserRole(newRole);
         
-        // Refetch user data to update sidebar UI
-        await fetchUserData();
+        // Invalidate the user profiles cache to refetch
+        invalidateUserProfiles();
         
         // Refresh the router to update the dashboard content
         router.refresh();
