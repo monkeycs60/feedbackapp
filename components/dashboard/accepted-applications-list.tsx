@@ -117,7 +117,7 @@ export function AcceptedApplicationsList({
 					
 					{/* Earnings badge */}
 					<div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-sm font-semibold text-white ${
-						isCompleted ? 'bg-green-500' : 'bg-orange-500'
+						isCompleted ? 'bg-gray-800' : 'bg-gray-700'
 					}`}>
 						{isCompleted ? `+${earnings}€` : `~${earnings}€`}
 					</div>
