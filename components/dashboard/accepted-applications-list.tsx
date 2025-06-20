@@ -119,7 +119,7 @@ export function AcceptedApplicationsList({
 							className={`absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded-sm ${
 								isCompleted ? 'bg-green-500' : 'bg-orange-500'
 							}`}>
-							{isCompleted ? `Gagné: ${earnings}€` : `~${earnings}€`}
+							{isCompleted ? `+${earnings}€` : `~${earnings}€`}
 						</div>
 					</div>
 				</Link>
