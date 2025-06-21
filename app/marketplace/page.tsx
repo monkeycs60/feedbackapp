@@ -1,6 +1,6 @@
 import { requireOnboardingComplete } from '@/lib/auth-guards';
-import { getAvailableRoastRequests } from '@/lib/actions/roast-request';
-import { AvailableRoastsList } from '@/components/dashboard/available-roasts-list';
+import { getFilteredRoastRequests } from '@/lib/actions/roast-request';
+import { MarketplaceContent } from '@/components/marketplace/marketplace-content';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 
 export const metadata = {
@@ -10,19 +10,11 @@ export const metadata = {
 
 export default async function MarketplacePage() {
 	await requireOnboardingComplete();
-	const availableRoasts = await getAvailableRoastRequests();
+	const availableRoasts = await getFilteredRoastRequests();
 
 	return (
 		<DashboardLayout>
-			<div className='space-y-8 mt-6'>
-				<div>
-					<p className='font-semibold'>
-						Découvrez les apps qui ont besoin de votre expertise et
-						candidatez pour les roasts qui vous intéressent
-					</p>
-				</div>
-				<AvailableRoastsList availableRoasts={availableRoasts} />
-			</div>
+			<MarketplaceContent initialRoasts={availableRoasts} />
 		</DashboardLayout>
 	);
 }

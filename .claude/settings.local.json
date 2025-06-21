@@ -5,7 +5,9 @@
       "Bash(npm run lint)",
       "Bash(rm:*)",
       "Bash(npm install:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(npx shadcn@latest add:*)"
     ],
     "deny": []
   }

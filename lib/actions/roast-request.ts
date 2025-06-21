@@ -256,6 +256,125 @@ export async function getAvailableRoastRequests() {
   }
 }
 
+export type RoastFilters = {
+  applicationStatus?: 'not_applied' | 'in_progress' | 'completed';
+  domains?: string[];
+  targetAudiences?: string[];
+  questionTypes?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+};
+
+export async function getFilteredRoastRequests(filters?: RoastFilters) {
+  try {
+    const user = await getCurrentUser();
+    
+    // Base query for available roasts
+    const roasts = await prisma.roastRequest.findMany({
+      where: { 
+        OR: [
+          { status: 'open' },
+          { status: 'in_progress' },
+          { status: 'collecting_applications' }
+        ]
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            creatorProfile: {
+              select: {
+                company: true
+              }
+            }
+          }
+        },
+        feedbacks: {
+          where: { roasterId: user.id },
+          select: { id: true, status: true }
+        },
+        applications: {
+          where: { roasterId: user.id },
+          select: { id: true, status: true }
+        },
+        _count: {
+          select: { 
+            feedbacks: true,
+            applications: true 
+          }
+        },
+        questions: {
+          orderBy: [
+            { domain: 'asc' },
+            { order: 'asc' }
+          ]
+        }
+      }
+    });
+
+    if (!filters) return roasts;
+
+    // Filter by application status
+    let filteredRoasts = roasts;
+    if (filters.applicationStatus) {
+      filteredRoasts = roasts.filter(roast => {
+        const hasApplication = roast.applications.length > 0;
+        const hasFeedback = roast.feedbacks.length > 0;
+        const hasCompletedFeedback = roast.feedbacks.some(f => f.status === 'completed');
+        
+        switch (filters.applicationStatus) {
+          case 'not_applied':
+            return !hasApplication && !hasFeedback;
+          case 'in_progress':
+            return (hasApplication || hasFeedback) && !hasCompletedFeedback;
+          case 'completed':
+            return hasCompletedFeedback;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Filter by domains (focus areas)
+    if (filters.domains && filters.domains.length > 0) {
+      filteredRoasts = filteredRoasts.filter(roast =>
+        roast.focusAreas.some(area => filters.domains!.includes(area))
+      );
+    }
+
+    // Filter by target audiences
+    if (filters.targetAudiences && filters.targetAudiences.length > 0) {
+      filteredRoasts = filteredRoasts.filter(roast =>
+        roast.targetAudience && filters.targetAudiences!.includes(roast.targetAudience)
+      );
+    }
+
+    // Filter by question types (domains)
+    if (filters.questionTypes && filters.questionTypes.length > 0) {
+      filteredRoasts = filteredRoasts.filter(roast =>
+        roast.questions.some(q => filters.questionTypes!.includes(q.domain))
+      );
+    }
+
+    // Filter by price range
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+      filteredRoasts = filteredRoasts.filter(roast => {
+        const pricePerRoast = Math.round(roast.maxPrice / roast.feedbacksRequested);
+        if (filters.minPrice !== undefined && pricePerRoast < filters.minPrice) return false;
+        if (filters.maxPrice !== undefined && pricePerRoast > filters.maxPrice) return false;
+        return true;
+      });
+    }
+
+    return filteredRoasts;
+  } catch (error) {
+    console.error('Erreur récupération demandes filtrées:', error);
+    return [];
+  }
+}
+
 export async function getRoastRequestById(id: string) {
   try {
     const roastRequest = await prisma.roastRequest.findUnique({

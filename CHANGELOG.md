@@ -1,5 +1,41 @@
 # Changelog
 
+## 2025-06-21-10:00
+### New Feature - Marketplace Filtering System for Roasters
+- **Added comprehensive filtering system for the marketplace page**:
+  - Filter by application status (not applied, in progress, completed)
+  - Filter by domains (focus areas)
+  - Filter by target audience
+  - Filter by question types
+  - Filter by price range with interactive slider
+- **Created new server action `getFilteredRoastRequests`** in roast-request.ts
+  - Filters roasts based on user's application/feedback status
+  - Supports multiple filter criteria with AND logic
+- **Created MarketplaceFilters component** with sheet UI for mobile-friendly filtering
+  - Shows active filter count badge
+  - Allows clearing all filters at once
+- **Created MarketplaceContent wrapper component** for client-side filtering logic
+  - Extracts available filter options from roast data
+  - Handles loading states during filter application
+- **Updated card buttons based on application status**:
+  - "Postuler" (Apply) for new roasts
+  - "Continuer" (Continue) for in-progress roasts
+  - "Consulter" (View) for completed roasts
+  - Different button colors for each state (orange, blue, outline)
+
+## 2025-06-21-10:15
+### UI Enhancement - Replaced Sheet Filters with Inline Dropdown Filters
+- **Replaced sheet-based filters with inline dropdown filters** at the top of marketplace page
+- **Created MarketplaceFilterBar component** with dropdown menus:
+  - Status filter as a select dropdown
+  - Domain, audience, and question type filters as checkbox dropdowns
+  - Price range filter in a dropdown with slider
+  - All filters are displayed inline for better visibility
+- **Added active filter badges** below the filter bar
+  - Each active filter shows as a removable badge
+  - Clear all filters button when filters are active
+- **Added Select component** from Radix UI for status dropdown
+
 ## 2025-06-20-14:30
 ### Performance Enhancement - React Query Integration for User Profiles
 - **Implemented React Query for API Caching**: Eliminated flickering during navigation

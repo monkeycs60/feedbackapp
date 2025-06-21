@@ -63,7 +63,7 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Feedbacks reçus</h2>
       
       {feedbacks.map((feedback) => (
-        <Card key={feedback.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+        <Card key={feedback.id} className="overflow-hidden hover:shadow-lg transition-shadow bg-backgroundlighter">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">

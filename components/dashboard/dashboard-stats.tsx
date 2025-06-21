@@ -25,7 +25,7 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card 
         className={cn(
-          "cursor-pointer transition-all hover:shadow-lg",
+          "cursor-pointer transition-all hover:shadow-lg bg-backgroundlighter",
           activeFilter === 'all' && "ring-2 ring-blue-500 shadow-lg"
         )}
         onClick={() => onFilterChange('all')}
@@ -40,7 +40,7 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
 
       <Card 
         className={cn(
-          "cursor-pointer transition-all hover:shadow-lg",
+          "cursor-pointer transition-all hover:shadow-lg bg-backgroundlighter",
           activeFilter === 'active' && "ring-2 ring-blue-500 shadow-lg"
         )}
         onClick={() => onFilterChange('active')}
@@ -55,7 +55,7 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
 
       <Card 
         className={cn(
-          "cursor-pointer transition-all hover:shadow-lg",
+          "cursor-pointer transition-all hover:shadow-lg bg-backgroundlighter",
           activeFilter === 'completed' && "ring-2 ring-green-500 shadow-lg"
         )}
         onClick={() => onFilterChange('completed')}
@@ -70,7 +70,7 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
 
       <Card 
         className={cn(
-          "cursor-pointer transition-all hover:shadow-lg",
+          "cursor-pointer transition-all hover:shadow-lg bg-backgroundlighter",
           activeFilter === 'feedbacks' && "ring-2 ring-purple-500 shadow-lg"
         )}
         onClick={() => onFilterChange('feedbacks')}

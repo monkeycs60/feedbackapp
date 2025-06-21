@@ -247,20 +247,48 @@ export function AvailableRoastsList({
 									</div>
 
 									{/* Action button */}
-									<Button
-										asChild
-										size='sm'
-										variant={spotsLeft > 0 ? 'default' : 'ghost'}
-										className={
-											spotsLeft > 0
-												? 'bg-orange-500 hover:bg-orange-600'
-												: ''
+									{(() => {
+										const hasApplication = roast.applications.length > 0;
+										const hasFeedback = roast.feedbacks.length > 0;
+										const hasCompletedFeedback = roast.feedbacks.some(f => f.status === 'completed');
+										
+										if (hasCompletedFeedback) {
+											return (
+												<Button asChild size='sm' variant='outline'>
+													<Link href={`/roast/${roast.id}`}>
+														Consulter
+													</Link>
+												</Button>
+											);
 										}
-										disabled={spotsLeft <= 0}>
-										<Link href={`/roast/${roast.id}`}>
-											{spotsLeft > 0 ? 'Postuler' : 'Complet'}
-										</Link>
-									</Button>
+										
+										if (hasApplication || hasFeedback) {
+											return (
+												<Button asChild size='sm' variant='default' className='bg-blue-500 hover:bg-blue-600'>
+													<Link href={`/roast/${roast.id}`}>
+														Continuer
+													</Link>
+												</Button>
+											);
+										}
+										
+										return (
+											<Button
+												asChild
+												size='sm'
+												variant={spotsLeft > 0 ? 'default' : 'ghost'}
+												className={
+													spotsLeft > 0
+														? 'bg-orange-500 hover:bg-orange-600'
+														: ''
+												}
+												disabled={spotsLeft <= 0}>
+												<Link href={`/roast/${roast.id}`}>
+													{spotsLeft > 0 ? 'Postuler' : 'Complet'}
+												</Link>
+											</Button>
+										);
+									})()}
 								</div>
 							</CardContent>
 						</Card>
