@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Plus, X, GripVertical } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { FOCUS_AREAS, PRICING, APP_CATEGORIES, type FocusArea, type SelectedDomain, type DomainQuestion } from '@/lib/types/roast-request';
 import { createRoastRequest } from '@/lib/actions/roast-request';
 import { getTargetAudiences, initializeTargetAudiences, createTargetAudience } from '@/lib/actions/target-audiences';
@@ -24,7 +25,7 @@ const formSchema = z.object({
   title: z.string().min(10, "Le titre doit faire au moins 10 caractères").max(100),
   appUrl: z.string().url("URL invalide"),
   description: z.string().min(50, "La description doit faire au moins 50 caractères").max(1000),
-  targetAudienceId: z.string().min(1, "Sélectionne une audience cible"),
+  targetAudienceIds: z.array(z.string()).min(1, "Sélectionne au moins une audience cible").max(2, "Maximum 2 audiences cibles"),
   customTargetAudience: z.object({
     name: z.string().min(2, "Le nom doit faire au moins 2 caractères")
   }).optional(),
@@ -68,24 +69,25 @@ export function NewRoastForm() {
   const selectedDomains = form.watch('selectedDomains') || [];
   const description = form.watch('description') || '';
   const feedbacksRequested = form.watch('feedbacksRequested') || 1;
-  const targetAudienceId = form.watch('targetAudienceId');
+  const targetAudienceIds = form.watch('targetAudienceIds') || [];
 
   // Load target audiences on mount
   useEffect(() => {
     async function loadAudiences() {
       // Initialize default audiences if needed
       await initializeTargetAudiences();
-      // Load all audiences
+      // Load all audiences and sort alphabetically
       const audiences = await getTargetAudiences();
-      setTargetAudiences(audiences);
+      const sortedAudiences = audiences.sort((a, b) => a.name.localeCompare(b.name));
+      setTargetAudiences(sortedAudiences);
     }
     loadAudiences();
   }, []);
 
   // Handle target audience selection
   useEffect(() => {
-    setShowCustomAudience(targetAudienceId === 'custom');
-  }, [targetAudienceId]);
+    setShowCustomAudience(targetAudienceIds.includes('custom'));
+  }, [targetAudienceIds]);
 
   // Handle custom audience creation
   const handleCreateCustomAudience = async () => {
@@ -101,11 +103,15 @@ export function NewRoastForm() {
     try {
       const newAudience = await createTargetAudience({ name: customAudienceName.trim() });
       
-      // Add to local list
-      setTargetAudiences(prev => [newAudience, ...prev]);
+      // Add to local list and keep sorted
+      setTargetAudiences(prev => {
+        const updated = [newAudience, ...prev];
+        return updated.sort((a, b) => a.name.localeCompare(b.name));
+      });
       
-      // Select the new audience
-      form.setValue('targetAudienceId', newAudience.id);
+      // Replace 'custom' with the new audience ID
+      const updatedIds = targetAudienceIds.map(id => id === 'custom' ? newAudience.id : id);
+      form.setValue('targetAudienceIds', updatedIds);
       form.setValue('customTargetAudience.name', '');
       setShowCustomAudience(false);
       
@@ -116,6 +122,23 @@ export function NewRoastForm() {
       });
     } finally {
       setIsCreatingAudience(false);
+    }
+  };
+
+  // Handle audience selection
+  const handleAudienceToggle = (audienceId: string) => {
+    const currentIds = targetAudienceIds;
+    
+    if (currentIds.includes(audienceId)) {
+      // Remove audience
+      const updated = currentIds.filter(id => id !== audienceId);
+      form.setValue('targetAudienceIds', updated);
+    } else {
+      // Add audience (max 2)
+      if (currentIds.length < 2) {
+        const updated = [...currentIds, audienceId];
+        form.setValue('targetAudienceIds', updated);
+      }
     }
   };
 
@@ -378,25 +401,49 @@ export function NewRoastForm() {
               </div>
 
               <div>
-                <Label>Audience cible</Label>
-                <Select
-                  value={form.watch('targetAudienceId')}
-                  onValueChange={(value) => form.setValue('targetAudienceId', value)}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Sélectionne ton audience cible" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="custom">+ Ajouter une nouvelle audience</SelectItem>
-                    {targetAudiences.map((audience) => (
-                      <SelectItem key={audience.id} value={audience.id}>
+                <Label>Audiences cibles (1-2 max)</Label>
+                <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
+                  {/* Add new audience option */}
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="custom-audience"
+                      checked={targetAudienceIds.includes('custom')}
+                      onCheckedChange={() => handleAudienceToggle('custom')}
+                      disabled={targetAudienceIds.length >= 2 && !targetAudienceIds.includes('custom')}
+                    />
+                    <Label 
+                      htmlFor="custom-audience" 
+                      className="text-sm font-medium cursor-pointer text-blue-600"
+                    >
+                      + Ajouter une nouvelle audience
+                    </Label>
+                  </div>
+                  
+                  {/* Existing audiences */}
+                  {targetAudiences.map((audience) => (
+                    <div key={audience.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`audience-${audience.id}`}
+                        checked={targetAudienceIds.includes(audience.id)}
+                        onCheckedChange={() => handleAudienceToggle(audience.id)}
+                        disabled={targetAudienceIds.length >= 2 && !targetAudienceIds.includes(audience.id)}
+                      />
+                      <Label 
+                        htmlFor={`audience-${audience.id}`} 
+                        className="text-sm cursor-pointer"
+                      >
                         {audience.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.targetAudienceId && (
-                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.targetAudienceId.message}</p>
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                {targetAudienceIds.length > 0 && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    {targetAudienceIds.length}/2 audiences sélectionnées
+                  </p>
+                )}
+                {form.formState.errors.targetAudienceIds && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.targetAudienceIds.message}</p>
                 )}
               </div>
 

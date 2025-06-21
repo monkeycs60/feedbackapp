@@ -136,13 +136,18 @@ export async function createTargetAudience(data: z.infer<typeof createTargetAudi
     
     const validData = validation.data;
     
-    // Check if audience already exists
-    const existing = await prisma.targetAudience.findUnique({
-      where: { name: validData.name }
+    // Check if audience already exists (case insensitive)
+    const existing = await prisma.targetAudience.findFirst({
+      where: { 
+        name: {
+          equals: validData.name,
+          mode: 'insensitive'
+        }
+      }
     });
     
     if (existing) {
-      return existing;
+      throw new Error("Cette audience existe déjà");
     }
     
     // Create new audience

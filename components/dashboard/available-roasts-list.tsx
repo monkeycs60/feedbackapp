@@ -11,10 +11,12 @@ type AvailableRoast = {
 	title: string;
 	appUrl: string;
 	description: string;
-	targetAudience: {
-		id: string;
-		name: string;
-	} | null;
+	targetAudiences: Array<{
+		targetAudience: {
+			id: string;
+			name: string;
+		};
+	}>;
 	focusAreas: string[];
 	maxPrice: number;
 	feedbacksRequested: number;

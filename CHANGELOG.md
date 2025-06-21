@@ -71,6 +71,26 @@
   - Filters by relationship instead of text matching
 - **Updated all related types and queries** to handle the new audience relationship
 
+## 2025-06-21-11:30
+### Enhancement - Multiple Target Audiences & Improved UX
+- **Multiple target audiences support (1-2 max)**:
+  - Updated database schema with `RoastRequestAudience` many-to-many table
+  - Roast requests can now target 1-2 different audiences
+  - Updated all queries and filtering logic for multiple audiences
+- **Improved duplicate prevention**:
+  - Case-insensitive duplicate checking for custom audiences
+  - Better error handling when audience already exists
+- **Enhanced audience selection UX**:
+  - Replaced dropdown with checkbox interface for multi-selection
+  - "Add new audience" option always appears first
+  - Alphabetical sorting of all audiences (except "add new")
+  - Real-time counter showing selected audiences (X/2)
+  - Disabled state when max limit reached
+- **Automatic sorting and state management**:
+  - New audiences automatically inserted in alphabetical order
+  - Seamless replacement of "custom" placeholder with actual audience ID
+- **Updated marketplace filtering** to work with multiple target audiences per roast
+
 ## 2025-06-20-14:30
 ### Performance Enhancement - React Query Integration for User Profiles
 - **Implemented React Query for API Caching**: Eliminated flickering during navigation

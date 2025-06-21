@@ -108,25 +108,24 @@ model RoasterProfile {
 }
 
 model RoastRequest {
-  id                 String             @id @default(cuid())
+  id                 String                    @id @default(cuid())
   creatorId          String
   title              String
   appUrl             String
   description        String
-  targetAudienceId   String?
   focusAreas         String[]
   maxPrice           Float
   deadline           DateTime?
-  status             String             @default("open")
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  status             String                    @default("open")
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
   coverImage         String?
-  feedbacksRequested Int                @default(1)
+  feedbacksRequested Int                       @default(1)
   feedbacks          Feedback[]
   applications       RoastApplication[]
   questions          RoastQuestion[]
-  creator            User               @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  targetAudience     TargetAudience?    @relation(fields: [targetAudienceId], references: [id])
+  creator            User                      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  targetAudiences    RoastRequestAudience[]
 
   @@map("roast_requests")
 }
@@ -195,14 +194,26 @@ model QuestionResponse {
 }
 
 model TargetAudience {
-  id            String         @id @default(cuid())
-  name          String         @unique
-  isDefault     Boolean        @default(true)
+  id            String                 @id @default(cuid())
+  name          String                 @unique
+  isDefault     Boolean                @default(true)
   createdBy     String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  roastRequests RoastRequest[]
-  creator       User?          @relation(fields: [createdBy], references: [id])
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  roastRequests RoastRequestAudience[]
+  creator       User?                  @relation(fields: [createdBy], references: [id])
 
   @@map("target_audiences")
+}
+
+model RoastRequestAudience {
+  id               String         @id @default(cuid())
+  roastRequestId   String
+  targetAudienceId String
+  createdAt        DateTime       @default(now())
+  roastRequest     RoastRequest   @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+  targetAudience   TargetAudience @relation(fields: [targetAudienceId], references: [id], onDelete: Cascade)
+
+  @@unique([roastRequestId, targetAudienceId])
+  @@map("roast_request_audiences")
 }

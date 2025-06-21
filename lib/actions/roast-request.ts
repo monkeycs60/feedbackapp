@@ -26,7 +26,7 @@ const roastRequestSchema = z.object({
   title: z.string().min(10, "Le titre doit faire au moins 10 caractères").max(100),
   appUrl: z.string().url("URL invalide"),
   description: z.string().min(50, "La description doit faire au moins 50 caractères").max(1000),
-  targetAudienceId: z.string().min(1, "Sélectionne une audience cible"),
+  targetAudienceIds: z.array(z.string()).min(1, "Sélectionne au moins une audience cible").max(2, "Maximum 2 audiences cibles"),
   customTargetAudience: z.object({
     name: z.string()
   }).optional(),
@@ -78,16 +78,23 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
     console.log({validData});
 
     // Handle custom target audience if needed
-    let targetAudienceId = validData.targetAudienceId;
+    let targetAudienceIds = validData.targetAudienceIds;
     
-    if (validData.targetAudienceId === 'custom' && validData.customTargetAudience) {
+    if (validData.targetAudienceIds.includes('custom') && validData.customTargetAudience) {
       // Check if custom audience already exists
-      const existing = await prisma.targetAudience.findUnique({
-        where: { name: validData.customTargetAudience.name }
+      const existing = await prisma.targetAudience.findFirst({
+        where: { 
+          name: {
+            equals: validData.customTargetAudience.name,
+            mode: 'insensitive'
+          }
+        }
       });
       
+      let customAudienceId: string;
+      
       if (existing) {
-        targetAudienceId = existing.id;
+        customAudienceId = existing.id;
       } else {
         // Create new custom audience
         const newAudience = await prisma.targetAudience.create({
@@ -97,8 +104,11 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
             createdBy: user.id
           }
         });
-        targetAudienceId = newAudience.id;
+        customAudienceId = newAudience.id;
       }
+      
+      // Replace 'custom' with the actual audience ID
+      targetAudienceIds = targetAudienceIds.map(id => id === 'custom' ? customAudienceId : id);
     }
 
     const roastRequest = await prisma.roastRequest.create({
@@ -107,13 +117,17 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
         title: validData.title,
         appUrl: validData.appUrl,
         description: validData.description,
-        targetAudienceId: targetAudienceId,
         focusAreas: validData.focusAreas,
         maxPrice: validData.maxPrice,
         feedbacksRequested: validData.feedbacksRequested,
         deadline: validData.deadline,
         status: 'open',
-        coverImage: validData.coverImage
+        coverImage: validData.coverImage,
+        targetAudiences: {
+          create: targetAudienceIds.map(audienceId => ({
+            targetAudienceId: audienceId
+          }))
+        }
       }
     });
 
@@ -257,7 +271,11 @@ export async function getAvailableRoastRequests() {
             }
           }
         },
-        targetAudience: true,
+        targetAudiences: {
+          include: {
+            targetAudience: true
+          }
+        },
         feedbacks: {
           select: { id: true, status: true }
         },
@@ -319,7 +337,11 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
             }
           }
         },
-        targetAudience: true,
+        targetAudiences: {
+          include: {
+            targetAudience: true
+          }
+        },
         feedbacks: {
           where: { roasterId: user.id },
           select: { id: true, status: true }
@@ -376,7 +398,9 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
     // Filter by target audiences
     if (filters.targetAudiences && filters.targetAudiences.length > 0) {
       filteredRoasts = filteredRoasts.filter(roast =>
-        roast.targetAudience && filters.targetAudiences!.includes(roast.targetAudience.name)
+        roast.targetAudiences.some(ta => 
+          filters.targetAudiences!.includes(ta.targetAudience.name)
+        )
       );
     }
 
