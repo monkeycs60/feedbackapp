@@ -260,7 +260,7 @@ export type RoastFilters = {
   applicationStatus?: 'not_applied' | 'in_progress' | 'completed';
   domains?: string[];
   targetAudiences?: string[];
-  questionTypes?: string[];
+  dateFilter?: 'today' | 'yesterday' | 'last_week' | 'last_month';
   minPrice?: number;
   maxPrice?: number;
 };
@@ -351,11 +351,32 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
       );
     }
 
-    // Filter by question types (domains)
-    if (filters.questionTypes && filters.questionTypes.length > 0) {
-      filteredRoasts = filteredRoasts.filter(roast =>
-        roast.questions.some(q => filters.questionTypes!.includes(q.domain))
-      );
+    // Filter by date
+    if (filters.dateFilter) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const lastWeek = new Date(today);
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      const lastMonth = new Date(today);
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+      filteredRoasts = filteredRoasts.filter(roast => {
+        const roastDate = new Date(roast.createdAt);
+        switch (filters.dateFilter) {
+          case 'today':
+            return roastDate >= today;
+          case 'yesterday':
+            return roastDate >= yesterday && roastDate < today;
+          case 'last_week':
+            return roastDate >= lastWeek;
+          case 'last_month':
+            return roastDate >= lastMonth;
+          default:
+            return true;
+        }
+      });
     }
 
     // Filter by price range

@@ -8,125 +8,122 @@ import { getFilteredRoastRequests } from '@/lib/actions/roast-request';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type AvailableRoast = {
-  id: string;
-  title: string;
-  appUrl: string;
-  description: string;
-  targetAudience: string | null;
-  focusAreas: string[];
-  maxPrice: number;
-  feedbacksRequested: number;
-  deadline?: Date | null;
-  createdAt: Date;
-  coverImage?: string | null;
-  creator: {
-    id: string;
-    name: string | null;
-    creatorProfile: {
-      company: string | null;
-    } | null;
-  };
-  feedbacks: { id: string; status: string }[];
-  applications: { id: string; status: string }[];
-  _count: {
-    feedbacks: number;
-    applications: number;
-  };
-  questions: { domain: string }[];
+	id: string;
+	title: string;
+	appUrl: string;
+	description: string;
+	targetAudience: string | null;
+	focusAreas: string[];
+	maxPrice: number;
+	feedbacksRequested: number;
+	deadline?: Date | null;
+	createdAt: Date;
+	coverImage?: string | null;
+	creator: {
+		id: string;
+		name: string | null;
+		creatorProfile: {
+			company: string | null;
+		} | null;
+	};
+	feedbacks: { id: string; status: string }[];
+	applications: { id: string; status: string }[];
+	_count: {
+		feedbacks: number;
+		applications: number;
+	};
+	questions: { domain: string }[];
 };
 
 interface MarketplaceContentProps {
-  initialRoasts: AvailableRoast[];
+	initialRoasts: AvailableRoast[];
 }
 
 export function MarketplaceContent({ initialRoasts }: MarketplaceContentProps) {
-  const [filters, setFilters] = useState<RoastFilters>({});
-  const [filteredRoasts, setFilteredRoasts] = useState(initialRoasts);
-  const [isLoading, setIsLoading] = useState(false);
+	const [filters, setFilters] = useState<RoastFilters>({});
+	const [filteredRoasts, setFilteredRoasts] = useState(initialRoasts);
+	const [isLoading, setIsLoading] = useState(false);
 
-  // Extract available filter data from all roasts
-  const availableFilterData = useMemo(() => {
-    const domains = new Set<string>();
-    const targetAudiences = new Set<string>();
-    const questionTypes = new Set<string>();
-    let minPrice = Infinity;
-    let maxPrice = 0;
+	// Extract available filter data from all roasts
+	const availableFilterData = useMemo(() => {
+		const domains = new Set<string>();
+		const targetAudiences = new Set<string>();
+		let minPrice = Infinity;
+		let maxPrice = 0;
 
-    initialRoasts.forEach(roast => {
-      // Extract domains from focus areas
-      roast.focusAreas.forEach(area => domains.add(area));
-      
-      // Extract target audiences
-      if (roast.targetAudience) {
-        targetAudiences.add(roast.targetAudience);
-      }
-      
-      // Extract question types
-      roast.questions.forEach(q => questionTypes.add(q.domain));
-      
-      // Calculate price range
-      const pricePerRoast = Math.round(roast.maxPrice / roast.feedbacksRequested);
-      minPrice = Math.min(minPrice, pricePerRoast);
-      maxPrice = Math.max(maxPrice, pricePerRoast);
-    });
+		initialRoasts.forEach((roast) => {
+			// Extract domains from focus areas
+			roast.focusAreas.forEach((area) => domains.add(area));
 
-    return {
-      domains: Array.from(domains).sort(),
-      targetAudiences: Array.from(targetAudiences).sort(),
-      questionTypes: Array.from(questionTypes).sort(),
-      priceRange: {
-        min: minPrice === Infinity ? 0 : minPrice,
-        max: maxPrice
-      }
-    };
-  }, [initialRoasts]);
+			// Extract target audiences
+			if (roast.targetAudience) {
+				targetAudiences.add(roast.targetAudience);
+			}
 
-  useEffect(() => {
-    const applyFilters = async () => {
-      // If no filters are applied, use initial roasts
-      if (Object.keys(filters).length === 0) {
-        setFilteredRoasts(initialRoasts);
-        return;
-      }
+			// Calculate price range
+			const pricePerRoast = Math.round(
+				roast.maxPrice / roast.feedbacksRequested
+			);
+			minPrice = Math.min(minPrice, pricePerRoast);
+			maxPrice = Math.max(maxPrice, pricePerRoast);
+		});
 
-      setIsLoading(true);
-      try {
-        const filtered = await getFilteredRoastRequests(filters);
-        setFilteredRoasts(filtered);
-      } catch (error) {
-        console.error('Error filtering roasts:', error);
-        setFilteredRoasts(initialRoasts);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+		return {
+			domains: Array.from(domains).sort(),
+			targetAudiences: Array.from(targetAudiences).sort(),
+			priceRange: {
+				min: minPrice === Infinity ? 0 : minPrice,
+				max: maxPrice,
+			},
+		};
+	}, [initialRoasts]);
 
-    applyFilters();
-  }, [filters, initialRoasts]);
+	useEffect(() => {
+		const applyFilters = async () => {
+			// If no filters are applied, use initial roasts
+			if (Object.keys(filters).length === 0) {
+				setFilteredRoasts(initialRoasts);
+				return;
+			}
 
-  return (
-    <div className='space-y-6 mt-6'>
-      <div>
-        <p className='font-semibold mb-6'>
-          Découvrez les apps qui ont besoin de votre expertise et
-          candidatez pour les roasts qui vous intéressent
-        </p>
-        <MarketplaceFilterBar
-          filters={filters}
-          onFiltersChange={setFilters}
-          availableData={availableFilterData}
-        />
-      </div>
-      
-      {isLoading ? (
-        <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <Skeleton key={i} className="h-80" />
-          ))}
-        </div>
-      ) : (
-        <AvailableRoastsList availableRoasts={filteredRoasts} />
-      )}
-    </div>
-  );
+			setIsLoading(true);
+			try {
+				const filtered = await getFilteredRoastRequests(filters);
+				setFilteredRoasts(filtered);
+			} catch (error) {
+				console.error('Error filtering roasts:', error);
+				setFilteredRoasts(initialRoasts);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		applyFilters();
+	}, [filters, initialRoasts]);
+
+	return (
+		<div className='space-y-6 mt-6'>
+			<div>
+				<p className='font-semibold mb-6'>
+					Découvrez les apps qui ont besoin de votre expertise et
+					candidatez pour les roasts qui vous intéressent
+				</p>
+				<MarketplaceFilterBar
+					filters={filters}
+					onFiltersChange={setFilters}
+					availableData={availableFilterData}
+				/>
+			</div>
+
+			{isLoading ? (
+				<div className='grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
+					{[1, 2, 3, 4, 5, 6].map((i) => (
+						<Skeleton key={i} className='h-80' />
+					))}
+				</div>
+			) : (
+				<AvailableRoastsList availableRoasts={filteredRoasts} />
+			)}
+		</div>
+	);
 }

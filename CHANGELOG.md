@@ -36,6 +36,18 @@
   - Clear all filters button when filters are active
 - **Added Select component** from Radix UI for status dropdown
 
+## 2025-06-21-10:30
+### Filter System Updates - Price Range and Date Filter
+- **Updated price range** to fixed 1€-20€ instead of dynamic range
+- **Removed question types filter** from the marketplace
+- **Added publication date filter** with the following options:
+  - "Aujourd'hui" (Today)
+  - "Hier" (Yesterday) 
+  - "Cette semaine" (Last week)
+  - "Ce mois-ci" (Last month)
+- **Updated server action** to handle date-based filtering logic
+- **Simplified filter interface** for better user experience
+
 ## 2025-06-20-14:30
 ### Performance Enhancement - React Query Integration for User Profiles
 - **Implemented React Query for API Caching**: Eliminated flickering during navigation

@@ -29,7 +29,6 @@ interface MarketplaceFilterBarProps {
   availableData: {
     domains: string[];
     targetAudiences: string[];
-    questionTypes: string[];
     priceRange: { min: number; max: number };
   };
 }
@@ -52,7 +51,7 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
   };
 
   const handleArrayFilterChange = (
-    filterKey: 'domains' | 'targetAudiences' | 'questionTypes',
+    filterKey: 'domains' | 'targetAudiences',
     value: string,
     checked: boolean
   ) => {
@@ -64,6 +63,13 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
     onFiltersChange({
       ...filters,
       [filterKey]: newValues.length > 0 ? newValues : undefined
+    });
+  };
+
+  const handleDateFilterChange = (dateFilter: RoastFilters['dateFilter'] | undefined) => {
+    onFiltersChange({
+      ...filters,
+      dateFilter
     });
   };
 
@@ -88,6 +94,13 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
     { value: 'not_applied', label: 'Non postulé' },
     { value: 'in_progress', label: 'En cours' },
     { value: 'completed', label: 'Complété' }
+  ];
+
+  const dateOptions = [
+    { value: 'today', label: "Aujourd'hui" },
+    { value: 'yesterday', label: 'Hier' },
+    { value: 'last_week', label: 'Cette semaine' },
+    { value: 'last_month', label: 'Ce mois-ci' }
   ];
 
   return (
@@ -164,33 +177,20 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
           </DropdownMenu>
         )}
 
-        {/* Question types filter */}
-        {availableData.questionTypes.length > 0 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                Types de questions
-                {filters.questionTypes && filters.questionTypes.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-5 px-1">
-                    {filters.questionTypes.length}
-                  </Badge>
-                )}
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              {availableData.questionTypes.map(type => (
-                <DropdownMenuCheckboxItem
-                  key={type}
-                  checked={filters.questionTypes?.includes(type) || false}
-                  onCheckedChange={(checked) => handleArrayFilterChange('questionTypes', type, checked)}
-                >
-                  {type}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        {/* Date filter */}
+        <Select value={filters.dateFilter || 'all'} onValueChange={(value) => handleDateFilterChange(value === 'all' ? undefined : value as RoastFilters['dateFilter'])}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Toutes les dates" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes les dates</SelectItem>
+            {dateOptions.map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {/* Price filter */}
         <DropdownMenu>
@@ -279,17 +279,17 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
             </Badge>
           ))}
           
-          {filters.questionTypes?.map(type => (
-            <Badge key={type} variant="secondary" className="gap-1">
-              Question: {type}
+          {filters.dateFilter && (
+            <Badge variant="secondary" className="gap-1">
+              Date: {dateOptions.find(d => d.value === filters.dateFilter)?.label}
               <button
-                onClick={() => handleArrayFilterChange('questionTypes', type, false)}
+                onClick={() => handleDateFilterChange(undefined)}
                 className="ml-1 hover:text-foreground"
               >
                 <X className="h-3 w-3" />
               </button>
             </Badge>
-          ))}
+          )}
           
           {(filters.minPrice !== undefined || filters.maxPrice !== undefined) && (
             <Badge variant="secondary" className="gap-1">
