@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,15 +14,20 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Plus, X, GripVertical } from 'lucide-react';
 import { Reorder } from 'framer-motion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FOCUS_AREAS, PRICING, APP_CATEGORIES, type FocusArea, type SelectedDomain, type DomainQuestion } from '@/lib/types/roast-request';
 import { createRoastRequest } from '@/lib/actions/roast-request';
+import { getTargetAudiences, initializeTargetAudiences, createTargetAudience } from '@/lib/actions/target-audiences';
 import { ImageUpload } from '@/components/ui/image-upload';
 
 const formSchema = z.object({
   title: z.string().min(10, "Le titre doit faire au moins 10 caractères").max(100),
   appUrl: z.string().url("URL invalide"),
   description: z.string().min(50, "La description doit faire au moins 50 caractères").max(1000),
-  targetAudience: z.string().min(10, "Décris ton audience cible").max(200),
+  targetAudienceId: z.string().min(1, "Sélectionne une audience cible"),
+  customTargetAudience: z.object({
+    name: z.string().min(2, "Le nom doit faire au moins 2 caractères")
+  }).optional(),
   category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
   coverImage: z.string().optional(),
   feedbacksRequested: z.number().min(1, "Au moins 1 feedback").max(20, "Maximum 20 feedbacks"),
@@ -45,6 +50,9 @@ export function NewRoastForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [questionIdCounter, setQuestionIdCounter] = useState(1);
+  const [targetAudiences, setTargetAudiences] = useState<Array<{id: string; name: string}>>([]);
+  const [showCustomAudience, setShowCustomAudience] = useState(false);
+  const [isCreatingAudience, setIsCreatingAudience] = useState(false);
   const router = useRouter();
 
   const form = useForm<FormData>({
@@ -60,6 +68,56 @@ export function NewRoastForm() {
   const selectedDomains = form.watch('selectedDomains') || [];
   const description = form.watch('description') || '';
   const feedbacksRequested = form.watch('feedbacksRequested') || 1;
+  const targetAudienceId = form.watch('targetAudienceId');
+
+  // Load target audiences on mount
+  useEffect(() => {
+    async function loadAudiences() {
+      // Initialize default audiences if needed
+      await initializeTargetAudiences();
+      // Load all audiences
+      const audiences = await getTargetAudiences();
+      setTargetAudiences(audiences);
+    }
+    loadAudiences();
+  }, []);
+
+  // Handle target audience selection
+  useEffect(() => {
+    setShowCustomAudience(targetAudienceId === 'custom');
+  }, [targetAudienceId]);
+
+  // Handle custom audience creation
+  const handleCreateCustomAudience = async () => {
+    const customAudienceName = form.watch('customTargetAudience.name');
+    if (!customAudienceName || customAudienceName.trim().length < 2) {
+      form.setError('customTargetAudience.name', {
+        message: 'Le nom doit faire au moins 2 caractères'
+      });
+      return;
+    }
+
+    setIsCreatingAudience(true);
+    try {
+      const newAudience = await createTargetAudience({ name: customAudienceName.trim() });
+      
+      // Add to local list
+      setTargetAudiences(prev => [newAudience, ...prev]);
+      
+      // Select the new audience
+      form.setValue('targetAudienceId', newAudience.id);
+      form.setValue('customTargetAudience.name', '');
+      setShowCustomAudience(false);
+      
+    } catch (error) {
+      console.error('Error creating audience:', error);
+      form.setError('customTargetAudience.name', {
+        message: 'Erreur lors de la création de l\'audience'
+      });
+    } finally {
+      setIsCreatingAudience(false);
+    }
+  };
 
   // Calculer le prix total
   const calculatePrice = () => {
@@ -320,17 +378,58 @@ export function NewRoastForm() {
               </div>
 
               <div>
-                <Label htmlFor="targetAudience">Audience cible</Label>
-                <Input
-                  id="targetAudience"
-                  {...form.register('targetAudience')}
-                  placeholder="Ex: PME françaises, freelances tech, entrepreneurs B2B..."
-                  className="mt-1"
-                />
-                {form.formState.errors.targetAudience && (
-                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.targetAudience.message}</p>
+                <Label>Audience cible</Label>
+                <Select
+                  value={form.watch('targetAudienceId')}
+                  onValueChange={(value) => form.setValue('targetAudienceId', value)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Sélectionne ton audience cible" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="custom">+ Ajouter une nouvelle audience</SelectItem>
+                    {targetAudiences.map((audience) => (
+                      <SelectItem key={audience.id} value={audience.id}>
+                        {audience.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.targetAudienceId && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.targetAudienceId.message}</p>
                 )}
               </div>
+
+              {/* Custom audience fields */}
+              {showCustomAudience && (
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <Label htmlFor="customAudienceName">Nom de l'audience</Label>
+                    <div className="flex gap-2 mt-1">
+                      <Input
+                        id="customAudienceName"
+                        placeholder="Ex: Agences SEO"
+                        {...form.register('customTargetAudience.name')}
+                        disabled={isCreatingAudience}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleCreateCustomAudience}
+                        disabled={isCreatingAudience}
+                        size="sm"
+                      >
+                        {isCreatingAudience ? 'Création...' : 'Ajouter'}
+                      </Button>
+                    </div>
+                    {form.formState.errors.customTargetAudience?.name && (
+                      <p className="text-red-500 text-sm mt-1">{form.formState.errors.customTargetAudience.name.message}</p>
+                    )}
+                    <p className="text-xs text-gray-600 mt-1">
+                      Cette audience sera ajoutée à la liste pour tous les utilisateurs
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 

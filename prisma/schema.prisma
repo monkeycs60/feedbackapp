@@ -28,6 +28,7 @@ model User {
   applications      RoastApplication[]
   roastRequests     RoastRequest[]
   roasterProfile    RoasterProfile?
+  createdAudiences  TargetAudience[]
 }
 
 model Session {
@@ -112,7 +113,7 @@ model RoastRequest {
   title              String
   appUrl             String
   description        String
-  targetAudience     String?
+  targetAudienceId   String?
   focusAreas         String[]
   maxPrice           Float
   deadline           DateTime?
@@ -125,6 +126,7 @@ model RoastRequest {
   applications       RoastApplication[]
   questions          RoastQuestion[]
   creator            User               @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  targetAudience     TargetAudience?    @relation(fields: [targetAudienceId], references: [id])
 
   @@map("roast_requests")
 }
@@ -161,20 +163,20 @@ model RoastApplication {
 }
 
 model Feedback {
-  id                   String             @id @default(cuid())
-  roastRequestId       String
-  roasterId            String
-  generalFeedback      String             // Feedback général et recommandations
-  screenshots          String[]
-  aiQualityScore       Float?
-  creatorRating        Int?
-  finalPrice           Float?
-  status               String             @default("pending")
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-  roastRequest         RoastRequest       @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
-  roaster              User               @relation(fields: [roasterId], references: [id], onDelete: Cascade)
-  questionResponses    QuestionResponse[]
+  id                String             @id @default(cuid())
+  roastRequestId    String
+  roasterId         String
+  screenshots       String[]
+  aiQualityScore    Float?
+  creatorRating     Int?
+  finalPrice        Float?
+  status            String             @default("pending")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  generalFeedback   String
+  roastRequest      RoastRequest       @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+  roaster           User               @relation(fields: [roasterId], references: [id], onDelete: Cascade)
+  questionResponses QuestionResponse[]
 
   @@map("feedbacks")
 }
@@ -190,4 +192,17 @@ model QuestionResponse {
 
   @@unique([feedbackId, questionId])
   @@map("question_responses")
+}
+
+model TargetAudience {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  isDefault     Boolean        @default(true)
+  createdBy     String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  roastRequests RoastRequest[]
+  creator       User?          @relation(fields: [createdBy], references: [id])
+
+  @@map("target_audiences")
 }

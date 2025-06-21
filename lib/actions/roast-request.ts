@@ -26,7 +26,10 @@ const roastRequestSchema = z.object({
   title: z.string().min(10, "Le titre doit faire au moins 10 caractères").max(100),
   appUrl: z.string().url("URL invalide"),
   description: z.string().min(50, "La description doit faire au moins 50 caractères").max(1000),
-  targetAudience: z.string().min(10, "Décris ton audience cible").max(200),
+  targetAudienceId: z.string().min(1, "Sélectionne une audience cible"),
+  customTargetAudience: z.object({
+    name: z.string()
+  }).optional(),
   category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
   focusAreas: z.array(z.string()).min(1, "Sélectionne au moins un domaine"),
   maxPrice: z.number().min(2, "Le prix minimum est de 2€"),
@@ -74,13 +77,37 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
 
     console.log({validData});
 
+    // Handle custom target audience if needed
+    let targetAudienceId = validData.targetAudienceId;
+    
+    if (validData.targetAudienceId === 'custom' && validData.customTargetAudience) {
+      // Check if custom audience already exists
+      const existing = await prisma.targetAudience.findUnique({
+        where: { name: validData.customTargetAudience.name }
+      });
+      
+      if (existing) {
+        targetAudienceId = existing.id;
+      } else {
+        // Create new custom audience
+        const newAudience = await prisma.targetAudience.create({
+          data: {
+            name: validData.customTargetAudience.name,
+            isDefault: false,
+            createdBy: user.id
+          }
+        });
+        targetAudienceId = newAudience.id;
+      }
+    }
+
     const roastRequest = await prisma.roastRequest.create({
       data: {
         creatorId: user.id,
         title: validData.title,
         appUrl: validData.appUrl,
         description: validData.description,
-        targetAudience: validData.targetAudience,
+        targetAudienceId: targetAudienceId,
         focusAreas: validData.focusAreas,
         maxPrice: validData.maxPrice,
         feedbacksRequested: validData.feedbacksRequested,
@@ -230,6 +257,7 @@ export async function getAvailableRoastRequests() {
             }
           }
         },
+        targetAudience: true,
         feedbacks: {
           select: { id: true, status: true }
         },
@@ -291,6 +319,7 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
             }
           }
         },
+        targetAudience: true,
         feedbacks: {
           where: { roasterId: user.id },
           select: { id: true, status: true }
@@ -347,7 +376,7 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
     // Filter by target audiences
     if (filters.targetAudiences && filters.targetAudiences.length > 0) {
       filteredRoasts = filteredRoasts.filter(roast =>
-        roast.targetAudience && filters.targetAudiences!.includes(roast.targetAudience)
+        roast.targetAudience && filters.targetAudiences!.includes(roast.targetAudience.name)
       );
     }
 

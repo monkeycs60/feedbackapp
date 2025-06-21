@@ -48,6 +48,29 @@
 - **Updated server action** to handle date-based filtering logic
 - **Simplified filter interface** for better user experience
 
+## 2025-06-21-11:00
+### Major Feature - Target Audience Management System
+- **Created TargetAudience database model** with predefined and custom audiences
+  - Added relationship to RoastRequest (targetAudienceId instead of free text)
+  - Added relationship to User for tracking custom audience creators
+- **Implemented predefined target audience list** with 40+ SaaS target types:
+  - Professionals (Développeurs, Designers, Marketeurs, etc.)
+  - Companies (Startups, PME, Grandes entreprises, etc.)
+  - Industries (Santé, Éducation, Finance, etc.)
+  - Team types and sizes
+- **Created target-audiences server actions**:
+  - `initializeTargetAudiences()` - Seeds database with default audiences
+  - `getTargetAudiences()` - Retrieves all audiences
+  - `createTargetAudience()` - Creates custom audiences
+- **Updated roast request creation form**:
+  - Replaced free text input with select dropdown
+  - Added ability to create custom target audiences
+  - Form validation for custom audience names
+- **Updated marketplace filtering system**:
+  - Target audience filter now uses the predefined list
+  - Filters by relationship instead of text matching
+- **Updated all related types and queries** to handle the new audience relationship
+
 ## 2025-06-20-14:30
 ### Performance Enhancement - React Query Integration for User Profiles
 - **Implemented React Query for API Caching**: Eliminated flickering during navigation

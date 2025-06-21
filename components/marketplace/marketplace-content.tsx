@@ -12,7 +12,10 @@ type AvailableRoast = {
 	title: string;
 	appUrl: string;
 	description: string;
-	targetAudience: string | null;
+	targetAudience: {
+		id: string;
+		name: string;
+	} | null;
 	focusAreas: string[];
 	maxPrice: number;
 	feedbacksRequested: number;
@@ -57,7 +60,7 @@ export function MarketplaceContent({ initialRoasts }: MarketplaceContentProps) {
 
 			// Extract target audiences
 			if (roast.targetAudience) {
-				targetAudiences.add(roast.targetAudience);
+				targetAudiences.add(roast.targetAudience.name);
 			}
 
 			// Calculate price range
