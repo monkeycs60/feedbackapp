@@ -97,7 +97,7 @@ export function AcceptedApplicationsList({
 		const domains = Array.from(new Set(roast.questions.map(q => q.domain)));
 
 		return (
-			<Card key={application.id} className='group hover:shadow-lg py-0 gap-1 transition-all duration-200 overflow-hidden'>
+			<Card key={application.id} className='group bg-backgroundlighter hover:shadow-lg py-0 gap-1 transition-all duration-200 overflow-hidden'>
 				<div className='relative h-44 overflow-hidden'>
 					{roast.coverImage ? (
 						<Image

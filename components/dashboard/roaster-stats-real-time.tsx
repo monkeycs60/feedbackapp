@@ -31,7 +31,7 @@ export async function RoasterStatsRealTime() {
 	};
 
 	return (
-		<Card>
+		<Card className='bg-backgroundlighter'>
 			<CardHeader>
 				<CardTitle className='text-lg font-medium'>
 					Vos statistiques

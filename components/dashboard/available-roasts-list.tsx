@@ -116,7 +116,7 @@ export function AvailableRoastsList({
 				</div>
 			</div>
 
-			<div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
+			<div className='grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
 				{sortedRoasts.map((roast) => {
 					const priority = getRoastPriority(roast);
 					const spotsLeft =
@@ -126,7 +126,7 @@ export function AvailableRoastsList({
 					return (
 						<Card
 							key={roast.id}
-							className='group hover:shadow-lg py-0 gap-0 transition-all duration-200 overflow-hidden'>
+							className='group hover:shadow-lg bg-backgroundlighter py-0 gap-0 transition-all duration-200 overflow-hidden'>
 							{/* Image with overlay info */}
 							<div className='relative h-40 overflow-hidden'>
 								{roast.coverImage ? (
@@ -142,23 +142,28 @@ export function AvailableRoastsList({
 										<ExternalLink className='h-10 w-10 text-muted-foreground/30' />
 									</div>
 								)}
-								
+
 								{/* Overlay gradient */}
 								<div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent' />
-								
+
 								{/* Priority badge */}
 								<div className='absolute top-3 left-3'>
-									<div className={`px-2 py-1 rounded text-xs font-medium ${
-										priority === 'high' 
-											? 'bg-black/70 text-white' 
+									<div
+										className={`px-2 py-1 rounded text-xs font-medium ${
+											priority === 'high'
+												? 'bg-black/70 text-white'
+												: priority === 'medium'
+												? 'bg-black/50 text-white/90'
+												: 'bg-black/30 text-white/80'
+										}`}>
+										{priority === 'high'
+											? 'Urgent'
 											: priority === 'medium'
-											? 'bg-black/50 text-white/90'
-											: 'bg-black/30 text-white/80'
-									}`}>
-										{priority === 'high' ? 'Urgent' : priority === 'medium' ? 'Normal' : 'Faible'}
+											? 'Normal'
+											: 'Faible'}
 									</div>
 								</div>
-								
+
 								{/* Title on image */}
 								<div className='absolute bottom-3 left-3 right-3'>
 									<h3 className='text-base font-bold text-white line-clamp-2 drop-shadow-lg'>
@@ -173,7 +178,10 @@ export function AvailableRoastsList({
 									<span className='text-muted-foreground'>
 										{roast.creator.name}
 										{roast.creator.creatorProfile?.company && (
-											<span className='text-muted-foreground/70'> • {roast.creator.creatorProfile.company}</span>
+											<span className='text-muted-foreground/70'>
+												{' '}
+												• {roast.creator.creatorProfile.company}
+											</span>
 										)}
 									</span>
 									<span className='text-muted-foreground/70'>
@@ -213,13 +221,14 @@ export function AvailableRoastsList({
 										<span className='text-foreground font-medium'>
 											{pricePerRoast}€
 										</span>
-										
+
 										{/* Spots left - more explicit */}
 										{spotsLeft > 0 ? (
 											<div className='flex items-center gap-1.5 px-2 py-0.5 bg-muted rounded'>
 												<Users className='h-3.5 w-3.5' />
 												<span className='font-medium text-foreground'>
-													{spotsLeft} place{spotsLeft > 1 ? 's' : ''}
+													{spotsLeft} place
+													{spotsLeft > 1 ? 's' : ''}
 												</span>
 											</div>
 										) : (
@@ -227,7 +236,7 @@ export function AvailableRoastsList({
 												Complet
 											</span>
 										)}
-										
+
 										{/* View app link */}
 										<Link
 											href={roast.appUrl}
@@ -242,7 +251,11 @@ export function AvailableRoastsList({
 										asChild
 										size='sm'
 										variant={spotsLeft > 0 ? 'default' : 'ghost'}
-										className={spotsLeft > 0 ? 'bg-orange-500 hover:bg-orange-600' : ''}
+										className={
+											spotsLeft > 0
+												? 'bg-orange-500 hover:bg-orange-600'
+												: ''
+										}
 										disabled={spotsLeft <= 0}>
 										<Link href={`/roast/${roast.id}`}>
 											{spotsLeft > 0 ? 'Postuler' : 'Complet'}
