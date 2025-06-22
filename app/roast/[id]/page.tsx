@@ -19,6 +19,9 @@ import {
 	MessageSquare,
 	ImageIcon,
 	ArrowLeft,
+	CheckCircle,
+	Clock,
+	AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -200,6 +203,89 @@ export default async function RoastPage({ params }: RoastPageProps) {
 								</p>
 							</CardContent>
 						</Card>
+
+						{/* Roasters status */}
+						{(roastRequest.applications.length > 0 || roastRequest.feedbacks.length > 0) && (
+							<Card>
+								<CardHeader>
+									<CardTitle className='flex items-center gap-2'>
+										<Users className='w-5 h-5' />
+										Roasters ({roastRequest.feedbacks.filter(f => f.status === 'completed').length}/{roastRequest.feedbacksRequested})
+									</CardTitle>
+									<p className='text-sm text-gray-600'>
+										Statut des roasters sélectionnés et candidats
+									</p>
+								</CardHeader>
+								<CardContent>
+									<div className='space-y-3'>
+										{/* Completed feedbacks */}
+										{roastRequest.feedbacks
+											.filter(f => f.status === 'completed')
+											.map((feedback) => (
+												<div key={feedback.id} className='flex items-center gap-3 p-2 rounded-lg bg-green-50 border border-green-200'>
+													<div className='w-10 h-10 rounded-full bg-green-100 flex items-center justify-center'>
+														<CheckCircle className='w-5 h-5 text-green-600' />
+													</div>
+													<div className='flex-1'>
+														<p className='text-sm font-medium text-gray-900'>
+															{feedback.roaster.name || 'Roaster anonyme'}
+														</p>
+														<p className='text-xs text-green-600'>
+															Feedback envoyé
+														</p>
+													</div>
+												</div>
+											))}
+										
+										{/* In progress feedbacks */}
+										{roastRequest.applications
+											.filter(app => app.status === 'accepted' || app.status === 'auto_selected')
+											.filter(app => !roastRequest.feedbacks.some(f => f.roasterId === app.roasterId))
+											.map((application) => (
+												<div key={application.id} className='flex items-center gap-3 p-2 rounded-lg bg-blue-50 border border-blue-200'>
+													<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center'>
+														<Clock className='w-5 h-5 text-blue-600' />
+													</div>
+													<div className='flex-1'>
+														<p className='text-sm font-medium text-gray-900'>
+															{application.roaster.name || 'Roaster anonyme'}
+														</p>
+														<p className='text-xs text-blue-600'>
+															Feedback en cours de rédaction
+														</p>
+													</div>
+												</div>
+											))}
+										
+										{/* Pending applications */}
+										{roastRequest.applications
+											.filter(app => app.status === 'pending')
+											.slice(0, 5)
+											.map((application) => (
+												<div key={application.id} className='flex items-center gap-3 p-2 rounded-lg bg-orange-50 border border-orange-200'>
+													<div className='w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center'>
+														<AlertCircle className='w-5 h-5 text-orange-600' />
+													</div>
+													<div className='flex-1'>
+														<p className='text-sm font-medium text-gray-900'>
+															{application.roaster.name || 'Roaster anonyme'}
+														</p>
+														<p className='text-xs text-orange-600'>
+															Candidature en attente
+														</p>
+													</div>
+												</div>
+											))}
+										
+										{roastRequest.applications.filter(app => app.status === 'pending').length > 5 && (
+											<p className='text-sm text-gray-500 text-center'>
+												+ {roastRequest.applications.filter(app => app.status === 'pending').length - 5} autres candidatures en attente
+											</p>
+										)}
+									</div>
+								</CardContent>
+							</Card>
+						)}
 
 						{/* Audience cible */}
 						<Card>

@@ -37,6 +37,8 @@ interface RoastApplicationFormProps {
 		feedbacksRequested: number;
 		focusAreas: string[];
 		status: string;
+		feedbacks: { id: string; status: string }[];
+		applications: { id: string; status: string }[];
 	};
 	hasApplied: boolean;
 }
@@ -56,6 +58,12 @@ export function RoastApplicationForm({
 	};
 
 	const pricePerFeedback = calculatePricePerFeedback();
+	
+	// Calculate remaining spots
+	const completedFeedbacks = roastRequest.feedbacks.filter(
+		f => f.status === 'completed'
+	).length;
+	const spotsRemaining = roastRequest.feedbacksRequested - completedFeedbacks;
 
 	const form = useForm<ApplicationFormData>({
 		resolver: zodResolver(applicationSchema),
@@ -160,9 +168,13 @@ export function RoastApplicationForm({
 					Candidater pour ce roast
 				</CardTitle>
 				<p className='text-sm text-gray-600'>
-					Postulez pour faire partie des {roastRequest.feedbacksRequested}{' '}
-					roaster{roastRequest.feedbacksRequested > 1 ? 's' : ''}{' '}
-					sélectionné{roastRequest.feedbacksRequested > 1 ? 's' : ''}
+					{spotsRemaining > 0 ? (
+						<>
+							Postulez pour l'une des <span className='font-semibold text-green-600'>{spotsRemaining} place{spotsRemaining > 1 ? 's' : ''} restante{spotsRemaining > 1 ? 's' : ''}</span> sur {roastRequest.feedbacksRequested}
+						</>
+					) : (
+						<span className='text-red-600'>Toutes les places ont été attribuées ({roastRequest.feedbacksRequested}/{roastRequest.feedbacksRequested})</span>
+					)}
 				</p>
 				<div className='flex items-center gap-2'>
 					<Badge
@@ -170,10 +182,11 @@ export function RoastApplicationForm({
 						className='bg-green-50 text-green-700 border-green-200'>
 						~{pricePerFeedback}€ par feedback
 					</Badge>
-					<Badge variant='secondary'>
-						{roastRequest.feedbacksRequested} place
-						{roastRequest.feedbacksRequested > 1 ? 's' : ''} disponible
-						{roastRequest.feedbacksRequested > 1 ? 's' : ''}
+					<Badge 
+						variant={spotsRemaining > 0 ? 'secondary' : 'destructive'}
+						className={spotsRemaining > 0 ? '' : 'bg-red-100 text-red-700 border-red-200'}
+					>
+						{spotsRemaining}/{roastRequest.feedbacksRequested} place{roastRequest.feedbacksRequested > 1 ? 's' : ''}
 					</Badge>
 				</div>
 			</CardHeader>
@@ -308,8 +321,8 @@ export function RoastApplicationForm({
 
 					<Button
 						type='submit'
-						disabled={isLoading}
-						className='w-full bg-blue-600 hover:bg-blue-700'
+						disabled={isLoading || spotsRemaining === 0}
+						className='w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50'
 						size='lg'>
 						<Send className='w-4 h-4 mr-2' />
 						{isLoading ? 'Envoi en cours...' : 'Envoyer ma candidature'}

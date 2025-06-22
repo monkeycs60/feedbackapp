@@ -124,8 +124,12 @@ export function AvailableRoastsList({
 			<div className='grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
 				{sortedRoasts.map((roast) => {
 					const priority = getRoastPriority(roast);
+					// Count completed feedbacks instead of applications
+					const completedFeedbacks = roast.feedbacks.filter(
+						f => f.status === 'completed'
+					).length;
 					const spotsLeft =
-						roast.feedbacksRequested - roast._count.applications;
+						roast.feedbacksRequested - completedFeedbacks;
 					const pricePerRoast = Math.round(
 						roast.maxPrice / roast.feedbacksRequested
 					);
@@ -258,19 +262,18 @@ export function AvailableRoastsList({
 										</span>
 
 										{/* Spots left - more explicit */}
-										{spotsLeft > 0 ? (
-											<div className='flex items-center gap-1.5 px-2 py-0.5 bg-muted rounded'>
-												<Users className='h-3.5 w-3.5' />
-												<span className='font-medium text-foreground'>
-													{spotsLeft} place
-													{spotsLeft > 1 ? 's' : ''}
-												</span>
-											</div>
-										) : (
-											<span className='text-muted-foreground line-through'>
-												Complet
+										<div className={`flex items-center gap-1.5 px-2 py-0.5 rounded ${
+											spotsLeft > 0 ? 'bg-muted' : 'bg-red-100'
+										}`}>
+											<Users className={`h-3.5 w-3.5 ${
+												spotsLeft > 0 ? '' : 'text-red-600'
+											}`} />
+											<span className={`font-medium ${
+												spotsLeft > 0 ? 'text-foreground' : 'text-red-600'
+											}`}>
+												{spotsLeft}/{roast.feedbacksRequested} place{roast.feedbacksRequested > 1 ? 's' : ''}
 											</span>
-										)}
+										</div>
 
 										{/* View app link */}
 										<Link

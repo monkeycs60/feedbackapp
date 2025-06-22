@@ -8,6 +8,24 @@
 - **Solution**: Changed condition to only show unavailable page for 'cancelled', 'completed', or 'in_progress' (when not accepted roaster)
 - **Result**: Roasters can now properly access and apply to open roast requests
 
+## 2025-06-22-18:30
+### UI Enhancement - Improved Roast Spots Visibility
+- **Enhanced marketplace cards to show remaining spots clearly**:
+  - Changed from "X places" to "X/Y places" format showing current/total
+  - Added red styling when no spots remain (0/Y places)
+  - Now calculates based on completed feedbacks instead of applications
+- **Added roaster status display on roast detail page**:
+  - Shows avatars with status indicators for all roasters
+  - Green check for completed feedbacks
+  - Blue clock for in-progress (accepted roasters who haven't submitted)
+  - Orange alert for pending applications
+  - Shows first 5 pending applications with count of additional ones
+- **Updated application form to highlight available spots**:
+  - Shows "X places restantes sur Y" in green when spots available
+  - Shows "Toutes les places ont été attribuées" in red when full
+  - Disables submit button when no spots remain
+  - Updated badge to show X/Y format with appropriate styling
+
 ## 2025-06-21-10:00
 ### New Feature - Marketplace Filtering System for Roasters
 - **Added comprehensive filtering system for the marketplace page**:
