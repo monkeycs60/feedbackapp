@@ -9,7 +9,8 @@
       "Bash(find:*)",
       "Bash(npx shadcn@latest add:*)",
       "Bash(npx prisma migrate dev:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

@@ -165,3 +165,19 @@ export async function createTargetAudience(data: z.infer<typeof createTargetAudi
     throw new Error("Erreur lors de la création de l'audience");
   }
 }
+
+/**
+ * Get a single target audience by ID
+ */
+export async function getTargetAudienceById(id: string) {
+  try {
+    const audience = await prisma.targetAudience.findUnique({
+      where: { id }
+    });
+    
+    return audience;
+  } catch (error) {
+    console.error("Error fetching target audience:", error);
+    return null;
+  }
+}

@@ -492,6 +492,11 @@ export async function getRoastRequestById(id: string) {
         applications: {
           select: { id: true, status: true }
         },
+        targetAudiences: {
+          include: {
+            targetAudience: true
+          }
+        },
         questions: {
           orderBy: [
             { domain: 'asc' },
