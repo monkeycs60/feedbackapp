@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025-06-22-18:15
+### Bug Fix - Fixed Roaster Application Access Error
+- **Fixed issue where roasters couldn't apply to open roast requests**
+- **Problem**: Roasters were incorrectly shown "Cette demande n'est plus disponible" page even when spots were available
+- **Root cause**: Logic error in `/app/roast/[id]/page.tsx` that blocked access for 'open' and 'collecting_applications' statuses
+- **Solution**: Changed condition to only show unavailable page for 'cancelled', 'completed', or 'in_progress' (when not accepted roaster)
+- **Result**: Roasters can now properly access and apply to open roast requests
+
 ## 2025-06-21-10:00
 ### New Feature - Marketplace Filtering System for Roasters
 - **Added comprehensive filtering system for the marketplace page**:
