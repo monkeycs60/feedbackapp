@@ -184,7 +184,7 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 								</p>
 
 								{/* Category and Focus areas */}
-								<div className='space-y-2'>
+								<div className='flex justify-between my-3'>
 									{/* Category */}
 									{request.category && (
 										<div className='flex items-center gap-1.5'>
