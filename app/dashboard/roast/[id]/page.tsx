@@ -8,7 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FeedbackDisplayV2 } from '@/components/dashboard/feedback-display-v2';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { FOCUS_AREAS } from '@/lib/types/roast-request';
+import { FOCUS_AREAS, APP_CATEGORIES } from '@/lib/types/roast-request';
 
 interface RoastDetailPageProps {
   params: Promise<{
@@ -184,15 +184,41 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
               </p>
             </div>
 
-            {/* Target Audiences */}
-            <div>
-              <h2 className="text-lg font-semibold mb-3">Audiences cibles</h2>
-              <div className="flex flex-wrap gap-2">
-                {validAudiences.map((audience) => (
-                  <Badge key={audience.id} variant="secondary">
-                    {audience.name}
-                  </Badge>
-                ))}
+            {/* Category and Target Audiences */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Category */}
+              <div>
+                <h2 className="text-lg font-semibold mb-3">Type de projet</h2>
+                {roastRequest.category && (
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const categoryInfo = APP_CATEGORIES.find(cat => cat.id === roastRequest.category);
+                      return categoryInfo ? (
+                        <>
+                          <span className="text-xl">{categoryInfo.icon}</span>
+                          <div>
+                            <span className="font-medium">{categoryInfo.label}</span>
+                            <p className="text-sm text-muted-foreground">{categoryInfo.description}</p>
+                          </div>
+                        </>
+                      ) : (
+                        <span>{roastRequest.category}</span>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+
+              {/* Target Audiences */}
+              <div>
+                <h2 className="text-lg font-semibold mb-3">Audiences cibles</h2>
+                <div className="flex flex-wrap gap-2">
+                  {validAudiences.map((audience) => (
+                    <Badge key={audience.id} variant="secondary">
+                      {audience.name}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -201,7 +227,7 @@ export default async function RoastDetailPage({ params }: RoastDetailPageProps) 
               <div>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <MessageSquare className="w-5 h-5" />
-                  Questions par domaine
+                  Types de feedback demandés
                 </h2>
                 
                 <div className="space-y-6">

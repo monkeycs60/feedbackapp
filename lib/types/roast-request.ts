@@ -106,13 +106,13 @@ export const PRICING = {
   ADDITIONAL_QUESTION: 1
 };
 
-export const APP_CATEGORIES: { id: AppCategory; label: string }[] = [
-  { id: 'SaaS', label: 'SaaS' },
-  { id: 'Mobile', label: 'App Mobile' },
-  { id: 'E-commerce', label: 'E-commerce' },
-  { id: 'Landing', label: 'Landing Page' },
-  { id: 'MVP', label: 'MVP/Beta' },
-  { id: 'Autre', label: 'Autre' }
+export const APP_CATEGORIES: { id: AppCategory; label: string; icon: string; description: string }[] = [
+  { id: 'SaaS', label: 'SaaS / Web App', icon: '☁️', description: 'Application web avec abonnement' },
+  { id: 'Mobile', label: 'App Mobile', icon: '📱', description: 'iOS, Android ou PWA' },
+  { id: 'E-commerce', label: 'E-commerce', icon: '🛒', description: 'Boutique en ligne, marketplace' },
+  { id: 'Landing', label: 'Landing Page', icon: '🚀', description: 'Page de conversion, site vitrine' },
+  { id: 'MVP', label: 'MVP / Prototype', icon: '🔬', description: 'Version beta, proof of concept' },
+  { id: 'Autre', label: 'Autre', icon: '📦', description: 'Autre type de projet' }
 ];
 
 // Type pour les roast requests avec relations

@@ -113,8 +113,6 @@ export function NewRoastForm() {
 			feedbacksRequested: 1,
 		},
 	});
-	console.log('form values', form.getValues());
-	console.log('form values error', form.formState.errors);
 
 	const selectedDomains = form.watch('selectedDomains') || [];
 	const description = form.watch('description') || '';
@@ -433,20 +431,43 @@ export function NewRoastForm() {
 								</div>
 
 								<div>
-									<Label htmlFor='category'>Catégorie</Label>
-									<select
-										id='category'
-										{...form.register('category')}
-										className='mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'>
-										<option value=''>
-											Sélectionne une catégorie
-										</option>
-										{APP_CATEGORIES.map((cat) => (
-											<option key={cat.id} value={cat.id}>
-												{cat.label}
-											</option>
-										))}
-									</select>
+									<Label htmlFor='category'>Type de projet</Label>
+									<p className='text-sm text-gray-600 mb-2'>
+										Quel type d'application soumets-tu au feedback ?
+									</p>
+									<div className='grid grid-cols-2 gap-2'>
+										{APP_CATEGORIES.map((cat) => {
+											const isSelected =
+												form.watch('category') === cat.id;
+											return (
+												<button
+													key={cat.id}
+													type='button'
+													onClick={() =>
+														form.setValue('category', cat.id)
+													}
+													className={`p-3 rounded-lg border-2 transition-all text-left ${
+														isSelected
+															? 'border-blue-500 bg-blue-50'
+															: 'border-gray-200 hover:border-gray-300'
+													}`}>
+													<div className='flex items-start gap-2'>
+														<span className='text-xl'>
+															{cat.icon}
+														</span>
+														<div>
+															<div className='font-medium text-sm'>
+																{cat.label}
+															</div>
+															<div className='text-xs text-gray-600'>
+																{cat.description}
+															</div>
+														</div>
+													</div>
+												</button>
+											);
+										})}
+									</div>
 									{form.formState.errors.category && (
 										<p className='text-red-500 text-sm mt-1'>
 											{form.formState.errors.category.message}
@@ -627,10 +648,11 @@ export function NewRoastForm() {
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<Badge variant='outline'>3</Badge>
-									Domaines de feedback
+									Types de feedback souhaités
 								</CardTitle>
 								<p className='text-sm text-gray-600'>
-									Sélectionne un ou plusieurs domaines (2€ par domaine)
+									Sur quels aspects veux-tu recevoir des feedbacks ?
+									(2€ par domaine)
 								</p>
 							</CardHeader>
 							<CardContent>

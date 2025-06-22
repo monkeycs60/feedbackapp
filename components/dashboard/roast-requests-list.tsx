@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
+import { APP_CATEGORIES } from '@/lib/types/roast-request';
 
 interface RoastRequestsListProps {
 	roastRequests: Array<{
@@ -182,23 +183,45 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 									{request.description}
 								</p>
 
-								{/* Focus areas */}
-								{request.focusAreas.length > 0 && (
-									<div className='flex flex-wrap gap-1'>
-										{request.focusAreas.slice(0, 2).map((area) => (
-											<span
-												key={area}
-												className='text-xs px-2 py-0.5 bg-muted rounded-full'>
-												{area}
-											</span>
-										))}
-										{request.focusAreas.length > 2 && (
-											<span className='text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground'>
-												+{request.focusAreas.length - 2}
-											</span>
-										)}
-									</div>
-								)}
+								{/* Category and Focus areas */}
+								<div className='space-y-2'>
+									{/* Category */}
+									{request.category && (
+										<div className='flex items-center gap-1.5'>
+											{(() => {
+												const categoryInfo = APP_CATEGORIES.find(cat => cat.id === request.category);
+												return categoryInfo ? (
+													<>
+														<span className='text-sm'>{categoryInfo.icon}</span>
+														<span className='text-xs font-medium text-muted-foreground'>
+															{categoryInfo.label}
+														</span>
+													</>
+												) : (
+													<span className='text-xs text-muted-foreground'>{request.category}</span>
+												);
+											})()}
+										</div>
+									)}
+
+									{/* Focus areas */}
+									{request.focusAreas.length > 0 && (
+										<div className='flex flex-wrap gap-1'>
+											{request.focusAreas.slice(0, 2).map((area) => (
+												<span
+													key={area}
+													className='text-xs px-2 py-0.5 bg-muted rounded-full'>
+													{area}
+												</span>
+											))}
+											{request.focusAreas.length > 2 && (
+												<span className='text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground'>
+													+{request.focusAreas.length - 2}
+												</span>
+											)}
+										</div>
+									)}
+								</div>
 
 								{/* Feedback progress */}
 								<div className='space-y-2'>

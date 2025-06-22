@@ -5,12 +5,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink, Users, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { APP_CATEGORIES } from '@/lib/types/roast-request';
 
 type AvailableRoast = {
 	id: string;
 	title: string;
 	appUrl: string;
 	description: string;
+	category?: string | null;
 	targetAudiences: Array<{
 		targetAudience: {
 			id: string;
@@ -201,23 +203,45 @@ export function AvailableRoastsList({
 									</p>
 								</div>
 
-								{/* Focus areas as badges */}
-								{roast.focusAreas.length > 0 && (
-									<div className='flex flex-wrap gap-1'>
-										{roast.focusAreas.slice(0, 3).map((area) => (
-											<span
-												key={area}
-												className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground'>
-												{area}
-											</span>
-										))}
-										{roast.focusAreas.length > 3 && (
-											<span className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground/70'>
-												+{roast.focusAreas.length - 3}
-											</span>
-										)}
-									</div>
-								)}
+								{/* Category and Focus areas */}
+								<div className='space-y-1.5'>
+									{/* Category */}
+									{roast.category && (
+										<div className='flex items-center gap-1.5'>
+											{(() => {
+												const categoryInfo = APP_CATEGORIES.find(cat => cat.id === roast.category);
+												return categoryInfo ? (
+													<>
+														<span className='text-sm'>{categoryInfo.icon}</span>
+														<span className='text-xs font-medium text-foreground/80'>
+															{categoryInfo.label}
+														</span>
+													</>
+												) : (
+													<span className='text-xs text-muted-foreground'>{roast.category}</span>
+												);
+											})()}
+										</div>
+									)}
+
+									{/* Focus areas as badges */}
+									{roast.focusAreas.length > 0 && (
+										<div className='flex flex-wrap gap-1'>
+											{roast.focusAreas.slice(0, 3).map((area) => (
+												<span
+													key={area}
+													className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground'>
+													{area}
+												</span>
+											))}
+											{roast.focusAreas.length > 3 && (
+												<span className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground/70'>
+													+{roast.focusAreas.length - 3}
+												</span>
+											)}
+										</div>
+									)}
+								</div>
 
 								{/* Stats & actions */}
 								<div className='flex items-center justify-between pt-3 pb-2 border-t'>
