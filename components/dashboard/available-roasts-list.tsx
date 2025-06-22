@@ -124,12 +124,12 @@ export function AvailableRoastsList({
 			<div className='grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
 				{sortedRoasts.map((roast) => {
 					const priority = getRoastPriority(roast);
-					// Count completed feedbacks instead of applications
-					const completedFeedbacks = roast.feedbacks.filter(
-						f => f.status === 'completed'
+					// Count accepted applications (including auto_selected)
+					const acceptedApplications = roast.applications.filter(
+						app => app.status === 'accepted' || app.status === 'auto_selected'
 					).length;
 					const spotsLeft =
-						roast.feedbacksRequested - completedFeedbacks;
+						roast.feedbacksRequested - acceptedApplications;
 					const pricePerRoast = Math.round(
 						roast.maxPrice / roast.feedbacksRequested
 					);

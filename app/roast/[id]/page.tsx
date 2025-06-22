@@ -210,7 +210,7 @@ export default async function RoastPage({ params }: RoastPageProps) {
 								<CardHeader>
 									<CardTitle className='flex items-center gap-2'>
 										<Users className='w-5 h-5' />
-										Roasters ({roastRequest.feedbacks.filter(f => f.status === 'completed').length}/{roastRequest.feedbacksRequested})
+										Roasters ({roastRequest.applications.filter(app => app.status === 'accepted' || app.status === 'auto_selected').length}/{roastRequest.feedbacksRequested})
 									</CardTitle>
 									<p className='text-sm text-gray-600'>
 										Statut des roasters sélectionnés et candidats

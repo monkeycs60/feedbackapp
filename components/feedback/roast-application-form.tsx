@@ -59,11 +59,11 @@ export function RoastApplicationForm({
 
 	const pricePerFeedback = calculatePricePerFeedback();
 	
-	// Calculate remaining spots
-	const completedFeedbacks = roastRequest.feedbacks.filter(
-		f => f.status === 'completed'
+	// Calculate remaining spots based on accepted applications
+	const acceptedApplications = roastRequest.applications.filter(
+		app => app.status === 'accepted' || app.status === 'auto_selected'
 	).length;
-	const spotsRemaining = roastRequest.feedbacksRequested - completedFeedbacks;
+	const spotsRemaining = roastRequest.feedbacksRequested - acceptedApplications;
 
 	const form = useForm<ApplicationFormData>({
 		resolver: zodResolver(applicationSchema),

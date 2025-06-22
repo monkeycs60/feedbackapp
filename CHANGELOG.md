@@ -1,5 +1,19 @@
 # Changelog
 
+## 2025-06-22-18:45
+### Bug Fix - Fixed Spots Calculation Logic
+- **Fixed spots counting to use accepted applications instead of completed feedbacks**
+- **Problem**: Spots were calculated based on completed feedbacks, but should be based on accepted roasters
+- **Changes made**:
+  - Marketplace cards now count accepted/auto_selected applications
+  - Roast detail page shows X/Y based on accepted applications
+  - Application form calculates remaining spots correctly
+  - Fixed "Cette demande n'accepte plus de candidatures" error when spots were still available
+- **Fixed application server action**:
+  - Now accepts both 'open' and 'collecting_applications' statuses
+  - Added check for remaining spots based on accepted applications
+- **Result**: Accurate spot counting throughout the application
+
 ## 2025-06-22-18:15
 ### Bug Fix - Fixed Roaster Application Access Error
 - **Fixed issue where roasters couldn't apply to open roast requests**

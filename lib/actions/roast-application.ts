@@ -89,8 +89,17 @@ export async function applyForRoast(data: z.infer<typeof applicationSchema>) {
       throw new Error("Demande de roast non trouvée");
     }
 
-    if (roastRequest.status !== 'open') {
+    if (roastRequest.status !== 'open' && roastRequest.status !== 'collecting_applications') {
       throw new Error("Cette demande n'accepte plus de candidatures");
+    }
+
+    // Vérifier qu'il reste des places disponibles
+    const acceptedApplications = roastRequest.applications.filter(
+      app => app.status === 'accepted' || app.status === 'auto_selected'
+    ).length;
+    
+    if (acceptedApplications >= roastRequest.feedbacksRequested) {
+      throw new Error("Toutes les places ont déjà été attribuées");
     }
 
     if (roastRequest.creatorId === user.id) {
