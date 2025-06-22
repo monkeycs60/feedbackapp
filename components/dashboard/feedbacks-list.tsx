@@ -1,161 +1,254 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+'use client';
+
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Star, User, Calendar } from 'lucide-react';
+import {
+	ChevronRight,
+	Star,
+	Calendar,
+	MessageSquare,
+	CheckCircle2,
+	Clock,
+	TrendingUp,
+} from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 interface FeedbacksListProps {
-  feedbacks: Array<{
-    id: string;
-    status: string;
-    roaster: {
-      id: string;
-      name: string | null;
-      roasterProfile: {
-        bio: string | null;
-        specialties: string[];
-        rating: number;
-      } | null;
-    };
-    generalFeedback: string;
-    finalPrice: number | null;
-    createdAt: Date;
-    roastRequest: {
-      id: string;
-      title: string;
-      questions?: Array<{
-        id: string;
-        domain: string;
-        text: string;
-        order: number;
-        isDefault: boolean;
-      }>;
-    };
-    questionResponses?: Array<{
-      id: string;
-      questionId: string;
-      response: string;
-      createdAt: Date;
-    }>;
-  }>;
+	feedbacks: Array<{
+		id: string;
+		status: string;
+		roaster: {
+			id: string;
+			name: string | null;
+			image?: string | null;
+			roasterProfile: {
+				bio: string | null;
+				specialties: string[];
+				rating: number;
+			} | null;
+		};
+		generalFeedback: string;
+		finalPrice: number | null;
+		createdAt: Date;
+		roastRequest: {
+			id: string;
+			title: string;
+			coverImage?: string | null;
+			questions?: Array<{
+				id: string;
+				domain: string;
+				text: string;
+				order: number;
+				isDefault: boolean;
+			}>;
+		};
+		questionResponses?: Array<{
+			id: string;
+			questionId: string;
+			response: string;
+			createdAt: Date;
+		}>;
+	}>;
 }
 
 export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
-  if (feedbacks.length === 0) {
-    return (
-      <Card className="border-dashed">
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <p className="text-gray-500 text-center mb-4">
-            Aucun feedback reçu pour le moment
-          </p>
-          <p className="text-sm text-gray-400 text-center">
-            Les feedbacks de vos roasters apparaîtront ici
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+	const statusConfig = {
+		completed: {
+			label: 'Complété',
+			icon: <CheckCircle2 className='w-3 h-3' />,
+			color: 'text-green-600 bg-green-50 border-green-200',
+		},
+		pending: {
+			label: 'En attente',
+			icon: <Clock className='w-3 h-3' />,
+			color: 'text-orange-600 bg-orange-50 border-orange-200',
+		},
+		disputed: {
+			label: 'Contesté',
+			icon: <TrendingUp className='w-3 h-3' />,
+			color: 'text-red-600 bg-red-50 border-red-200',
+		},
+	};
 
-  return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Feedbacks reçus</h2>
-      
-      {feedbacks.map((feedback) => (
-        <Card key={feedback.id} className="overflow-hidden hover:shadow-lg transition-shadow bg-backgroundlighter">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-400" />
-                  {feedback.roaster.name || 'Roaster anonyme'}
-                  {feedback.roaster.roasterProfile && (
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="text-sm text-gray-600">
-                        {feedback.roaster.roasterProfile.rating.toFixed(1)}
-                      </span>
-                    </div>
-                  )}
-                </CardTitle>
-                <CardDescription className="mt-1">
-                  <Link 
-                    href={`/dashboard/roast/${feedback.roastRequest.id}`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    {feedback.roastRequest.title}
-                  </Link>
-                  <span className="text-gray-400 ml-2">•</span>
-                  <span className="ml-2 inline-flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {formatDistanceToNow(new Date(feedback.createdAt), { 
-                      addSuffix: true, 
-                      locale: fr 
-                    })}
-                  </span>
-                </CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={feedback.status === 'completed' ? 'default' : 'secondary'}>
-                  {feedback.status === 'completed' ? 'Complété' : 
-                   feedback.status === 'pending' ? 'En attente' : 'Contesté'}
-                </Badge>
-                {feedback.finalPrice && (
-                  <span className="font-semibold text-green-600">
-                    {feedback.finalPrice}€
-                  </span>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-1">Feedback général</h4>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {feedback.generalFeedback}
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <h4 className="text-sm font-medium text-blue-700 mb-1">
-                    Questions traitées
-                  </h4>
-                  <p className="text-lg font-semibold text-blue-600">
-                    {feedback.questionResponses?.length || 0}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-purple-700 mb-1">
-                    Domaines couverts
-                  </h4>
-                  <p className="text-lg font-semibold text-purple-600">
-                    {feedback.questionResponses && feedback.questionResponses.length > 0 && feedback.roastRequest.questions ? 
-                      [...new Set(
-                        feedback.questionResponses
-                          .map(qr => feedback.roastRequest.questions?.find(q => q.id === qr.questionId)?.domain)
-                          .filter(Boolean)
-                      )].length : 0
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-4 flex justify-end">
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/dashboard/roast/${feedback.roastRequest.id}#feedback-${feedback.id}`}>
-                  Voir le feedback complet
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+	if (feedbacks.length === 0) {
+		return (
+			<Card className='border-dashed'>
+				<CardContent className='flex flex-col items-center justify-center py-12'>
+					<MessageSquare className='h-12 w-12 text-muted-foreground/30 mb-4' />
+					<p className='text-muted-foreground text-center mb-2'>
+						Aucun feedback reçu pour le moment
+					</p>
+					<p className='text-sm text-muted-foreground/80 text-center'>
+						Les feedbacks de vos roasters apparaîtront ici
+					</p>
+				</CardContent>
+			</Card>
+		);
+	}
+
+	return (
+		<div className='space-y-6'>
+			<div className='flex items-center justify-between'>
+				<h2 className='text-xl font-semibold'>
+					Feedbacks reçus ({feedbacks.length})
+				</h2>
+			</div>
+
+			<div className='grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
+				{feedbacks.map((feedback) => {
+					const status =
+						statusConfig[feedback.status as keyof typeof statusConfig] ||
+						statusConfig.pending;
+					const domains =
+						feedback.questionResponses && feedback.roastRequest.questions
+							? [
+									...new Set(
+										feedback.questionResponses
+											.map(
+												(qr) =>
+													feedback.roastRequest.questions?.find(
+														(q) => q.id === qr.questionId
+													)?.domain
+											)
+											.filter(Boolean)
+									),
+							  ]
+							: [];
+
+					return (
+						<Card
+							key={feedback.id}
+							className='group py-0 gap-1 hover:shadow-lg transition-all duration-200 overflow-hidden'>
+							<div className='flex bg-orange-100 px-4 py-2 justify-between overflow-hidden'>
+								{/* Roast title */}
+								<div className=''>
+									<h3 className='text-sm font-semibold text-black line-clamp-1 drop-shadow'>
+										{feedback.roastRequest.title}
+									</h3>
+								</div>
+
+								{/* Status badge */}
+								<div className=''>
+									<Badge
+										className={`border ${status.color} text-xs flex items-center gap-1`}>
+										{status.icon}
+										{status.label}
+									</Badge>
+								</div>
+							</div>
+
+							<CardContent className='p-4 space-y-3'>
+								{/* Roaster info */}
+								<div className='flex items-center justify-between'>
+									<div className='flex items-center gap-2'>
+										<div className='w-8 h-8 rounded-full bg-muted flex items-center justify-center'>
+											{feedback.roaster.image ? (
+												<Image
+													src={feedback.roaster.image}
+													alt={feedback.roaster.name || 'Roaster'}
+													width={32}
+													height={32}
+													className='rounded-full'
+												/>
+											) : (
+												<span className='text-xs font-medium'>
+													{(feedback.roaster.name ||
+														'R')[0].toUpperCase()}
+												</span>
+											)}
+										</div>
+										<div>
+											<p className='text-sm font-medium line-clamp-1'>
+												{feedback.roaster.name || 'Roaster anonyme'}
+											</p>
+											{feedback.roaster.roasterProfile && (
+												<div className='flex items-center gap-1'>
+													<Star className='h-3 w-3 text-yellow-500 fill-current' />
+													<span className='text-xs text-muted-foreground'>
+														{feedback.roaster.roasterProfile.rating.toFixed(
+															1
+														)}
+													</span>
+												</div>
+											)}
+										</div>
+									</div>
+									{feedback.finalPrice && (
+										<span className='text-lg font-bold text-primary'>
+											{feedback.finalPrice}€
+										</span>
+									)}
+								</div>
+
+								{/* General feedback preview */}
+								<p className='text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]'>
+									{feedback.generalFeedback}
+								</p>
+
+								{/* Domains covered */}
+								<div className='h-6'>
+									{domains.length > 0 && (
+										<div className='flex flex-wrap gap-1'>
+											{domains.slice(0, 2).map((domain) => (
+												<span
+													key={domain}
+													className='text-xs px-2 py-0.5 bg-muted rounded-full'>
+													{domain}
+												</span>
+											))}
+											{domains.length > 2 && (
+												<span className='text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground'>
+													+{domains.length - 2}
+												</span>
+											)}
+										</div>
+									)}
+								</div>
+
+								{/* Stats */}
+								<div className='flex items-center justify-between text-sm text-muted-foreground pt-2 border-t'>
+									<div className='flex items-center gap-1'>
+										<Calendar className='h-3 w-3' />
+										<span className='text-xs'>
+											{formatDistanceToNow(
+												new Date(feedback.createdAt),
+												{
+													addSuffix: true,
+													locale: fr,
+												}
+											)}
+										</span>
+									</div>
+									<div className='flex items-center gap-1'>
+										<MessageSquare className='h-3 w-3' />
+										<span className='text-xs'>
+											{feedback.questionResponses?.length || 0}{' '}
+											réponses
+										</span>
+									</div>
+								</div>
+
+								{/* Action */}
+								<Button
+									asChild
+									variant='default'
+									size='sm'
+									className='w-full'>
+									<Link
+										href={`/dashboard/roast/${feedback.roastRequest.id}#feedback-${feedback.id}`}>
+										Voir le feedback
+										<ChevronRight className='h-3.5 w-3.5 ml-1' />
+									</Link>
+								</Button>
+							</CardContent>
+						</Card>
+					);
+				})}
+			</div>
+		</div>
+	);
 }
