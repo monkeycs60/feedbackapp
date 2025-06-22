@@ -117,6 +117,7 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
         title: validData.title,
         appUrl: validData.appUrl,
         description: validData.description,
+        category: validData.category,
         focusAreas: validData.focusAreas,
         maxPrice: validData.maxPrice,
         feedbacksRequested: validData.feedbacksRequested,

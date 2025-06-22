@@ -120,6 +120,7 @@ model RoastRequest {
   createdAt          DateTime                  @default(now())
   updatedAt          DateTime                  @updatedAt
   coverImage         String?
+  category           String?
   feedbacksRequested Int                       @default(1)
   feedbacks          Feedback[]
   applications       RoastApplication[]
