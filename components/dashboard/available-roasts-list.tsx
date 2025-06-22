@@ -204,7 +204,7 @@ export function AvailableRoastsList({
 								</div>
 
 								{/* Category and Focus areas */}
-								<div className='space-y-1.5 flex justify-between'>
+								<div className='my-3 flex justify-between'>
 									{/* Category */}
 									{roast.category && (
 										<div className='flex items-center gap-1.5'>
