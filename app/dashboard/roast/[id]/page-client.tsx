@@ -73,7 +73,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
         )}
         
         {/* Header content */}
-        <div className={`relative ${roastRequest.coverImage ? 'pt-16 pb-4' : ''}`}>
+        <div className={`relative ${roastRequest.coverImage ? 'pt-16 pb-4 px-4' : ''}`}>
           <Button variant="ghost" size="sm" asChild className="mb-4">
             <Link href="/dashboard">
               <ChevronLeft className="w-4 h-4 mr-1" />
