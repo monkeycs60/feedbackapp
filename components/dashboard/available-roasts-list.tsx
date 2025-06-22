@@ -77,7 +77,6 @@ function getRoastPriority(roast: AvailableRoast): 'high' | 'medium' | 'low' {
 	return 'medium';
 }
 
-
 export function AvailableRoastsList({
 	availableRoasts,
 }: AvailableRoastsListProps) {
@@ -93,7 +92,6 @@ export function AvailableRoastsList({
 
 		return b.createdAt.getTime() - a.createdAt.getTime();
 	});
-
 
 	if (availableRoasts.length === 0) {
 		return (
@@ -128,7 +126,9 @@ export function AvailableRoastsList({
 					const priority = getRoastPriority(roast);
 					const spotsLeft =
 						roast.feedbacksRequested - roast._count.applications;
-					const pricePerRoast = Math.round(roast.maxPrice / roast.feedbacksRequested);
+					const pricePerRoast = Math.round(
+						roast.maxPrice / roast.feedbacksRequested
+					);
 
 					return (
 						<Card
@@ -204,21 +204,27 @@ export function AvailableRoastsList({
 								</div>
 
 								{/* Category and Focus areas */}
-								<div className='space-y-1.5'>
+								<div className='space-y-1.5 flex justify-between'>
 									{/* Category */}
 									{roast.category && (
 										<div className='flex items-center gap-1.5'>
 											{(() => {
-												const categoryInfo = APP_CATEGORIES.find(cat => cat.id === roast.category);
+												const categoryInfo = APP_CATEGORIES.find(
+													(cat) => cat.id === roast.category
+												);
 												return categoryInfo ? (
 													<>
-														<span className='text-sm'>{categoryInfo.icon}</span>
+														<span className='text-sm'>
+															{categoryInfo.icon}
+														</span>
 														<span className='text-xs font-medium text-foreground/80'>
 															{categoryInfo.label}
 														</span>
 													</>
 												) : (
-													<span className='text-xs text-muted-foreground'>{roast.category}</span>
+													<span className='text-xs text-muted-foreground'>
+														{roast.category}
+													</span>
 												);
 											})()}
 										</div>
@@ -227,16 +233,16 @@ export function AvailableRoastsList({
 									{/* Focus areas as badges */}
 									{roast.focusAreas.length > 0 && (
 										<div className='flex flex-wrap gap-1'>
-											{roast.focusAreas.slice(0, 3).map((area) => (
+											{roast.focusAreas.slice(0, 2).map((area) => (
 												<span
 													key={area}
 													className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground'>
 													{area}
 												</span>
 											))}
-											{roast.focusAreas.length > 3 && (
+											{roast.focusAreas.length > 2 && (
 												<span className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground/70'>
-													+{roast.focusAreas.length - 3}
+													+{roast.focusAreas.length - 2}
 												</span>
 											)}
 										</div>
@@ -277,10 +283,13 @@ export function AvailableRoastsList({
 
 									{/* Action button */}
 									{(() => {
-										const hasApplication = roast.applications.length > 0;
+										const hasApplication =
+											roast.applications.length > 0;
 										const hasFeedback = roast.feedbacks.length > 0;
-										const hasCompletedFeedback = roast.feedbacks.some(f => f.status === 'completed');
-										
+										const hasCompletedFeedback = roast.feedbacks.some(
+											(f) => f.status === 'completed'
+										);
+
 										if (hasCompletedFeedback) {
 											return (
 												<Button asChild size='sm' variant='outline'>
@@ -290,22 +299,28 @@ export function AvailableRoastsList({
 												</Button>
 											);
 										}
-										
+
 										if (hasApplication || hasFeedback) {
 											return (
-												<Button asChild size='sm' variant='default' className='bg-blue-500 hover:bg-blue-600'>
+												<Button
+													asChild
+													size='sm'
+													variant='default'
+													className='bg-blue-500 hover:bg-blue-600'>
 													<Link href={`/roast/${roast.id}`}>
 														Continuer
 													</Link>
 												</Button>
 											);
 										}
-										
+
 										return (
 											<Button
 												asChild
 												size='sm'
-												variant={spotsLeft > 0 ? 'default' : 'ghost'}
+												variant={
+													spotsLeft > 0 ? 'default' : 'ghost'
+												}
 												className={
 													spotsLeft > 0
 														? 'bg-orange-500 hover:bg-orange-600'
