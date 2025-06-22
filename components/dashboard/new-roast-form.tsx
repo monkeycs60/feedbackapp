@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,6 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Plus, X, GripVertical } from 'lucide-react';
 import { Reorder } from 'framer-motion';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FOCUS_AREAS, PRICING, APP_CATEGORIES, type FocusArea, type SelectedDomain, type DomainQuestion } from '@/lib/types/roast-request';
 import { createRoastRequest } from '@/lib/actions/roast-request';
@@ -51,10 +51,9 @@ export function NewRoastForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [questionIdCounter, setQuestionIdCounter] = useState(1);
-  const [targetAudiences, setTargetAudiences] = useState<Array<{id: string; name: string}>>([]);
   const [showCustomAudience, setShowCustomAudience] = useState(false);
-  const [isCreatingAudience, setIsCreatingAudience] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -71,41 +70,26 @@ export function NewRoastForm() {
   const feedbacksRequested = form.watch('feedbacksRequested') || 1;
   const targetAudienceIds = form.watch('targetAudienceIds') || [];
 
-  // Load target audiences on mount
-  useEffect(() => {
-    async function loadAudiences() {
+  // Use React Query to fetch audiences
+  const { data: targetAudiences = [] } = useQuery({
+    queryKey: ['targetAudiences'],
+    queryFn: async () => {
       // Initialize default audiences if needed
       await initializeTargetAudiences();
       // Load all audiences and sort alphabetically
       const audiences = await getTargetAudiences();
-      const sortedAudiences = audiences.sort((a, b) => a.name.localeCompare(b.name));
-      setTargetAudiences(sortedAudiences);
-    }
-    loadAudiences();
-  }, []);
+      return audiences.sort((a, b) => a.name.localeCompare(b.name));
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-  // Handle target audience selection
-  useEffect(() => {
-    setShowCustomAudience(targetAudienceIds.includes('custom'));
-  }, [targetAudienceIds]);
-
-  // Handle custom audience creation
-  const handleCreateCustomAudience = async () => {
-    const customAudienceName = form.watch('customTargetAudience.name');
-    if (!customAudienceName || customAudienceName.trim().length < 2) {
-      form.setError('customTargetAudience.name', {
-        message: 'Le nom doit faire au moins 2 caractères'
-      });
-      return;
-    }
-
-    setIsCreatingAudience(true);
-    try {
-      const newAudience = await createTargetAudience({ name: customAudienceName.trim() });
-      
-      // Add to local list and keep sorted
-      setTargetAudiences(prev => {
-        const updated = [newAudience, ...prev];
+  // Mutation for creating new audience
+  const createAudienceMutation = useMutation({
+    mutationFn: createTargetAudience,
+    onSuccess: (newAudience) => {
+      // Update the cache with the new audience
+      queryClient.setQueryData(['targetAudiences'], (old: any[] = []) => {
+        const updated = [newAudience, ...old];
         return updated.sort((a, b) => a.name.localeCompare(b.name));
       });
       
@@ -114,15 +98,26 @@ export function NewRoastForm() {
       form.setValue('targetAudienceIds', updatedIds);
       form.setValue('customTargetAudience.name', '');
       setShowCustomAudience(false);
-      
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Error creating audience:', error);
       form.setError('customTargetAudience.name', {
         message: 'Erreur lors de la création de l\'audience'
       });
-    } finally {
-      setIsCreatingAudience(false);
     }
+  });
+
+  // Handle custom audience creation
+  const handleCreateCustomAudience = () => {
+    const customAudienceName = form.watch('customTargetAudience.name');
+    if (!customAudienceName || customAudienceName.trim().length < 2) {
+      form.setError('customTargetAudience.name', {
+        message: 'Le nom doit faire au moins 2 caractères'
+      });
+      return;
+    }
+
+    createAudienceMutation.mutate({ name: customAudienceName.trim() });
   };
 
   // Handle audience selection
@@ -133,11 +128,20 @@ export function NewRoastForm() {
       // Remove audience
       const updated = currentIds.filter(id => id !== audienceId);
       form.setValue('targetAudienceIds', updated);
+      // If removing 'custom', hide the custom audience form
+      if (audienceId === 'custom') {
+        setShowCustomAudience(false);
+        form.setValue('customTargetAudience.name', '');
+      }
     } else {
       // Add audience (max 2)
       if (currentIds.length < 2) {
         const updated = [...currentIds, audienceId];
         form.setValue('targetAudienceIds', updated);
+        // If adding 'custom', show the custom audience form
+        if (audienceId === 'custom') {
+          setShowCustomAudience(true);
+        }
       }
     }
   };
@@ -457,15 +461,15 @@ export function NewRoastForm() {
                         id="customAudienceName"
                         placeholder="Ex: Agences SEO"
                         {...form.register('customTargetAudience.name')}
-                        disabled={isCreatingAudience}
+                        disabled={createAudienceMutation.isPending}
                       />
                       <Button
                         type="button"
                         onClick={handleCreateCustomAudience}
-                        disabled={isCreatingAudience}
+                        disabled={createAudienceMutation.isPending}
                         size="sm"
                       >
-                        {isCreatingAudience ? 'Création...' : 'Ajouter'}
+                        {createAudienceMutation.isPending ? 'Création...' : 'Ajouter'}
                       </Button>
                     </div>
                     {form.formState.errors.customTargetAudience?.name && (
