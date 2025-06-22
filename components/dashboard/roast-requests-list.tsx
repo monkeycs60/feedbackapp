@@ -249,16 +249,18 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 											</span>
 										</div>
 
-										{/* Applications count if any */}
-										{request._count.applications !== undefined &&
-											request._count.applications > 0 && (
+										{/* Pending applications count if any */}
+										{(() => {
+											const pendingApplications = request.applications?.filter(app => app.status === 'pending') || [];
+											return pendingApplications.length > 0 && (
 												<div className='flex items-center gap-1 text-muted-foreground'>
 													<Users className='h-3.5 w-3.5' />
 													<span>
-														{request._count.applications}
+														{pendingApplications.length}
 													</span>
 												</div>
-											)}
+											);
+										})()}
 									</div>
 
 									{/* Status-specific info */}
@@ -283,17 +285,22 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 										</Link>
 									</Button>
 
-									{request._count.applications !== undefined &&
-										request._count.applications > 0 && (
+									{(() => {
+										// Count pending applications
+										const pendingApplications = request.applications?.filter(app => app.status === 'pending') || [];
+										const hasPendingApplications = pendingApplications.length > 0;
+										
+										return hasPendingApplications && (
 											<Button asChild variant='outline' size='sm'>
 												<Link
-													href={`/dashboard/roast/${request.id}/applications`}>
+													href={`/dashboard/roast/${request.id}?tab=applications`}>
 													<Users className='w-3.5 h-3.5' />
 													Candidatures (
-													{request._count.applications})
+													{pendingApplications.length})
 												</Link>
 											</Button>
-										)}
+										);
+									})()}
 								</div>
 							</CardContent>
 						</Card>

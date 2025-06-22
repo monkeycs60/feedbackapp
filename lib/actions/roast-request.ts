@@ -491,7 +491,30 @@ export async function getRoastRequestById(id: string) {
           }
         },
         applications: {
-          select: { id: true, status: true }
+          select: {
+            id: true,
+            motivation: true,
+            status: true,
+            score: true,
+            createdAt: true,
+            roaster: {
+              select: {
+                id: true,
+                name: true,
+                roasterProfile: {
+                  select: {
+                    specialties: true,
+                    experience: true,
+                    rating: true,
+                    completedRoasts: true,
+                    level: true,
+                    bio: true,
+                    completionRate: true
+                  }
+                }
+              }
+            }
+          }
         },
         targetAudiences: {
           include: {
