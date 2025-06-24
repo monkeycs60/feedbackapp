@@ -213,56 +213,35 @@ export function FeedbackStructuredStep({
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Default questions */}
-                    {domainQuestions.filter(q => q.isDefault).map((question, index) => (
-                      <div key={question.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {index + 1}.
-                          </span>
-                          <Badge variant="secondary" className="text-xs">
-                            Défaut
-                          </Badge>
-                        </div>
-                        <Textarea
-                          value={question.text}
-                          onChange={(e) => updateQuestion(question.id, e.target.value)}
-                          className="resize-none bg-white"
-                          rows={2}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeQuestion(question.id)}
-                          className="shrink-0 text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-
-                    {/* Custom questions with drag & drop */}
+                    {/* All questions with drag & drop */}
                     <Reorder.Group 
-                      values={domainQuestions.filter(q => !q.isDefault)} 
-                      onReorder={(newOrder) => reorderQuestions(domainId, [...domainQuestions.filter(q => q.isDefault), ...newOrder])}
+                      values={domainQuestions} 
+                      onReorder={(newOrder) => reorderQuestions(domainId, newOrder)}
                       className="space-y-2"
                     >
-                      {domainQuestions.filter(q => !q.isDefault).map((question, index) => (
+                      {domainQuestions.map((question, index) => (
                         <Reorder.Item 
                           key={question.id} 
                           value={question}
-                          className="flex items-start gap-3 p-3 border rounded-lg cursor-move hover:bg-gray-50 transition-colors"
+                          className={`flex items-start gap-3 p-3 rounded-lg cursor-move hover:bg-gray-50 transition-colors ${
+                            question.isDefault ? 'bg-gray-50 border border-gray-200' : 'border border-gray-300'
+                          }`}
                         >
                           <div className="flex items-center gap-2 shrink-0">
                             <GripVertical className="w-4 h-4 text-muted-foreground" />
                             <span className="text-sm font-medium text-muted-foreground">
-                              {domainQuestions.filter(q => q.isDefault).length + index + 1}.
+                              {index + 1}.
                             </span>
+                            {question.isDefault && (
+                              <Badge variant="secondary" className="text-xs">
+                                Défaut
+                              </Badge>
+                            )}
                           </div>
                           <Textarea
                             value={question.text}
                             onChange={(e) => updateQuestion(question.id, e.target.value)}
-                            className="resize-none"
+                            className={`resize-none ${question.isDefault ? 'bg-white' : ''}`}
                             rows={2}
                           />
                           <Button
@@ -361,11 +340,11 @@ export function FeedbackStructuredStep({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-xs">
-              <p>• Chaque domaine vient avec 2 questions par défaut</p>
-              <p>• Vous pouvez modifier ou supprimer ces questions</p>
-              <p>• Ajoutez vos propres questions par domaine</p>
+              <p>• Organisez vos questions par domaines d'expertise</p>
+              <p>• Chaque question coûte 0,25€ par roaster</p>
               <p>• Réorganisez les questions par glisser-déposer</p>
-              <p>• Les roasters répondent par section</p>
+              <p>• Les roasters répondent par section organisée</p>
+              <p>• Obtenez un feedback structuré et actionnable</p>
             </CardContent>
           </Card>
         </div>

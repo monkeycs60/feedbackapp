@@ -49,10 +49,10 @@ export function FeedbackModeSelection({
         };
       case 'STRUCTURED':
         return {
-          description: 'Questions organisées par domaines d\'expertise (UX, Pricing, Tech...).',
+          description: '3€ de base + 0,25€ par question. Questions organisées par domaines d\'expertise.',
           useCase: 'Parfait pour : Audit complet, amélioration globale, roadmap produit',
           timeline: '📋 Retours en 3-5 jours',
-          questionCount: 4
+          questionCount: 0
         };
     }
   };
@@ -222,7 +222,11 @@ export function FeedbackModeSelection({
         {selectedMode && (
           <div className="flex justify-center pt-4">
             <Button 
-              onClick={onContinue}
+              onClick={() => {
+                onContinue();
+                // Scroll to top of page
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               size="lg"
               className="bg-blue-600 hover:bg-blue-700 text-white px-8"
             >

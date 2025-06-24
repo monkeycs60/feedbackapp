@@ -94,12 +94,16 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
   const goToNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
+      // Scroll to top of page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const goToPrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top of page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -422,6 +426,17 @@ function BasicInfoAndAudienceStep({
             )}
           </div>
 
+          {/* Audience Selection */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">
+              Audience cible * (sélectionnez 1-2 audiences)
+            </label>
+            <AudienceSelection 
+              form={form} 
+              targetAudiences={targetAudiences} 
+            />
+          </div>
+
           {/* Description */}
           <div className="space-y-2">
             <label htmlFor="description" className="text-sm font-medium">
@@ -514,25 +529,6 @@ function BasicInfoAndAudienceStep({
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Audience Selection Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <span className="text-2xl">🎯</span>
-            Audience cible
-          </CardTitle>
-          <p className="text-muted-foreground">
-            Sélectionnez 1-2 audiences qui correspondent à vos utilisateurs cibles
-          </p>
-        </CardHeader>
-        <CardContent>
-          <AudienceSelection 
-            form={form} 
-            targetAudiences={targetAudiences} 
-          />
         </CardContent>
       </Card>
     </div>
