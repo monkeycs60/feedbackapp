@@ -9,9 +9,11 @@ export interface PricingCalculation {
   billableQuestions: number;
   questionPrice: number;
   questionsCost: number;
+  urgencyCost: number;
   totalPerRoaster: number;
   totalPrice: number;
   mode: FeedbackMode;
+  isUrgent: boolean;
 }
 
 /**
@@ -20,7 +22,8 @@ export interface PricingCalculation {
 export function calculateRoastPricing(
   mode: FeedbackMode,
   questionCount: number,
-  roasterCount: number
+  roasterCount: number,
+  isUrgent: boolean = false
 ): PricingCalculation {
   const config = FEEDBACK_MODES[mode];
   
@@ -32,7 +35,8 @@ export function calculateRoastPricing(
   
   // Calculate costs
   const questionsCost = billableQuestions * config.questionPrice;
-  const totalPerRoaster = config.basePrice + questionsCost;
+  const urgencyCost = isUrgent ? 0.50 : 0; // 0.50€ per roaster for urgency
+  const totalPerRoaster = config.basePrice + questionsCost + urgencyCost;
   const totalPrice = totalPerRoaster * roasterCount;
 
   return {
@@ -42,9 +46,11 @@ export function calculateRoastPricing(
     billableQuestions,
     questionPrice: config.questionPrice,
     questionsCost,
+    urgencyCost,
     totalPerRoaster,
     totalPrice,
-    mode
+    mode,
+    isUrgent
   };
 }
 
@@ -98,16 +104,18 @@ export function validateQuestionCount(mode: FeedbackMode, questionCount: number)
 export function formatPricingBreakdown(calculation: PricingCalculation): {
   baseLabel: string;
   questionsLabel: string;
+  urgencyLabel: string;
   totalLabel: string;
   perRoasterLabel: string;
 } {
-  const { basePrice, billableQuestions, questionPrice, questionsCost, totalPerRoaster, totalPrice } = calculation;
+  const { basePrice, billableQuestions, questionPrice, questionsCost, urgencyCost, totalPerRoaster, totalPrice, isUrgent } = calculation;
 
   return {
     baseLabel: `Base : ${basePrice.toFixed(2)}€`,
     questionsLabel: billableQuestions > 0 
       ? `Questions : ${billableQuestions} × ${questionPrice.toFixed(2)}€ = ${questionsCost.toFixed(2)}€`
       : 'Questions : incluses',
+    urgencyLabel: isUrgent ? `Urgence : +${urgencyCost.toFixed(2)}€` : '',
     perRoasterLabel: `Par roaster : ${totalPerRoaster.toFixed(2)}€`,
     totalLabel: `Total : ${totalPrice.toFixed(2)}€`
   };
@@ -161,7 +169,7 @@ export function compareModesPricing(questionCount: number, roasterCount: number)
     const validation = validateQuestionCount(mode, questionCount);
     
     if (validation.isValid) {
-      const calculation = calculateRoastPricing(mode, questionCount, roasterCount);
+      const calculation = calculateRoastPricing(mode, questionCount, roasterCount, false);
       results.push({
         mode,
         calculation,

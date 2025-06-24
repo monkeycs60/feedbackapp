@@ -16,9 +16,8 @@ import {
 } from 'lucide-react';
 import { FeedbackModeSelection } from './feedback-mode-selection';
 import { FeedbackFreeStep } from './modes/feedback-free-step';
-import { FeedbackTargetedStep } from './modes/feedback-targeted-step';
 import { FeedbackStructuredStep } from './modes/feedback-structured-step';
-import { PricingDisplay } from './pricing-calculator';
+import { PricingDisplay, PricingCalculator } from './pricing-calculator';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { newRoastRequestSchema } from '@/lib/schemas/roast-request';
 import { createNewRoastRequest } from '@/lib/actions/roast-request';
@@ -68,9 +67,9 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
 
   const steps = [
     { 
-      id: 'basic', 
+      id: 'basic-and-audience', 
       title: 'Informations de base', 
-      description: 'Titre, URL et description' 
+      description: 'Titre, URL, audience cible' 
     },
     { 
       id: 'mode', 
@@ -83,9 +82,9 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
       description: 'Personnalisez votre feedback' 
     },
     { 
-      id: 'settings', 
-      title: 'Paramètres', 
-      description: 'Audience et finalisation' 
+      id: 'summary', 
+      title: 'Résumé', 
+      description: 'Confirmez et publiez' 
     }
   ];
 
@@ -147,14 +146,14 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
 
   const isStepValid = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Basic info
-        return !!(watchedValues.title && watchedValues.appUrl && watchedValues.description && watchedValues.category);
+      case 0: // Basic info + audience
+        return !!(watchedValues.title && watchedValues.appUrl && watchedValues.description && watchedValues.category && watchedValues.targetAudienceIds?.length > 0);
       case 1: // Mode selection
         return !!selectedMode;
       case 2: // Questions
         return selectedMode === 'FREE' || questions.length > 0;
-      case 3: // Settings
-        return watchedValues.targetAudienceIds?.length > 0;
+      case 3: // Summary
+        return true; // Summary is just display, always valid
       default:
         return false;
     }
@@ -181,6 +180,7 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
               mode={selectedMode}
               questionCount={questions.length}
               roasterCount={watchedValues.feedbacksRequested || 2}
+              isUrgent={watchedValues.isUrgent || false}
               className="text-right"
             />
           )}
@@ -235,7 +235,7 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
         {/* Step Content */}
         <div className="mb-8">
           {currentStep === 0 && (
-            <BasicInfoStep form={form} />
+            <BasicInfoAndAudienceStep form={form} targetAudiences={targetAudiences} />
           )}
           
           {currentStep === 1 && (
@@ -253,14 +253,6 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
             />
           )}
           
-          {currentStep === 2 && selectedMode === 'TARGETED' && (
-            <FeedbackTargetedStep
-              questions={questions}
-              onQuestionsChange={handleQuestionsChange}
-              roasterCount={watchedValues.feedbacksRequested || 2}
-            />
-          )}
-          
           {currentStep === 2 && selectedMode === 'STRUCTURED' && (
             <FeedbackStructuredStep
               selectedDomains={selectedDomains}
@@ -272,11 +264,11 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
           )}
           
           {currentStep === 3 && (
-            <SettingsStep 
+            <SummaryStep 
               form={form} 
-              targetAudiences={targetAudiences}
               selectedMode={selectedMode}
               questionsCount={questions.length}
+              selectedDomains={selectedDomains}
             />
           )}
         </div>
@@ -334,8 +326,14 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
   );
 }
 
-// Basic Info Step Component
-function BasicInfoStep({ form }: { form: ReturnType<typeof useForm<FormData>> }) {
+// Basic Info + Audience Step Component
+function BasicInfoAndAudienceStep({ 
+  form, 
+  targetAudiences 
+}: { 
+  form: ReturnType<typeof useForm<FormData>>; 
+  targetAudiences: Array<{ id: string; name: string }>; 
+}) {
   const { register, watch, formState: { errors } } = form;
   const watchedValues = watch();
 
@@ -518,23 +516,38 @@ function BasicInfoStep({ form }: { form: ReturnType<typeof useForm<FormData>> })
           </div>
         </CardContent>
       </Card>
+
+      {/* Audience Selection Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <span className="text-2xl">🎯</span>
+            Audience cible
+          </CardTitle>
+          <p className="text-muted-foreground">
+            Sélectionnez 1-2 audiences qui correspondent à vos utilisateurs cibles
+          </p>
+        </CardHeader>
+        <CardContent>
+          <AudienceSelection 
+            form={form} 
+            targetAudiences={targetAudiences} 
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-// Settings Step Component  
-function SettingsStep({ 
+// Audience Selection Component
+function AudienceSelection({ 
   form, 
-  targetAudiences, 
-  selectedMode, 
-  questionsCount 
+  targetAudiences 
 }: { 
   form: ReturnType<typeof useForm<FormData>>; 
   targetAudiences: Array<{ id: string; name: string }>; 
-  selectedMode?: FeedbackMode;
-  questionsCount: number;
 }) {
-  const { register, watch, setValue, formState: { errors } } = form;
+  const { watch, setValue, formState: { errors } } = form;
   const watchedValues = watch();
   const selectedAudiences = watchedValues.targetAudienceIds || [];
 
@@ -547,119 +560,168 @@ function SettingsStep({
   };
 
   return (
+    <div className="space-y-4">
+      {/* Target Audiences */}
+      <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+          {targetAudiences.map((audience) => (
+            <div
+              key={audience.id}
+              onClick={() => handleAudienceToggle(audience.id)}
+              className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                selectedAudiences.includes(audience.id)
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              } ${selectedAudiences.length >= 2 && !selectedAudiences.includes(audience.id) 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : ''
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedAudiences.includes(audience.id)}
+                  onChange={() => {}} // Handled by div onClick
+                  className="w-4 h-4 text-blue-600 rounded"
+                  disabled={selectedAudiences.length >= 2 && !selectedAudiences.includes(audience.id)}
+                />
+                <span className="text-sm font-medium">{audience.name}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Choisissez qui sont vos utilisateurs cibles</span>
+          <span>{selectedAudiences.length}/2 sélectionnées</span>
+        </div>
+        {errors.targetAudienceIds && (
+          <p className="text-red-500 text-sm">{errors.targetAudienceIds.message}</p>
+        )}
+      </div>
+
+      {/* Custom Target Audience */}
+      <div className="space-y-2">
+        <label htmlFor="customAudience" className="text-sm font-medium">
+          Audience personnalisée (optionnel)
+        </label>
+        <input
+          id="customAudience"
+          type="text"
+          placeholder="Ex: Développeurs iOS avec plus de 5 ans d'expérience"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value) {
+              setValue('customTargetAudience', { name: value });
+            } else {
+              setValue('customTargetAudience', undefined);
+            }
+          }}
+        />
+        <p className="text-xs text-muted-foreground">
+          Si aucune audience prédéfinie ne correspond exactement
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Summary Step Component
+function SummaryStep({ 
+  form, 
+  selectedMode, 
+  questionsCount,
+  selectedDomains
+}: { 
+  form: ReturnType<typeof useForm<FormData>>; 
+  selectedMode?: FeedbackMode;
+  questionsCount: number;
+  selectedDomains: FocusArea[];
+}) {
+  const { watch } = form;
+  const watchedValues = watch();
+
+  return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <span className="text-2xl">🎯</span>
-            Paramètres finaux
+            <span className="text-2xl">📋</span>
+            Résumé de votre demande
           </CardTitle>
           <p className="text-muted-foreground">
-            Définissez votre audience cible et finalisez votre demande
+            Vérifiez les détails avant de publier votre roast
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Summary of configuration */}
-          <Alert>
-            <CheckCircle2 className="h-4 w-4" />
-            <AlertDescription>
-              <div className="space-y-1">
-                <p><strong>Mode sélectionné :</strong> {selectedMode}</p>
-                <p><strong>Questions :</strong> {questionsCount} question{questionsCount > 1 ? 's' : ''}</p>
-                <p><strong>Roasters :</strong> {watchedValues.feedbacksRequested || 2}</p>
+          {/* Basic Info Summary */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Informations générales</h3>
+            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div>
+                <span className="font-medium">Titre :</span> {watchedValues.title}
               </div>
-            </AlertDescription>
-          </Alert>
+              <div>
+                <span className="font-medium">URL :</span> {watchedValues.appUrl}
+              </div>
+              <div>
+                <span className="font-medium">Catégorie :</span> {watchedValues.category}
+              </div>
+              <div>
+                <span className="font-medium">Roasters demandés :</span> {watchedValues.feedbacksRequested}
+              </div>
+              {watchedValues.isUrgent && (
+                <div className="text-orange-600">
+                  <span className="font-medium">🚨 Demande urgente</span>
+                </div>
+              )}
+            </div>
+          </div>
 
-          {/* Target Audiences */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">
-              Audience cible * (sélectionnez 1-2 audiences)
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
-              {targetAudiences.map((audience) => (
-                <div
-                  key={audience.id}
-                  onClick={() => handleAudienceToggle(audience.id)}
-                  className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
-                    selectedAudiences.includes(audience.id)
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  } ${selectedAudiences.length >= 2 && !selectedAudiences.includes(audience.id) 
-                      ? 'opacity-50 cursor-not-allowed' 
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedAudiences.includes(audience.id)}
-                      onChange={() => {}} // Handled by div onClick
-                      className="w-4 h-4 text-blue-600 rounded"
-                      disabled={selectedAudiences.length >= 2 && !selectedAudiences.includes(audience.id)}
-                    />
-                    <span className="text-sm font-medium">{audience.name}</span>
+          {/* Feedback Mode Summary */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Type de feedback</h3>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">{selectedMode === 'FREE' ? '🎯' : '📋'}</span>
+                <span className="font-medium">
+                  {selectedMode === 'FREE' ? 'Impression générale' : 'Feedback structuré'}
+                </span>
+              </div>
+              {selectedMode === 'STRUCTURED' && (
+                <div className="space-y-2">
+                  <div>
+                    <span className="font-medium">Domaines sélectionnés :</span> {selectedDomains.length}
+                  </div>
+                  <div>
+                    <span className="font-medium">Questions totales :</span> {questionsCount}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {selectedDomains.map(domain => domain).join(', ')}
                   </div>
                 </div>
-              ))}
+              )}
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Choisissez qui sont vos utilisateurs cibles</span>
-              <span>{selectedAudiences.length}/2 sélectionnées</span>
-            </div>
-            {errors.targetAudienceIds && (
-              <p className="text-red-500 text-sm">{errors.targetAudienceIds.message}</p>
-            )}
           </div>
 
-          {/* Custom Target Audience */}
-          <div className="space-y-2">
-            <label htmlFor="customAudience" className="text-sm font-medium">
-              Audience personnalisée (optionnel)
-            </label>
-            <input
-              id="customAudience"
-              type="text"
-              placeholder="Ex: Développeurs iOS avec plus de 5 ans d'expérience"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value) {
-                  setValue('customTargetAudience', { name: value });
-                } else {
-                  setValue('customTargetAudience', undefined);
-                }
-              }}
-            />
-            <p className="text-xs text-muted-foreground">
-              Si aucune audience prédéfinie ne correspond exactement
-            </p>
-          </div>
-
-          {/* Deadline (Optional) */}
-          <div className="space-y-2">
-            <label htmlFor="deadline" className="text-sm font-medium">
-              Date limite souhaitée (optionnel)
-            </label>
-            <input
-              id="deadline"
-              type="date"
-              min={new Date().toISOString().split('T')[0]}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              {...register('deadline', { 
-                valueAsDate: true,
-                setValueAs: (value) => value ? new Date(value) : undefined 
-              })}
-            />
-            <p className="text-xs text-muted-foreground">
-              Les roasters essaieront de respecter cette échéance
-            </p>
+          {/* Pricing Summary */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Tarification</h3>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <PricingCalculator
+                mode={selectedMode || 'FREE'}
+                questionCount={questionsCount}
+                roasterCount={watchedValues.feedbacksRequested || 2}
+                isUrgent={watchedValues.isUrgent || false}
+                compact={false}
+              />
+            </div>
           </div>
 
           {/* Final confirmation */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <h4 className="font-medium text-green-800 mb-2">🚀 Prêt à publier</h4>
-            <p className="text-sm text-green-700">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-800 mb-2">🚀 Prêt à publier</h4>
+            <p className="text-sm text-blue-700">
               Votre roast sera {watchedValues.isUrgent ? 'publié immédiatement' : 'mis en collecte de candidatures pendant 24h'}.
               Les roasters recevront une notification et pourront postuler.
             </p>
@@ -669,3 +731,4 @@ function SettingsStep({
     </div>
   );
 }
+

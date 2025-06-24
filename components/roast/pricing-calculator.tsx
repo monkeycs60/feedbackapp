@@ -25,6 +25,7 @@ interface PricingCalculatorProps {
   mode: FeedbackMode;
   questionCount: number;
   roasterCount: number;
+  isUrgent?: boolean;
   onModeChange?: (mode: FeedbackMode) => void;
   className?: string;
   showModeComparison?: boolean;
@@ -35,19 +36,20 @@ export function PricingCalculator({
   mode,
   questionCount,
   roasterCount,
+  isUrgent = false,
   onModeChange,
   className = "",
   showModeComparison = false,
   compact = false
 }: PricingCalculatorProps) {
   const [calculation, setCalculation] = useState(() =>
-    calculateRoastPricing(mode, questionCount, roasterCount)
+    calculateRoastPricing(mode, questionCount, roasterCount, isUrgent)
   );
 
   // Recalculate when inputs change
   useEffect(() => {
-    setCalculation(calculateRoastPricing(mode, questionCount, roasterCount));
-  }, [mode, questionCount, roasterCount]);
+    setCalculation(calculateRoastPricing(mode, questionCount, roasterCount, isUrgent));
+  }, [mode, questionCount, roasterCount, isUrgent]);
 
   const breakdown = formatPricingBreakdown(calculation);
   const config = FEEDBACK_MODES[mode];
@@ -131,6 +133,13 @@ export function PricingCalculator({
               </div>
             )}
             
+            {calculation.isUrgent && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Urgence</span>
+                <span className="text-orange-600">+{calculation.urgencyCost.toFixed(2)}€</span>
+              </div>
+            )}
+            
             <div className="border-t pt-2 flex justify-between font-medium">
               <span>Par roaster</span>
               <span>{calculation.totalPerRoaster.toFixed(2)}€</span>
@@ -143,12 +152,13 @@ export function PricingCalculator({
               <div className="text-xs text-muted-foreground mb-2">
                 Comparer les modes :
               </div>
-              <div className="grid grid-cols-3 gap-1">
-                {(['FREE', 'TARGETED', 'STRUCTURED'] as FeedbackMode[]).map((modeOption) => {
+              <div className="grid grid-cols-2 gap-1">
+                {(['FREE', 'STRUCTURED'] as FeedbackMode[]).map((modeOption) => {
                   const modeConfig = FEEDBACK_MODES[modeOption];
                   const modeCalc = calculateRoastPricing(modeOption, 
                     modeOption === 'FREE' ? 0 : questionCount, 
-                    roasterCount
+                    roasterCount,
+                    false
                   );
                   
                   const isCurrentMode = modeOption === mode;
@@ -213,9 +223,10 @@ export function PricingDisplay({
   mode,
   questionCount,
   roasterCount,
+  isUrgent = false,
   className = ""
-}: Omit<PricingCalculatorProps, 'onModeChange' | 'showModeComparison'>) {
-  const calculation = calculateRoastPricing(mode, questionCount, roasterCount);
+}: Omit<PricingCalculatorProps, 'onModeChange' | 'showModeComparison' | 'compact'>) {
+  const calculation = calculateRoastPricing(mode, questionCount, roasterCount, isUrgent);
   
   return (
     <div className={`text-right ${className}`}>

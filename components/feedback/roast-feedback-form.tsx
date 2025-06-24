@@ -24,7 +24,7 @@ const createFeedbackSchema = (feedbackMode?: FeedbackMode | null) => {
     });
   }
   
-  // Modes TARGETED et STRUCTURED : questions + feedback général
+  // Mode STRUCTURED : questions + feedback général
   return z.object({
     questionResponses: z.record(z.string(), z.string().min(10, "Réponse trop courte (min 10 caractères)")),
     generalFeedback: z.string().min(50, "Feedback général trop court (min 50 caractères)"),

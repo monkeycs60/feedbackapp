@@ -45,7 +45,7 @@ export const newRoastRequestSchema = z.object({
   coverImage: z.string().optional(),
   
   // New feedback mode system
-  feedbackMode: z.enum(['FREE', 'TARGETED', 'STRUCTURED'] as const),
+  feedbackMode: z.enum(['FREE', 'STRUCTURED'] as const),
   focusAreas: z.array(z.string()).optional(), // Optional, only for STRUCTURED mode
   questions: z.array(z.object({
     domain: z.string().optional(),

@@ -47,13 +47,6 @@ export function FeedbackModeSelection({
           timeline: '⚡ Retours en 24-48h',
           questionCount: 0
         };
-      case 'TARGETED':
-        return {
-          description: 'Vous créez vos propres questions selon vos besoins spécifiques.',
-          useCase: 'Parfait pour : Questions précises, problèmes identifiés, retours ciblés',
-          timeline: '🎯 Retours en 2-3 jours',
-          questionCount: 3
-        };
       case 'STRUCTURED':
         return {
           description: 'Questions organisées par domaines d\'expertise (UX, Pricing, Tech...).',
@@ -80,18 +73,18 @@ export function FeedbackModeSelection({
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-3xl mx-auto">
             <h3 className="text-sm font-medium text-blue-800 mb-2">💰 Comment ça marche ?</h3>
             <div className="text-xs text-blue-700 space-y-1">
-              <p>• <strong>Prix de base :</strong> 2€ par roaster (inclut 2 questions offertes)</p>
-              <p>• <strong>Questions supplémentaires :</strong> 0,25€ (mode TARGETED) ou 0,20€ (mode STRUCTURED) par question</p>
-              <p>• <strong>Mode FREE :</strong> Prix fixe 2€ - aucune question, feedback libre uniquement</p>
+              <p>• <strong>Mode FREE :</strong> Prix fixe 3€ par roaster - feedback libre uniquement</p>
+              <p>• <strong>Mode STRUCTURED :</strong> 3€ par roaster + 0,25€ par question (pas de questions offertes)</p>
+              <p>• <strong>Option urgence :</strong> +0,50€ par roaster pour traitement prioritaire</p>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3 max-w-5xl mx-auto">
-          {(['FREE', 'TARGETED', 'STRUCTURED'] as FeedbackMode[]).map((mode) => {
+        <div className="grid gap-4 md:grid-cols-2 max-w-4xl mx-auto">
+          {(['FREE', 'STRUCTURED'] as FeedbackMode[]).map((mode) => {
             const config = FEEDBACK_MODES[mode];
             const example = getModeExample(mode);
-            const calculation = calculateRoastPricing(mode, example.questionCount, roasterCount);
+            const calculation = calculateRoastPricing(mode, example.questionCount, roasterCount, false);
             const isSelected = selectedMode === mode;
             const isHovered = hoveredMode === mode;
 
@@ -115,7 +108,7 @@ export function FeedbackModeSelection({
                 )}
 
                 {/* Popularity badge */}
-                {mode === 'TARGETED' && (
+                {mode === 'STRUCTURED' && (
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10">
                     <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                       <Sparkles className="w-3 h-3 mr-1" />
@@ -180,14 +173,6 @@ export function FeedbackModeSelection({
                         <span>Prix de base</span>
                         <span>{calculation.basePrice.toFixed(2)}€</span>
                       </div>
-                      {mode !== 'FREE' && (
-                        <div className="flex justify-between">
-                          <span>
-                            {calculation.freeQuestions} questions offertes
-                          </span>
-                          <span className="text-green-600">Incluses ✓</span>
-                        </div>
-                      )}
                       {calculation.billableQuestions > 0 && (
                         <div className="flex justify-between">
                           <span>
@@ -218,16 +203,6 @@ export function FeedbackModeSelection({
                     </div>
                   )}
 
-                  {mode === 'TARGETED' && calculation.freeQuestions > 0 && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-md p-2">
-                      <div className="flex items-center gap-2 text-blue-800 text-xs">
-                        <Info className="w-3 h-3" />
-                        <span className="font-medium">
-                          {calculation.freeQuestions} questions offertes
-                        </span>
-                      </div>
-                    </div>
-                  )}
 
                   {mode === 'STRUCTURED' && (
                     <div className="bg-purple-50 border border-purple-200 rounded-md p-2">
@@ -261,15 +236,15 @@ export function FeedbackModeSelection({
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <div className="text-sm text-muted-foreground">
             <p>
-              💡 <strong>Conseil :</strong> Commencez par le mode FREE pour tester, 
-              puis utilisez TARGETED pour des questions spécifiques ou STRUCTURED pour un audit complet.
+              💡 <strong>Conseil :</strong> Commencez par le mode FREE pour des premiers retours rapides, 
+              puis utilisez STRUCTURED pour un audit complet avec questions organisées par domaines.
             </p>
           </div>
           
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <p className="text-xs text-green-800">
-              <strong>📊 Optimisez vos coûts :</strong> Avec 2 questions offertes dans chaque forfait, 
-              créez des questions précises pour maximiser la valeur de votre feedback !
+              <strong>📊 Tarification simple :</strong> Prix fixe pour FREE, prix transparent par question pour STRUCTURED. 
+              Aucun coût caché !
             </p>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Check } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Reorder } from 'framer-motion';
 import { 
   Plus, 
   Trash2, 
@@ -95,6 +96,12 @@ export function FeedbackStructuredStep({
         q.id === questionId ? { ...q, text: newText } : q
       )
     );
+  };
+
+  const reorderQuestions = (domain: string, newOrder: Question[]) => {
+    const otherQuestions = questions.filter(q => q.domain !== domain);
+    const reorderedDomainQuestions = newOrder.map((q, index) => ({ ...q, order: index }));
+    onQuestionsChange([...otherQuestions, ...reorderedDomainQuestions]);
   };
 
   const getQuestionsForDomain = (domain: string) => {
@@ -234,31 +241,41 @@ export function FeedbackStructuredStep({
                       </div>
                     ))}
 
-                    {/* Custom questions */}
-                    {domainQuestions.filter(q => !q.isDefault).map((question, index) => (
-                      <div key={question.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                        <div className="flex items-center gap-2 shrink-0">
-                          <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {domainQuestions.filter(q => q.isDefault).length + index + 1}.
-                          </span>
-                        </div>
-                        <Textarea
-                          value={question.text}
-                          onChange={(e) => updateQuestion(question.id, e.target.value)}
-                          className="resize-none"
-                          rows={2}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeQuestion(question.id)}
-                          className="shrink-0 text-red-500 hover:text-red-700"
+                    {/* Custom questions with drag & drop */}
+                    <Reorder.Group 
+                      values={domainQuestions.filter(q => !q.isDefault)} 
+                      onReorder={(newOrder) => reorderQuestions(domainId, [...domainQuestions.filter(q => q.isDefault), ...newOrder])}
+                      className="space-y-2"
+                    >
+                      {domainQuestions.filter(q => !q.isDefault).map((question, index) => (
+                        <Reorder.Item 
+                          key={question.id} 
+                          value={question}
+                          className="flex items-start gap-3 p-3 border rounded-lg cursor-move hover:bg-gray-50 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
+                          <div className="flex items-center gap-2 shrink-0">
+                            <GripVertical className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {domainQuestions.filter(q => q.isDefault).length + index + 1}.
+                            </span>
+                          </div>
+                          <Textarea
+                            value={question.text}
+                            onChange={(e) => updateQuestion(question.id, e.target.value)}
+                            className="resize-none"
+                            rows={2}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeQuestion(question.id)}
+                            className="shrink-0 text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </Reorder.Item>
+                      ))}
+                    </Reorder.Group>
 
                     {/* Add custom question */}
                     <div className="flex gap-2">
@@ -302,12 +319,12 @@ export function FeedbackStructuredStep({
             roasterCount={roasterCount}
           />
 
-          {totalQuestions <= 2 && (
+          {totalQuestions > 0 && (
             <Alert>
               <Sparkles className="h-4 w-4" />
               <AlertDescription>
-                <strong>2 questions offertes !</strong> 
-                Les questions suivantes coûtent 0.20€ chacune.
+                <strong>{totalQuestions} question{totalQuestions > 1 ? 's' : ''} sélectionnée{totalQuestions > 1 ? 's' : ''} !</strong> 
+                Chaque question coûte 0.25€ par roaster.
               </AlertDescription>
             </Alert>
           )}
@@ -347,6 +364,7 @@ export function FeedbackStructuredStep({
               <p>• Chaque domaine vient avec 2 questions par défaut</p>
               <p>• Vous pouvez modifier ou supprimer ces questions</p>
               <p>• Ajoutez vos propres questions par domaine</p>
+              <p>• Réorganisez les questions par glisser-déposer</p>
               <p>• Les roasters répondent par section</p>
             </CardContent>
           </Card>

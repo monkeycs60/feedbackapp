@@ -1,5 +1,29 @@
 # Changelog
 
+## 2025-06-24-21:45
+### Major UX Redesign - Simplified 2-Mode Feedback System
+- **Streamlined feedback modes to 2 options**:
+  - **FREE mode**: Fixed 3€ pricing for general impression feedback
+  - **STRUCTURED mode**: 3€ base + 0.25€ per question with domain-organized questions
+  - **Removed TARGETED mode**: Eliminated for better user experience and simpler pricing
+- **Implemented drag & drop question reordering**:
+  - **Framer Motion integration**: Added drag & drop for custom questions in STRUCTURED mode
+  - **Visual feedback**: Hover states and cursor changes for better UX
+  - **Maintained question order**: Proper reordering with preserved numbering
+- **Redesigned wizard flow**:
+  - **Step 1**: Basic info + audience selection (moved from step 4)
+  - **Step 2**: Feedback mode selection (FREE vs STRUCTURED)
+  - **Step 3**: Questions customization (only for STRUCTURED)
+  - **Step 4**: Summary with detailed pricing breakdown
+- **Enhanced pricing transparency**:
+  - **Urgency pricing included**: +0.50€ per roaster fully integrated in all calculations
+  - **Real-time pricing updates**: Dynamic pricing display throughout wizard
+  - **Detailed breakdown**: Shows base, questions, urgency costs separately
+- **Improved user experience**:
+  - **Audience selection moved to step 1**: Better logical flow
+  - **Removed date field**: Simplified final step to focus on summary
+  - **Enhanced visual hierarchy**: Better step organization and validation
+
 ## 2025-06-24-21:15
 ### Bug Fixes - Upload Component and Infinite Loop Resolution
 - **Fixed image upload functionality**:
