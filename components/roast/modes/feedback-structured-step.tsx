@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Check } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Plus, 
@@ -146,11 +146,15 @@ export function FeedbackStructuredStep({
                   onClick={() => toggleDomain(area.id)}
                 >
                   <div className="flex items-start gap-3">
-                    <Checkbox 
-                      checked={isSelected}
-                      onCheckedChange={() => {}}
-                      className="mt-1 pointer-events-none"
-                    />
+                    <div className={`
+                      w-4 h-4 mt-1 border rounded-sm flex items-center justify-center pointer-events-none
+                      ${isSelected 
+                        ? 'bg-blue-600 border-blue-600 text-white' 
+                        : 'border-gray-300 bg-white'
+                      }
+                    `}>
+                      {isSelected && <Check className="w-3 h-3" />}
+                    </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-lg">{area.icon}</span>
