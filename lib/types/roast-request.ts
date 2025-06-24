@@ -1,8 +1,21 @@
 // Types pour les Roast Requests
 
-export type FocusArea = 'UX' | 'Onboarding' | 'Pricing' | 'Business' | 'Technical' | 'Copy' | 'Mobile';
+export type FocusArea = 'General' | 'UX' | 'Onboarding' | 'Pricing' | 'Business' | 'Technical' | 'Copy' | 'Mobile';
 export type AppCategory = 'SaaS' | 'Mobile' | 'E-commerce' | 'Landing' | 'MVP' | 'Autre';
 export type RoastStatus = 'draft' | 'open' | 'in_progress' | 'completed' | 'cancelled';
+
+// New feedback mode system
+export type FeedbackMode = 'FREE' | 'TARGETED' | 'STRUCTURED';
+
+export interface FeedbackModeConfig {
+  mode: FeedbackMode;
+  label: string;
+  description: string;
+  icon: string;
+  basePrice: number;
+  freeQuestions: number;
+  questionPrice: number;
+}
 
 export interface DomainQuestion {
   id: string;
@@ -28,6 +41,13 @@ export interface RoastRequestForm {
 }
 
 export const FOCUS_AREAS: { id: FocusArea; label: string; icon: string; description: string; questions: string[] }[] = [
+  { 
+    id: 'General', 
+    label: 'Impression générale', 
+    icon: '🎯', 
+    description: 'Retour global sur l\'expérience',
+    questions: []
+  },
   { 
     id: 'UX', 
     label: 'UX/UI Design', 
@@ -100,10 +120,42 @@ export const FOCUS_AREAS: { id: FocusArea; label: string; icon: string; descript
   }
 ];
 
+// Legacy pricing (for backward compatibility)
 export const PRICING = {
   BASE_PRICE: 0,
   DOMAIN_PRICE: 2,
   ADDITIONAL_QUESTION: 1
+};
+
+// New feedback mode configurations
+export const FEEDBACK_MODES: Record<FeedbackMode, FeedbackModeConfig> = {
+  FREE: {
+    mode: 'FREE',
+    label: 'Impression générale',
+    description: 'Feedback libre sans questions spécifiques',
+    icon: '🎯',
+    basePrice: 2.00,
+    freeQuestions: 0,
+    questionPrice: 0
+  },
+  TARGETED: {
+    mode: 'TARGETED',
+    label: 'Feedback ciblé',
+    description: 'Questions personnalisées selon vos besoins',
+    icon: '🔍',
+    basePrice: 2.00,
+    freeQuestions: 2,
+    questionPrice: 0.25
+  },
+  STRUCTURED: {
+    mode: 'STRUCTURED',
+    label: 'Feedback structuré',
+    description: 'Questions organisées par domaines d\'expertise',
+    icon: '📋',
+    basePrice: 2.00,
+    freeQuestions: 2,
+    questionPrice: 0.20
+  }
 };
 
 export const APP_CATEGORIES: { id: AppCategory; label: string; icon: string; description: string }[] = [

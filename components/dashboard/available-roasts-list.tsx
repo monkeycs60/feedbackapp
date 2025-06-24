@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink, Users, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { APP_CATEGORIES } from '@/lib/types/roast-request';
+import { APP_CATEGORIES, FEEDBACK_MODES, type FeedbackMode } from '@/lib/types/roast-request';
 import { authClient } from '@/lib/auth-client';
 
 type AvailableRoast = {
@@ -26,6 +26,11 @@ type AvailableRoast = {
 	deadline?: Date | null;
 	createdAt: Date;
 	coverImage?: string | null;
+	// New feedback mode fields
+	feedbackMode?: FeedbackMode | null;
+	basePriceMode?: number | null;
+	freeQuestions?: number | null;
+	questionPrice?: number | null;
 	creator: {
 		id: string;
 		name: string | null;
@@ -185,6 +190,15 @@ export function AvailableRoastsList({
 											: 'Faible'}
 									</div>
 								</div>
+
+								{/* Feedback mode badge */}
+								{roast.feedbackMode && (
+									<div className='absolute top-3 right-3'>
+										<div className='px-2 py-1 rounded text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm'>
+											{FEEDBACK_MODES[roast.feedbackMode].icon} {FEEDBACK_MODES[roast.feedbackMode].label}
+										</div>
+									</div>
+								)}
 
 								{/* Title on image */}
 								<div className='absolute bottom-3 left-3 right-3'>

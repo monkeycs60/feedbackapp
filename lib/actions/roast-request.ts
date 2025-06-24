@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
+import { calculateRoastPricing, validateQuestionCount } from "@/lib/utils/pricing";
+import { roastRequestSchema, newRoastRequestSchema } from "@/lib/schemas/roast-request";
 
 /**
  * Helper function to get the current authenticated user
@@ -21,34 +23,6 @@ async function getCurrentUser() {
   
   return session.user;
 }
-
-const roastRequestSchema = z.object({
-  title: z.string().min(10, "Le titre doit faire au moins 10 caractères").max(100),
-  appUrl: z.string().url("URL invalide"),
-  description: z.string().min(50, "La description doit faire au moins 50 caractères").max(1000),
-  targetAudienceIds: z.array(z.string()).min(1, "Sélectionne au moins une audience cible").max(2, "Maximum 2 audiences cibles"),
-  customTargetAudience: z.object({
-    name: z.string()
-  }).optional(),
-  category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
-  focusAreas: z.array(z.string()).min(1, "Sélectionne au moins un domaine"),
-  maxPrice: z.number().min(2, "Le prix minimum est de 2€"),
-  feedbacksRequested: z.number().min(1, "Au moins 1 feedback").max(20, "Maximum 20 feedbacks"),
-  deadline: z.date().optional(),
-  isUrgent: z.boolean().default(false),
-  additionalContext: z.string().max(500).optional(),
-  coverImage: z.string().optional(), // URL de l'image uploadée
-  // Nouveau : pour gérer les questions
-  selectedDomains: z.array(z.object({
-    id: z.string(),
-    questions: z.array(z.object({
-      id: z.string(),
-      text: z.string(),
-      isDefault: z.boolean(),
-      order: z.number()
-    }))
-  })).optional()
-});
 
 export async function createRoastRequest(data: z.infer<typeof roastRequestSchema>) {
   try {
@@ -164,6 +138,122 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
     }
     console.error('Erreur création roast request:', error);
     throw new Error('Erreur lors de la création de la demande');
+  }
+}
+
+/**
+ * Create a new roast request with the new feedback mode system
+ */
+export async function createNewRoastRequest(data: z.infer<typeof newRoastRequestSchema>) {
+  try {
+    const user = await getCurrentUser();
+
+    // Verify user has creator profile and correct role
+    const userWithProfile = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: { creatorProfile: true }
+    });
+
+    if (!userWithProfile?.creatorProfile) {
+      throw new Error("Profil créateur requis");
+    }
+
+    if (userWithProfile.primaryRole === 'roaster') {
+      throw new Error("Les roasters ne peuvent pas créer de demandes de roast. Changez de rôle pour accéder à cette fonctionnalité.");
+    }
+
+    // Validate input data
+    const validation = newRoastRequestSchema.safeParse(data);
+    if (!validation.success) {
+      throw new Error("Données invalides: " + validation.error.issues.map(i => i.message).join(', '));
+    }
+
+    const validData = validation.data;
+
+    // Validate question count for the selected mode
+    const questionCount = validData.questions?.length || 0;
+    const questionValidation = validateQuestionCount(validData.feedbackMode, questionCount);
+    
+    if (!questionValidation.isValid) {
+      throw new Error(questionValidation.error);
+    }
+
+    // Calculate pricing
+    const pricingCalculation = calculateRoastPricing(
+      validData.feedbackMode,
+      questionCount,
+      validData.feedbacksRequested
+    );
+
+    // Handle custom target audience creation
+    let customAudienceId = null;
+    if (validData.customTargetAudience?.name) {
+      const customAudience = await prisma.targetAudience.create({
+        data: {
+          name: validData.customTargetAudience.name,
+          isDefault: false,
+          createdBy: user.id
+        }
+      });
+      customAudienceId = customAudience.id;
+    }
+
+    // Create the roast request with new fields
+    const roastRequest = await prisma.roastRequest.create({
+      data: {
+        creatorId: user.id,
+        title: validData.title,
+        appUrl: validData.appUrl,
+        description: validData.description,
+        focusAreas: validData.focusAreas || [],
+        maxPrice: pricingCalculation.totalPrice,
+        deadline: validData.deadline,
+        status: validData.isUrgent ? 'collecting_applications' : 'open',
+        feedbacksRequested: validData.feedbacksRequested,
+        category: validData.category,
+        coverImage: validData.coverImage,
+        
+        // New feedback mode fields
+        feedbackMode: validData.feedbackMode,
+        basePriceMode: pricingCalculation.basePrice,
+        freeQuestions: pricingCalculation.freeQuestions,
+        questionPrice: pricingCalculation.questionPrice,
+        
+        // Create target audience relationships
+        targetAudiences: {
+          create: [
+            ...validData.targetAudienceIds.map(id => ({ targetAudienceId: id })),
+            ...(customAudienceId ? [{ targetAudienceId: customAudienceId }] : [])
+          ]
+        }
+      }
+    });
+
+    // Create questions if any
+    if (validData.questions && validData.questions.length > 0) {
+      await prisma.roastQuestion.createMany({
+        data: validData.questions.map(question => ({
+          roastRequestId: roastRequest.id,
+          domain: question.domain || 'General',
+          text: question.text,
+          order: question.order,
+          isDefault: false
+        }))
+      });
+    }
+
+    revalidatePath('/marketplace');
+    revalidatePath('/dashboard');
+    
+    redirect(`/dashboard/roast/${roastRequest.id}`);
+
+  } catch (error: unknown) {
+    // Allow Next.js redirects to pass through
+    if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+      throw error;
+    }
+    console.error('Erreur création roast request (nouveau système):', error);
+    throw new Error(error instanceof Error ? error.message : 'Erreur lors de la création de la demande');
   }
 }
 

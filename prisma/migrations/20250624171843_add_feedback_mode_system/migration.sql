@@ -1,0 +1,8 @@
+-- CreateEnum
+CREATE TYPE "FeedbackMode" AS ENUM ('FREE', 'TARGETED', 'STRUCTURED');
+
+-- AlterTable
+ALTER TABLE "roast_requests" ADD COLUMN     "basePriceMode" DOUBLE PRECISION NOT NULL DEFAULT 2.00,
+ADD COLUMN     "feedbackMode" "FeedbackMode" NOT NULL DEFAULT 'STRUCTURED',
+ADD COLUMN     "freeQuestions" INTEGER NOT NULL DEFAULT 2,
+ADD COLUMN     "questionPrice" DOUBLE PRECISION NOT NULL DEFAULT 0.20;

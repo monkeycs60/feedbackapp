@@ -1,5 +1,54 @@
 # Changelog
 
+## 2025-06-24-21:00
+### UX Enhancement - Improved Wizard Interface and Pricing Clarity
+- **Enhanced BasicInfoStep user experience**:
+  - **Category selection**: Replaced dropdown with visual card-based selection with icons and descriptions
+  - **Removed unnecessary field**: Eliminated "contexte supplémentaire" field to simplify form
+  - **Interactive slider**: Implemented styled range slider for roaster count selection with visual feedback
+  - **Cover image upload**: Added UploadThing integration with image preview and removal functionality
+  - **Enhanced urgency option**: Added clear benefits (+0.50€ per roaster, algorithm boost, immediate publication)
+- **Improved feedback mode selection clarity**:
+  - **Pricing explanation header**: Added clear breakdown of base price (2€) + free questions (2) + additional costs
+  - **Enhanced pricing cards**: Better display of included vs additional questions with visual indicators
+  - **Cost optimization tips**: Added guidance on maximizing value with included questions
+- **Fixed roast-feedback-form indentation issue**: Corrected malformed JSX structure in completed feedback display
+- **Visual improvements**: Better gradients, color coding, and typography throughout the wizard interface
+
+## 2025-06-24-20:45
+### Feature Implementation - Complete BasicInfoStep for New Roast Wizard
+- **Implemented full BasicInfoStep component** in new-roast-wizard.tsx:
+  - **Complete form fields**: title, URL, description, category selection, roaster count, urgency toggle
+  - **Real-time validation**: character counts, URL validation, required field indicators
+  - **Enhanced UX**: helpful placeholder text, context explanations, visual feedback
+  - **Category selection**: dropdown with icons and descriptions for all app types
+  - **Roaster count**: smart selection with recommendations (1-10 roasters)
+  - **Urgency option**: checkbox to prioritize roast publication
+- **Implemented SettingsStep component**:
+  - **Target audience selection**: multi-select interface (max 2 audiences) with visual feedback
+  - **Custom audience**: optional text input for specific targeting
+  - **Deadline setting**: optional date picker for completion timeline
+  - **Configuration summary**: shows selected mode, question count, and roaster count
+  - **Final confirmation**: clear indication of publication behavior (immediate vs 24h collection)
+- **Enhanced wizard navigation**: step validation, progress indicators, and proper form state management
+- **Backward compatibility**: maintains integration with existing target audience and question systems
+
+## 2025-06-24-20:30
+### Feature Enhancement - Adaptive Feedback Form for New Feedback Modes
+- **Updated feedback form component to handle different feedback modes**:
+  - **FREE mode**: Shows alert explaining free exploration, no questions section, larger textarea for comprehensive feedback (min 100 chars)
+  - **TARGETED mode**: Questions displayed in simple list format with Q1, Q2... badges
+  - **STRUCTURED mode**: Traditional domain-grouped questions with color-coded headers
+- **Enhanced form validation**: Adaptive validation schema based on feedback mode (FREE requires only generalFeedback, others require questionResponses)
+- **Improved UI elements**:
+  - Mode-specific labels and descriptions for feedback section
+  - Badge display shows feedback mode in form header
+  - Summary section adapts to show relevant information per mode
+  - Dynamic pricing explanation (new vs legacy pricing models)
+  - Submit button logic handles FREE mode (no questions to complete)
+- **Backward compatibility**: Legacy roasts (without feedbackMode) default to STRUCTURED behavior
+- **Enhanced user guidance**: Different placeholder text and instructions based on selected mode
+
 ## 2025-06-22-18:45
 ### Bug Fix - Fixed Spots Calculation Logic
 - **Fixed spots counting to use accepted applications instead of completed feedbacks**
