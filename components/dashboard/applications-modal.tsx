@@ -79,9 +79,13 @@ export function ApplicationsModal({
 	const selectedApplicationsData = applications.filter((app) =>
 		['accepted', 'auto_selected'].includes(app.status)
 	);
+	const acceptedCount = selectedApplicationsData.length;
+	const spotsRemaining = roastRequest.feedbacksRequested - acceptedCount;
+	
 	const canSelect =
-		roastRequest.status === 'collecting_applications' ||
-		roastRequest.status === 'open';
+		(roastRequest.status === 'collecting_applications' ||
+		roastRequest.status === 'open' ||
+		roastRequest.status === 'in_progress') && spotsRemaining > 0;
 
 	const handleApplicationToggle = (applicationId: string) => {
 		if (selectedApplications.includes(applicationId)) {
@@ -89,7 +93,8 @@ export function ApplicationsModal({
 				prev.filter((id) => id !== applicationId)
 			);
 		} else {
-			if (selectedApplications.length < roastRequest.feedbacksRequested) {
+			// Check if there are still spots available (taking into account already accepted roasters)
+			if (selectedApplications.length + acceptedCount < roastRequest.feedbacksRequested) {
 				setSelectedApplications((prev) => [...prev, applicationId]);
 			}
 		}

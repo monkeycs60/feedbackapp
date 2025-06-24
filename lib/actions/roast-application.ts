@@ -230,8 +230,13 @@ export async function manualSelectRoasters(roastRequestId: string, selectedAppli
       throw new Error("Seul le créateur peut sélectionner les roasters");
     }
 
-    if (selectedApplicationIds.length > roastRequest.feedbacksRequested) {
-      throw new Error(`Vous ne pouvez sélectionner que ${roastRequest.feedbacksRequested} roasters maximum`);
+    // Compter les roasters déjà acceptés
+    const alreadyAcceptedCount = roastRequest.applications.filter(
+      app => app.status === 'accepted' || app.status === 'auto_selected'
+    ).length;
+    
+    if (selectedApplicationIds.length + alreadyAcceptedCount > roastRequest.feedbacksRequested) {
+      throw new Error(`Vous ne pouvez sélectionner que ${roastRequest.feedbacksRequested - alreadyAcceptedCount} roasters supplémentaires (${alreadyAcceptedCount}/${roastRequest.feedbacksRequested} déjà sélectionnés)`);
     }
 
     // Marquer les applications sélectionnées
@@ -246,11 +251,12 @@ export async function manualSelectRoasters(roastRequestId: string, selectedAppli
       }
     });
 
-    // Marquer les autres comme rejetées
+    // Marquer seulement les applications en attente comme rejetées (préserver les acceptées/auto_selected)
     await prisma.roastApplication.updateMany({
       where: {
         roastRequestId: roastRequestId,
-        id: { notIn: selectedApplicationIds }
+        id: { notIn: selectedApplicationIds },
+        status: 'pending' // Seulement rejeter les pending, pas les déjà acceptées
       },
       data: { status: 'rejected' }
     });
