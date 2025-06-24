@@ -348,8 +348,7 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
           select: { id: true, status: true }
         },
         applications: {
-          where: { roasterId: user.id },
-          select: { id: true, status: true }
+          select: { id: true, status: true, roasterId: true }
         },
         _count: {
           select: { 

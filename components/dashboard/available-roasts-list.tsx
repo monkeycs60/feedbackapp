@@ -6,6 +6,7 @@ import { ExternalLink, Users, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { APP_CATEGORIES } from '@/lib/types/roast-request';
+import { authClient } from '@/lib/auth-client';
 
 type AvailableRoast = {
 	id: string;
@@ -33,7 +34,7 @@ type AvailableRoast = {
 		} | null;
 	};
 	feedbacks: { id: string; status: string }[];
-	applications: { id: string; status: string }[];
+	applications: { id: string; status: string; roasterId: string }[];
 	_count: {
 		feedbacks: number;
 		applications: number;
@@ -50,7 +51,7 @@ function formatTimeAgo(date: Date) {
 		(now.getTime() - date.getTime()) / (1000 * 60 * 60)
 	);
 
-	if (diffInHours < 1) return 'Il y a moins d&apos;une heure';
+	if (diffInHours < 1) return "Il y a moins d'une heure";
 	if (diffInHours < 24) return `Il y a ${diffInHours}h`;
 
 	const diffInDays = Math.round(diffInHours / 24);
@@ -65,8 +66,12 @@ function formatTimeAgo(date: Date) {
 function getRoastPriority(roast: AvailableRoast): 'high' | 'medium' | 'low' {
 	const hoursOld =
 		(new Date().getTime() - roast.createdAt.getTime()) / (1000 * 60 * 60);
-	const applicationCount = roast._count.applications;
-	const spotsRemaining = roast.feedbacksRequested - applicationCount;
+
+	// Calculate spots using all accepted applications (not user-specific)
+	const acceptedApplications = roast.applications.filter(
+		app => app.status === 'accepted' || app.status === 'auto_selected'
+	).length;
+	const spotsRemaining = roast.feedbacksRequested - acceptedApplications;
 
 	// Récent ET places disponibles = priorité haute
 	if (hoursOld < 24 && spotsRemaining > 0) return 'high';
@@ -80,6 +85,13 @@ function getRoastPriority(roast: AvailableRoast): 'high' | 'medium' | 'low' {
 export function AvailableRoastsList({
 	availableRoasts,
 }: AvailableRoastsListProps) {
+	const { data: session } = authClient.useSession();
+	const currentUserId = session?.user?.id;
+
+	// Don't render anything if we don't have user info yet
+	if (!currentUserId) {
+		return null;
+	}
 	// Trier par priorité puis par date
 	const sortedRoasts = [...availableRoasts].sort((a, b) => {
 		const priorityOrder = { high: 0, medium: 1, low: 2 };
@@ -124,12 +136,11 @@ export function AvailableRoastsList({
 			<div className='grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
 				{sortedRoasts.map((roast) => {
 					const priority = getRoastPriority(roast);
-					// Count accepted applications (including auto_selected)
+					// Use all accepted applications for correct spot calculation
 					const acceptedApplications = roast.applications.filter(
 						app => app.status === 'accepted' || app.status === 'auto_selected'
 					).length;
-					const spotsLeft =
-						roast.feedbacksRequested - acceptedApplications;
+					const spotsLeft = roast.feedbacksRequested - acceptedApplications;
 					const pricePerRoast = Math.round(
 						roast.maxPrice / roast.feedbacksRequested
 					);
@@ -262,16 +273,23 @@ export function AvailableRoastsList({
 										</span>
 
 										{/* Spots left - more explicit */}
-										<div className={`flex items-center gap-1.5 px-2 py-0.5 rounded ${
-											spotsLeft > 0 ? 'bg-muted' : 'bg-red-100'
-										}`}>
-											<Users className={`h-3.5 w-3.5 ${
-												spotsLeft > 0 ? '' : 'text-red-600'
-											}`} />
-											<span className={`font-medium ${
-												spotsLeft > 0 ? 'text-foreground' : 'text-red-600'
+										<div
+											className={`flex items-center gap-1.5 px-2 py-0.5 rounded ${
+												spotsLeft > 0 ? 'bg-muted' : 'bg-red-100'
 											}`}>
-												{spotsLeft}/{roast.feedbacksRequested} place{roast.feedbacksRequested > 1 ? 's' : ''}
+											<Users
+												className={`h-3.5 w-3.5 ${
+													spotsLeft > 0 ? '' : 'text-red-600'
+												}`}
+											/>
+											<span
+												className={`font-medium ${
+													spotsLeft > 0
+														? 'text-foreground'
+														: 'text-red-600'
+												}`}>
+												{spotsLeft}/{roast.feedbacksRequested} place
+												{roast.feedbacksRequested > 1 ? 's' : ''}
 											</span>
 										</div>
 
@@ -286,14 +304,16 @@ export function AvailableRoastsList({
 
 									{/* Action button */}
 									{(() => {
-										const hasApplication =
-											roast.applications.length > 0;
-										const hasFeedback = roast.feedbacks.length > 0;
-										const hasCompletedFeedback = roast.feedbacks.some(
-											(f) => f.status === 'completed'
-										);
+										// Filter applications and feedbacks by current user
+										const userApplication = currentUserId 
+											? roast.applications.find(app => app.roasterId === currentUserId)
+											: null;
+										const userFeedback = currentUserId 
+											? roast.feedbacks.find(f => f.id) // feedbacks are already filtered by user in the server action
+											: null;
+										const hasUserCompletedFeedback = userFeedback?.status === 'completed';
 
-										if (hasCompletedFeedback) {
+										if (hasUserCompletedFeedback) {
 											return (
 												<Button asChild size='sm' variant='outline'>
 													<Link href={`/roast/${roast.id}`}>
@@ -303,7 +323,7 @@ export function AvailableRoastsList({
 											);
 										}
 
-										if (hasApplication || hasFeedback) {
+										if (userApplication || userFeedback) {
 											return (
 												<Button
 													asChild

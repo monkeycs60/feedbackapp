@@ -32,7 +32,7 @@ type AvailableRoast = {
 		} | null;
 	};
 	feedbacks: { id: string; status: string }[];
-	applications: { id: string; status: string }[];
+	applications: { id: string; status: string; roasterId: string }[];
 	_count: {
 		feedbacks: number;
 		applications: number;

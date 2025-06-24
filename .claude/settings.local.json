@@ -12,7 +12,8 @@
       "Bash(npx prisma:*)",
       "Bash(grep:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": []
   }

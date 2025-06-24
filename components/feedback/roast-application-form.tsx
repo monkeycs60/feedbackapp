@@ -63,6 +63,7 @@ export function RoastApplicationForm({
 	const acceptedApplications = roastRequest.applications.filter(
 		app => app.status === 'accepted' || app.status === 'auto_selected'
 	).length;
+	console.log({ acceptedApplications });
 	const spotsRemaining = roastRequest.feedbacksRequested - acceptedApplications;
 
 	const form = useForm<ApplicationFormData>({
