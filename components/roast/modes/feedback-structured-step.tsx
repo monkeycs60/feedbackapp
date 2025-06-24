@@ -148,8 +148,8 @@ export function FeedbackStructuredStep({
                   <div className="flex items-start gap-3">
                     <Checkbox 
                       checked={isSelected}
-                      onChange={() => {}} // Handled by onClick on parent
-                      className="mt-1"
+                      onCheckedChange={() => {}}
+                      className="mt-1 pointer-events-none"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">

@@ -13,17 +13,13 @@ import {
   CheckCircle2, 
   AlertCircle,
   Sparkles,
-  Upload,
-  X,
-  ImageIcon
 } from 'lucide-react';
-import Image from 'next/image';
 import { FeedbackModeSelection } from './feedback-mode-selection';
 import { FeedbackFreeStep } from './modes/feedback-free-step';
 import { FeedbackTargetedStep } from './modes/feedback-targeted-step';
 import { FeedbackStructuredStep } from './modes/feedback-structured-step';
 import { PricingDisplay } from './pricing-calculator';
-import { UploadDropzone } from '@uploadthing/react';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { newRoastRequestSchema } from '@/lib/schemas/roast-request';
 import { createNewRoastRequest } from '@/lib/actions/roast-request';
 import { type FeedbackMode, type FocusArea, APP_CATEGORIES } from '@/lib/types/roast-request';
@@ -455,48 +451,13 @@ function BasicInfoStep({ form }: { form: ReturnType<typeof useForm<FormData>> })
             <label className="text-sm font-medium">
               Image de couverture (optionnel)
             </label>
-            {watchedValues.coverImage ? (
-              <div className="relative">
-                <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200">
-                  <Image
-                    src={watchedValues.coverImage}
-                    alt="Aperçu de l'image de couverture"
-                    fill
-                    className="object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => form.setValue('coverImage', '')}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Cette image sera visible sur la marketplace pour attirer les roasters
-                </p>
-              </div>
-            ) : (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                <UploadDropzone
-                  endpoint="roastCover"
-                  onClientUploadComplete={(res) => {
-                    if (res?.[0]) {
-                      form.setValue('coverImage', res[0].url);
-                    }
-                  }}
-                  onUploadError={(error: Error) => {
-                    console.error('Upload error:', error);
-                  }}
-                  appearance={{
-                    container: "border-none p-0",
-                    uploadIcon: "text-gray-400",
-                    label: "text-sm text-gray-600",
-                    allowedContent: "text-xs text-gray-500"
-                  }}
-                />
-              </div>
-            )}
+            <ImageUpload
+              value={watchedValues.coverImage}
+              onChange={(url) => form.setValue('coverImage', url || '')}
+            />
+            <p className="text-xs text-muted-foreground">
+              Cette image sera visible sur la marketplace pour attirer les roasters
+            </p>
           </div>
 
           {/* Number of Roasters with Slider */}

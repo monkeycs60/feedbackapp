@@ -1,5 +1,17 @@
 # Changelog
 
+## 2025-06-24-21:15
+### Bug Fixes - Upload Component and Infinite Loop Resolution
+- **Fixed image upload functionality**:
+  - **Replaced broken UploadDropzone**: Switched to existing working ImageUpload component
+  - **Better UX**: Progress indicators, image optimization, and proper error handling
+  - **Drag & drop support**: Works with file selection and drag-drop interface
+- **Fixed infinite loop in STRUCTURED mode**:
+  - **Checkbox issue resolved**: Removed problematic onChange handler that triggered re-renders
+  - **Added pointer-events-none**: Prevents checkbox from interfering with parent click handler
+  - **Stable domain selection**: Now works correctly without causing React update loops
+- **Code cleanup**: Removed unused imports (X, Image) from wizard component
+
 ## 2025-06-24-21:00
 ### UX Enhancement - Improved Wizard Interface and Pricing Clarity
 - **Enhanced BasicInfoStep user experience**:
