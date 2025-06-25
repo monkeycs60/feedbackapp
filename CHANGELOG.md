@@ -1,5 +1,15 @@
 # Changelog
 
+## 2025-06-25-11:00
+### Bug Fix - Marketplace Page Runtime Error
+- **Fixed runtime error**: "Cannot read properties of undefined (reading 'icon')" in available-roasts-list.tsx
+- **Root cause**: Database enum `FeedbackMode` has 3 values (FREE, TARGETED, STRUCTURED) but TypeScript types only had 2 (FREE, STRUCTURED)
+- **Solution**: Added safety check to prevent accessing undefined FEEDBACK_MODES entries
+- **Changes made**:
+  - Modified available-roasts-list.tsx line 195 to check if FEEDBACK_MODES[roast.feedbackMode] exists before rendering
+  - This prevents the error for roasts with feedbackMode='TARGETED' which don't have a corresponding TypeScript definition
+- **Impact**: Marketplace page now loads correctly without crashing for roasts with legacy TARGETED feedback mode
+
 ## 2025-06-24-21:45
 ### Major UX Redesign - Simplified 2-Mode Feedback System
 - **Streamlined feedback modes to 2 options**:

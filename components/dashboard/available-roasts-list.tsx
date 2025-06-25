@@ -192,7 +192,7 @@ export function AvailableRoastsList({
 								</div>
 
 								{/* Feedback mode badge */}
-								{roast.feedbackMode && (
+								{roast.feedbackMode && FEEDBACK_MODES[roast.feedbackMode] && (
 									<div className='absolute top-3 right-3'>
 										<div className='px-2 py-1 rounded text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm'>
 											{FEEDBACK_MODES[roast.feedbackMode].icon} {FEEDBACK_MODES[roast.feedbackMode].label}
