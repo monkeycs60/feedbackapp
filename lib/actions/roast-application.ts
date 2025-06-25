@@ -40,10 +40,15 @@ function calculateRoasterScore(roasterProfile: any, roastRequest: any): number {
   score += (roasterProfile.rating / 5) * 25;
   
   // Score basé sur les spécialités qui matchent (0-30 points)
-  const matchingSpecialties = roasterProfile.specialties.filter((spec: string) => 
-    roastRequest.focusAreas.includes(spec)
-  );
-  score += (matchingSpecialties.length / roastRequest.focusAreas.length) * 30;
+  if (roastRequest.focusAreas && roastRequest.focusAreas.length > 0) {
+    const matchingSpecialties = roasterProfile.specialties.filter((spec: string) => 
+      roastRequest.focusAreas.includes(spec)
+    );
+    score += (matchingSpecialties.length / roastRequest.focusAreas.length) * 30;
+  } else {
+    // Pour les impressions générales (FREE mode), donner un score moyen
+    score += 15;
+  }
   
   // Score basé sur le niveau (0-10 points)
   const levelScores = { 'rookie': 2, 'verified': 5, 'expert': 8, 'master': 10 };

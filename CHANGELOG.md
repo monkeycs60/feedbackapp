@@ -1,5 +1,15 @@
 # Changelog
 
+## 2025-06-25-11:15
+### Bug Fix - Roaster Application Error for FREE Mode
+- **Fixed application error for impression générale (FREE mode)**: Resolved 500 Internal Server Error when roasters apply to FREE mode roasts
+- **Root cause**: `calculateRoasterScore` function was dividing by zero when `roastRequest.focusAreas` was empty for FREE mode roasts
+- **Solution**: Added safety check for empty focus areas and provide a default score of 15 points for FREE mode roasts
+- **Changes made**:
+  - Modified `calculateRoasterScore` function in roast-application.ts to handle empty focus areas
+  - Added conditional logic to give average specialty score (15/30) when no specific focus areas are defined
+- **Impact**: Roasters can now successfully apply to impression générale roasts without server errors
+
 ## 2025-06-25-11:00
 ### Bug Fix - Marketplace Page Runtime Error
 - **Fixed runtime error**: "Cannot read properties of undefined (reading 'icon')" in available-roasts-list.tsx
