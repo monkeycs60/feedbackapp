@@ -18,7 +18,8 @@
       "Bash(mv:*)",
       "Bash(node:*)",
       "Bash(pkill:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
