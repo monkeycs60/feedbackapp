@@ -1,5 +1,17 @@
 # Changelog
 
+## 2025-06-25-11:45
+### Critical UX Fix - Prevent Accidental Form Submission
+- **Fixed automatic roast creation** after mode selection that was bypassing user intent
+- **Problem**: Users were accidentally creating roasts by clicking the same area where navigation buttons appeared
+- **Root cause**: FeedbackModeSelection had its own "Continue" button that auto-advanced the wizard
+- **Solutions implemented**:
+  - **Removed auto-navigation** from mode selection step - now shows confirmation instead
+  - **Added explicit confirmation step** - users must click "Create roast" then "Confirm and create roast"
+  - **Enhanced navigation** - standardized navigation buttons across all steps
+  - **Visual feedback** - clear indication when mode is selected with instruction to use bottom navigation
+- **Impact**: Users now have full control over form submission, preventing accidental roast creation
+
 ## 2025-06-25-11:40
 ### UX Enhancement - Auto-Remove Domains Without Questions
 - **Enhanced structured feedback form** to automatically remove domains when all questions are deleted

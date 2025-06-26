@@ -24,7 +24,6 @@ import { calculateRoastPricing } from '@/lib/utils/pricing';
 interface FeedbackModeSelectionProps {
   selectedMode?: FeedbackMode;
   onModeSelect: (mode: FeedbackMode) => void;
-  onContinue: () => void;
   roasterCount?: number;
   className?: string;
 }
@@ -32,7 +31,6 @@ interface FeedbackModeSelectionProps {
 export function FeedbackModeSelection({
   selectedMode,
   onModeSelect,
-  onContinue,
   roasterCount = 2,
   className = ""
 }: FeedbackModeSelectionProps) {
@@ -202,21 +200,20 @@ export function FeedbackModeSelection({
           })}
         </div>
 
-        {/* Continue button */}
+        {/* Mode selected indication */}
         {selectedMode && (
           <div className="flex justify-center pt-4">
-            <Button 
-              onClick={() => {
-                onContinue();
-                // Scroll to top of page
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8"
-            >
-              Continuer avec {FEEDBACK_MODES[selectedMode].label}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md">
+              <div className="flex items-center justify-center gap-2 text-green-800">
+                <CheckCircle2 className="w-5 h-5" />
+                <span className="font-medium">
+                  Mode {FEEDBACK_MODES[selectedMode].label} sélectionné
+                </span>
+              </div>
+              <p className="text-sm text-green-700 text-center mt-2">
+                Cliquez sur "Suivant" en bas pour continuer
+              </p>
+            </div>
           </div>
         )}
 

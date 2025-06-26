@@ -46,6 +46,7 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
   
   // Form state
   const [selectedMode, setSelectedMode] = useState<FeedbackMode | undefined>();
@@ -135,6 +136,12 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
   };
 
   const onSubmit = async (data: FormData) => {
+    // Require explicit confirmation on final step
+    if (!confirmSubmit) {
+      setConfirmSubmit(true);
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setSubmitError(null);
@@ -254,7 +261,6 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
             <FeedbackModeSelection
               selectedMode={selectedMode}
               onModeSelect={handleModeSelect}
-              onContinue={goToNext}
               roasterCount={watchedValues.feedbacksRequested || 2}
             />
           )}
@@ -293,8 +299,19 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
           </Alert>
         )}
 
+        {/* Confirmation Display */}
+        {confirmSubmit && (
+          <Alert className="mb-6 border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              <strong>Attention :</strong> Vous êtes sur le point de publier votre roast. 
+              Cliquez à nouveau sur "Confirmer et créer le roast" pour finaliser.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Navigation */}
-        {currentStep !== 1 && ( // Mode selection step handles its own navigation
+        {true && ( // Show navigation for all steps
           <div className="flex items-center justify-between">
             <Button
               type="button"
@@ -319,10 +336,15 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
               <Button
                 type="submit"
                 disabled={!canProceed || isSubmitting}
-                className="bg-green-600 hover:bg-green-700"
+                className={`${confirmSubmit ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}
               >
                 {isSubmitting ? (
                   'Création...'
+                ) : confirmSubmit ? (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Confirmer et créer le roast
+                  </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
