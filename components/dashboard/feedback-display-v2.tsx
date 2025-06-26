@@ -20,7 +20,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Image from 'next/image';
 import { RatingSystem, type RatingSystemRef } from '@/components/ui/rating-system';
-import { submitFeedbackRatings, getFeedbackRatings } from '@/lib/actions/feedback-rating';
+import { submitFeedbackRatings, getFeedbackRatings, getRoasterAverageRating } from '@/lib/actions/feedback-rating';
 
 interface QuestionResponse {
   id: string;
@@ -75,20 +75,35 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
   const [showRating, setShowRating] = useState<string | null>(null);
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   const [existingRatings, setExistingRatings] = useState<Record<string, any[]>>({});
+  const [roasterAverages, setRoasterAverages] = useState<Record<string, {average: number, count: number}>>({});
   const ratingRef = useRef<RatingSystemRef>(null);
 
-  // Charger les notes existantes pour chaque feedback
+  // Charger les notes existantes et moyennes des roasters
   useEffect(() => {
-    const loadExistingRatings = async () => {
+    const loadData = async () => {
       const ratingsMap: Record<string, any[]> = {};
+      const averagesMap: Record<string, {average: number, count: number}> = {};
+      
       for (const feedback of feedbacks) {
+        // Charger les notes existantes
         const ratings = await getFeedbackRatings(feedback.id);
         ratingsMap[feedback.id] = ratings;
+        
+        // Charger la moyenne du roaster (si pas déjà fait)
+        if (!averagesMap[feedback.roaster.id]) {
+          const roasterAvg = await getRoasterAverageRating(feedback.roaster.id);
+          averagesMap[feedback.roaster.id] = {
+            average: roasterAvg?.averages?.overall || 0,
+            count: roasterAvg?.count || 0
+          };
+        }
       }
+      
       setExistingRatings(ratingsMap);
+      setRoasterAverages(averagesMap);
     };
     
-    loadExistingRatings();
+    loadData();
   }, [feedbacks]);
 
   if (feedbacks.length === 0) {
@@ -135,6 +150,19 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
         [feedbackId]: updatedRatings
       }));
       
+      // Recalculer la moyenne du roaster pour ce feedback
+      const feedback = feedbacks.find(f => f.id === feedbackId);
+      if (feedback) {
+        const roasterAvg = await getRoasterAverageRating(feedback.roaster.id);
+        setRoasterAverages(prev => ({
+          ...prev,
+          [feedback.roaster.id]: {
+            average: roasterAvg?.averages?.overall || 0,
+            count: roasterAvg?.count || 0
+          }
+        }));
+      }
+      
       setShowRating(null);
     } catch (error) {
       console.error('Erreur soumission rating:', error);
@@ -176,12 +204,27 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                         <Badge variant="secondary" className="text-xs">
                           {feedback.roaster.roasterProfile.level}
                         </Badge>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                          <span className="text-sm text-gray-600">
-                            {feedback.roaster.roasterProfile.rating.toFixed(1)}
-                          </span>
-                        </div>
+                        {(() => {
+                          const roasterStats = roasterAverages[feedback.roaster.id];
+                          if (roasterStats && roasterStats.count > 0) {
+                            return (
+                              <div className="flex items-center gap-1">
+                                <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                                <span className="text-sm text-gray-600">
+                                  {roasterStats.average.toFixed(1)} ({roasterStats.count} évaluation{roasterStats.count > 1 ? 's' : ''})
+                                </span>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="flex items-center gap-1">
+                              <Star className="h-3 w-3 text-gray-400" />
+                              <span className="text-sm text-gray-400">
+                                Pas encore évalué
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </>
                     )}
                   </div>
