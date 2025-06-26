@@ -1,5 +1,26 @@
 # Changelog
 
+## 2025-06-25-11:50
+### Major UX Redesign - Creator Dashboard Roast Detail Page
+- **Complete redesign of creator dashboard roast detail page** (/dashboard/roast/:id)
+- **New single-column layout**: Replaced 3-column layout with clean, streamlined single-column design
+- **Enhanced progress visualization**:
+  - **Avatar-based progress bar**: Shows actual roaster avatars at their progress positions
+  - **Color-coded status**: Green for completed, blue for in-progress, gray placeholders for empty slots
+  - **Real-time indicators**: Checkmarks for completed, clock icons for in-progress feedbacks
+- **Integrated applications management**:
+  - **No more modal**: Applications now displayed directly in the main UI for better visibility
+  - **Prominent pending applications**: Orange-highlighted cards for applications awaiting decision
+  - **Always visible**: Applications section shows even when all seats are taken
+  - **Action buttons**: Direct Accept/Reject buttons on each pending application
+  - **Status tracking**: Clear separation between pending, accepted, and rejected applications
+- **Improved information hierarchy**:
+  - **Card-based sections**: Clean separation of progress, applications, feedbacks, and project info
+  - **Enhanced readability**: Better spacing and visual organization
+  - **Responsive design**: Optimized for all screen sizes with consistent spacing
+- **Better roaster visibility**: Shows roaster profiles, ratings, bios, and motivations directly in applications
+- **Impact**: Creators can now manage their roasts more efficiently with all information visible at once
+
 ## 2025-06-25-11:45
 ### Critical UX Fix - Prevent Accidental Form Submission
 - **Fixed automatic roast creation** after mode selection that was bypassing user intent
