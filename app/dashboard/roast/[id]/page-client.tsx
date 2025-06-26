@@ -339,35 +339,75 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                 </div>
               )}
               
-              {/* Candidatures acceptées */}
-              {acceptedApplications.length > 0 && (
+              {/* Candidatures acceptées - En cours de rédaction uniquement */}
+              {acceptedApplications.filter((app: any) => 
+                !feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
+              ).length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="font-medium text-green-800 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Roasters en mission ({acceptedApplications.length})
+                  <h4 className="font-medium text-blue-800 flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    En cours de rédaction ({acceptedApplications.filter((app: any) => 
+                      !feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
+                    ).length})
                   </h4>
-                  {acceptedApplications.map((app: any) => (
-                    <div key={app.id} className="border border-green-200 rounded-lg p-3 bg-green-50">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={app.roaster?.avatar} />
-                          <AvatarFallback className="text-xs">
-                            {getInitials(app.roaster?.name || 'U')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">{app.roaster?.name || 'Roaster anonyme'}</span>
-                            {feedbacks.find((f: any) => f.roasterId === app.roasterId && f.status === 'completed') ? (
-                              <Badge className="bg-green-100 text-green-800 text-xs">✓ Feedback livré</Badge>
-                            ) : (
-                              <Badge className="bg-blue-100 text-blue-800 text-xs">⏳ En cours</Badge>
-                            )}
+                  {acceptedApplications
+                    .filter((app: any) => 
+                      !feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
+                    )
+                    .map((app: any) => (
+                      <div key={app.id} className="border border-blue-200 rounded-lg p-3 bg-blue-50">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={app.roaster?.avatar} />
+                            <AvatarFallback className="text-xs">
+                              {getInitials(app.roaster?.name || 'U')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm">{app.roaster?.name || 'Roaster anonyme'}</span>
+                              <Badge className="bg-blue-100 text-blue-800 text-xs">⏳ En cours de rédaction</Badge>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                </div>
+              )}
+              
+              {/* Roasters qui ont terminé leur feedback */}
+              {acceptedApplications.filter((app: any) => 
+                feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
+              ).length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="font-medium text-green-800 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Feedback livré ({acceptedApplications.filter((app: any) => 
+                      feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
+                    ).length})
+                  </h4>
+                  {acceptedApplications
+                    .filter((app: any) => 
+                      feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
+                    )
+                    .map((app: any) => (
+                      <div key={app.id} className="border border-green-200 rounded-lg p-3 bg-green-50">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={app.roaster?.avatar} />
+                            <AvatarFallback className="text-xs">
+                              {getInitials(app.roaster?.name || 'U')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm">{app.roaster?.name || 'Roaster anonyme'}</span>
+                              <Badge className="bg-green-100 text-green-800 text-xs">✓ Feedback livré</Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               )}
             </div>

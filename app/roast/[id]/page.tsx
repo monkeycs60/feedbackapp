@@ -26,7 +26,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FEEDBACK_MODES, FOCUS_AREAS, APP_CATEGORIES } from '@/lib/types/roast-request';
+import {
+	FEEDBACK_MODES,
+	FOCUS_AREAS,
+	APP_CATEGORIES,
+} from '@/lib/types/roast-request';
 
 interface RoastPageProps {
 	params: Promise<{
@@ -60,6 +64,9 @@ export default async function RoastPage({ params }: RoastPageProps) {
 	const isAcceptedRoaster =
 		userApplication?.status === 'accepted' ||
 		userApplication?.status === 'auto_selected';
+
+	console.log('roastRequest.applications', roastRequest.applications);
+	console.log('roastRequest', roastRequest);
 
 	// Si le roast est fermé, annulé ou complété
 	if (
@@ -107,7 +114,8 @@ export default async function RoastPage({ params }: RoastPageProps) {
 								className={
 									roastRequest.status === 'open'
 										? 'bg-green-100 text-green-800'
-										: roastRequest.status === 'collecting_applications'
+										: roastRequest.status ===
+										  'collecting_applications'
 										? 'bg-orange-100 text-orange-800'
 										: roastRequest.status === 'in_progress' &&
 										  isAcceptedRoaster
@@ -129,8 +137,11 @@ export default async function RoastPage({ params }: RoastPageProps) {
 									: 'Fermé'}
 							</Badge>
 							{FEEDBACK_MODES[roastRequest.feedbackMode] && (
-								<Badge variant='secondary' className='bg-purple-100 text-purple-800'>
-									{FEEDBACK_MODES[roastRequest.feedbackMode].icon} {FEEDBACK_MODES[roastRequest.feedbackMode].label}
+								<Badge
+									variant='secondary'
+									className='bg-purple-100 text-purple-800'>
+									{FEEDBACK_MODES[roastRequest.feedbackMode].icon}{' '}
+									{FEEDBACK_MODES[roastRequest.feedbackMode].label}
 								</Badge>
 							)}
 						</div>
@@ -159,7 +170,16 @@ export default async function RoastPage({ params }: RoastPageProps) {
 						{roastRequest.category && (
 							<div className='flex items-center gap-2'>
 								<span>
-									{APP_CATEGORIES.find(cat => cat.id === roastRequest.category)?.icon} {APP_CATEGORIES.find(cat => cat.id === roastRequest.category)?.label}
+									{
+										APP_CATEGORIES.find(
+											(cat) => cat.id === roastRequest.category
+										)?.icon
+									}{' '}
+									{
+										APP_CATEGORIES.find(
+											(cat) => cat.id === roastRequest.category
+										)?.label
+									}
 								</span>
 							</div>
 						)}
@@ -171,13 +191,19 @@ export default async function RoastPage({ params }: RoastPageProps) {
 							{roastRequest.maxPrice}€ total
 						</span>
 						<span className='text-gray-500 text-sm'>
-							• {roastRequest.feedbacksRequested} feedback{roastRequest.feedbacksRequested > 1 ? 's' : ''} demandé{roastRequest.feedbacksRequested > 1 ? 's' : ''}
+							• {roastRequest.feedbacksRequested} feedback
+							{roastRequest.feedbacksRequested > 1 ? 's' : ''} demandé
+							{roastRequest.feedbacksRequested > 1 ? 's' : ''}
 						</span>
 						{roastRequest.feedbackMode && (
 							<span className='text-gray-400 text-sm ml-2'>
-								({FEEDBACK_MODES[roastRequest.feedbackMode]?.basePrice}€ base 
-								{roastRequest.feedbackMode === 'STRUCTURED' && roastRequest.questionPrice && roastRequest.questionPrice > 0 && 
-									` + ${roastRequest.questionPrice}€/question`})
+								({FEEDBACK_MODES[roastRequest.feedbackMode]?.basePrice}€
+								base
+								{roastRequest.feedbackMode === 'STRUCTURED' &&
+									roastRequest.questionPrice &&
+									roastRequest.questionPrice > 0 &&
+									` + ${roastRequest.questionPrice}€/question`}
+								)
 							</span>
 						)}
 					</div>
@@ -194,14 +220,26 @@ export default async function RoastPage({ params }: RoastPageProps) {
 									<CardTitle className='flex items-center gap-2 text-lg'>
 										<Users className='w-6 h-6 text-blue-600' />
 										État des roasters (
-										{roastRequest.applications.filter(
-											(app) =>
-												app.status === 'accepted' ||
-												app.status === 'auto_selected'
-										).length}
+										{
+											roastRequest.applications.filter(
+												(app) =>
+													app.status === 'accepted' ||
+													app.status === 'auto_selected'
+											).length
+										}
 										/{roastRequest.feedbacksRequested})
 										<Badge variant='secondary' className='ml-2'>
-											{roastRequest.feedbacks.filter(f => f.status === 'completed').length} terminé{roastRequest.feedbacks.filter(f => f.status === 'completed').length > 1 ? 's' : ''}
+											{
+												roastRequest.feedbacks.filter(
+													(f) => f.status === 'completed'
+												).length
+											}{' '}
+											terminé
+											{roastRequest.feedbacks.filter(
+												(f) => f.status === 'completed'
+											).length > 1
+												? 's'
+												: ''}
 										</Badge>
 									</CardTitle>
 									<p className='text-sm text-gray-600'>
@@ -243,7 +281,9 @@ export default async function RoastPage({ params }: RoastPageProps) {
 											.filter(
 												(app) =>
 													!roastRequest.feedbacks.some(
-														(f) => f.roasterId === app.roasterId
+														(f) =>
+															f.roasterId === app.roaster.id &&
+															f.status === 'completed'
 													)
 											)
 											.map((application) => (
@@ -307,7 +347,9 @@ export default async function RoastPage({ params }: RoastPageProps) {
 						{/* Informations essentielles - Card unique */}
 						<Card>
 							<CardHeader>
-								<CardTitle className='text-xl'>Informations de la mission</CardTitle>
+								<CardTitle className='text-xl'>
+									Informations de la mission
+								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-6'>
 								{/* Image de couverture */}
@@ -368,7 +410,9 @@ export default async function RoastPage({ params }: RoastPageProps) {
 												{ta.targetAudience.name}
 											</Badge>
 										)) || (
-											<p className='text-gray-500 text-sm'>Aucune audience spécifiée</p>
+											<p className='text-gray-500 text-sm'>
+												Aucune audience spécifiée
+											</p>
 										)}
 									</div>
 								</div>
@@ -379,63 +423,103 @@ export default async function RoastPage({ params }: RoastPageProps) {
 										<h3 className='font-semibold text-gray-900 mb-3'>
 											📋 Feedback structuré - Domaines à analyser
 										</h3>
-										{roastRequest.focusAreas && roastRequest.focusAreas.length > 0 ? (
+										{roastRequest.focusAreas &&
+										roastRequest.focusAreas.length > 0 ? (
 											<div className='flex flex-wrap gap-2 mb-4'>
 												{roastRequest.focusAreas.map((area) => (
 													<Badge
 														key={area}
 														variant='secondary'
 														className='text-sm'>
-														{FOCUS_AREAS.find(f => f.id === area)?.icon} {area}
+														{
+															FOCUS_AREAS.find(
+																(f) => f.id === area
+															)?.icon
+														}{' '}
+														{area}
 													</Badge>
 												))}
 											</div>
 										) : (
-											<p className='text-gray-500 text-sm mb-4'>Aucun domaine spécifique</p>
+											<p className='text-gray-500 text-sm mb-4'>
+												Aucun domaine spécifique
+											</p>
 										)}
 
 										{/* Questions spécifiques */}
-										{roastRequest.questions && roastRequest.questions.length > 0 && (
-											<div className='space-y-4'>
-												<h4 className='font-medium text-gray-800'>Questions spécifiques</h4>
-												{roastRequest.focusAreas?.map((domain) => {
-													const domainQuestions = roastRequest.questions
-														.filter((q) => q.domain === domain)
-														.sort((a, b) => a.order - b.order);
+										{roastRequest.questions &&
+											roastRequest.questions.length > 0 && (
+												<div className='space-y-4'>
+													<h4 className='font-medium text-gray-800'>
+														Questions spécifiques
+													</h4>
+													{roastRequest.focusAreas?.map(
+														(domain) => {
+															const domainQuestions =
+																roastRequest.questions
+																	.filter(
+																		(q) => q.domain === domain
+																	)
+																	.sort(
+																		(a, b) =>
+																			a.order - b.order
+																	);
 
-													if (domainQuestions.length === 0) return null;
+															if (domainQuestions.length === 0)
+																return null;
 
-													return (
-														<div
-															key={domain}
-															className='border rounded-lg p-4 bg-gray-50'>
-															<div className='flex items-center gap-2 mb-3'>
-																<Badge variant='outline' className='bg-white'>
-																	{FOCUS_AREAS.find(f => f.id === domain)?.icon} {domain}
-																</Badge>
-																<span className='text-sm text-gray-500'>
-																	{domainQuestions.length} question{domainQuestions.length > 1 ? 's' : ''}
-																</span>
-															</div>
-															<div className='space-y-2'>
-																{domainQuestions.map((question, index) => (
-																	<div
-																		key={question.id}
-																		className='flex items-start gap-3'>
-																		<span className='flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600'>
-																			{index + 1}
+															return (
+																<div
+																	key={domain}
+																	className='border rounded-lg p-4 bg-gray-50'>
+																	<div className='flex items-center gap-2 mb-3'>
+																		<Badge
+																			variant='outline'
+																			className='bg-white'>
+																			{
+																				FOCUS_AREAS.find(
+																					(f) =>
+																						f.id ===
+																						domain
+																				)?.icon
+																			}{' '}
+																			{domain}
+																		</Badge>
+																		<span className='text-sm text-gray-500'>
+																			{
+																				domainQuestions.length
+																			}{' '}
+																			question
+																			{domainQuestions.length >
+																			1
+																				? 's'
+																				: ''}
 																		</span>
-																		<p className='text-gray-800 text-sm'>
-																			{question.text}
-																		</p>
 																	</div>
-																))}
-															</div>
-														</div>
-													);
-												})}
-											</div>
-										)}
+																	<div className='space-y-2'>
+																		{domainQuestions.map(
+																			(question, index) => (
+																				<div
+																					key={question.id}
+																					className='flex items-start gap-3'>
+																					<span className='flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600'>
+																						{index + 1}
+																					</span>
+																					<p className='text-gray-800 text-sm'>
+																						{
+																							question.text
+																						}
+																					</p>
+																				</div>
+																			)
+																		)}
+																	</div>
+																</div>
+															);
+														}
+													)}
+												</div>
+											)}
 									</div>
 								) : (
 									<div>
@@ -444,7 +528,10 @@ export default async function RoastPage({ params }: RoastPageProps) {
 										</h3>
 										<div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
 											<p className='text-blue-800 text-sm'>
-												<strong>Feedback libre</strong> - Le roaster donnera son impression générale sur l'application sans questions spécifiques à suivre.
+												<strong>Feedback libre</strong> - Le roaster
+												donnera son impression générale sur
+												l'application sans questions spécifiques à
+												suivre.
 											</p>
 										</div>
 									</div>
