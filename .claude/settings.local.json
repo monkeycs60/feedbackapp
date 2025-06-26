@@ -19,7 +19,10 @@
       "Bash(node:*)",
       "Bash(pkill:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(kill:*)",
+      "Bash(true)",
+      "Bash(timeout 30s npm run dev)"
     ],
     "deny": []
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Image from 'next/image';
 import { RatingSystem, type RatingSystemRef } from '@/components/ui/rating-system';
-import { submitFeedbackRatings } from '@/lib/actions/feedback-rating';
+import { submitFeedbackRatings, getFeedbackRatings } from '@/lib/actions/feedback-rating';
 
 interface QuestionResponse {
   id: string;
@@ -74,7 +74,22 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
   );
   const [showRating, setShowRating] = useState<string | null>(null);
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const [existingRatings, setExistingRatings] = useState<Record<string, any[]>>({});
   const ratingRef = useRef<RatingSystemRef>(null);
+
+  // Charger les notes existantes pour chaque feedback
+  useEffect(() => {
+    const loadExistingRatings = async () => {
+      const ratingsMap: Record<string, any[]> = {};
+      for (const feedback of feedbacks) {
+        const ratings = await getFeedbackRatings(feedback.id);
+        ratingsMap[feedback.id] = ratings;
+      }
+      setExistingRatings(ratingsMap);
+    };
+    
+    loadExistingRatings();
+  }, [feedbacks]);
 
   if (feedbacks.length === 0) {
     return (
@@ -112,11 +127,17 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
     try {
       setIsSubmittingRating(true);
       await submitFeedbackRatings({ feedbackId, ratings });
+      
+      // Recharger les notes pour ce feedback
+      const updatedRatings = await getFeedbackRatings(feedbackId);
+      setExistingRatings(prev => ({
+        ...prev,
+        [feedbackId]: updatedRatings
+      }));
+      
       setShowRating(null);
-      // TODO: Show success message or refresh data
     } catch (error) {
       console.error('Erreur soumission rating:', error);
-      // TODO: Show error message
     } finally {
       setIsSubmittingRating(false);
     }
@@ -284,73 +305,104 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
               )}
               
               {/* Système de notation */}
-              {showRating === feedback.id ? (
-                <div className="pt-4 border-t">
-                  <p className="text-sm mb-3">Feedback de {feedback.roaster.name || 'ce roaster'}</p>
-                  <RatingSystem
-                    ref={ratingRef}
-                    mode={feedbackMode}
-                    domains={feedbackMode === 'STRUCTURED' ? Object.keys(getQuestionsByDomain(feedback)) : undefined}
-                    onRatingChange={() => {
-                      // Optional: handle real-time changes
-                    }}
-                  />
-                  <div className="flex gap-2 mt-3">
-                    <Button 
-                      size="sm"
-                      onClick={async () => {
-                        const ratings = ratingRef.current?.getRatings();
-                        if (ratings && ratings.length > 0) {
-                          await handleRatingSubmit(feedback.id, ratings);
-                        }
-                      }}
-                      disabled={isSubmittingRating}
-                    >
-                      {isSubmittingRating ? 'Soumission...' : 'Soumettre'}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setShowRating(null)}>
-                      Annuler
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="pt-3 border-t flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {feedback.creatorRating ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">Votre note:</span>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="font-medium">{feedback.creatorRating}/5</span>
-                        </div>
+              {(() => {
+                const ratings = existingRatings[feedback.id] || [];
+                const hasRatings = ratings.length > 0;
+                
+                if (showRating === feedback.id) {
+                  return (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm mb-3">Feedback de {feedback.roaster.name || 'ce roaster'}</p>
+                      <RatingSystem
+                        ref={ratingRef}
+                        mode={feedbackMode}
+                        domains={feedbackMode === 'STRUCTURED' ? Object.keys(getQuestionsByDomain(feedback)) : undefined}
+                        onRatingChange={() => {
+                          // Optional: handle real-time changes
+                        }}
+                      />
+                      <div className="flex gap-2 mt-3">
                         <Button 
-                          variant="outline" 
                           size="sm"
-                          onClick={() => setShowRating(feedback.id)}
+                          onClick={async () => {
+                            const ratings = ratingRef.current?.getRatings();
+                            if (ratings && ratings.length > 0) {
+                              await handleRatingSubmit(feedback.id, ratings);
+                            }
+                          }}
+                          disabled={isSubmittingRating}
                         >
-                          Modifier
+                          {isSubmittingRating ? 'Soumission...' : 'Soumettre'}
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => setShowRating(null)}>
+                          Annuler
                         </Button>
                       </div>
-                    ) : (
+                    </div>
+                  );
+                }
+                
+                if (hasRatings) {
+                  return (
+                    <div className="pt-3 border-t">
+                      <p className="text-sm mb-3 font-medium">Votre évaluation du feedback de {feedback.roaster.name || 'ce roaster'}</p>
+                      {ratings.map((rating: any, index: number) => (
+                        <div key={index} className="space-y-2 mb-3">
+                          {feedbackMode === 'STRUCTURED' && rating.domain && (
+                            <div className="text-sm font-medium text-gray-700">{rating.domain}</div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`w-4 h-4 ${
+                                  star <= rating.overall
+                                    ? 'text-yellow-500 fill-yellow-500'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                            <span className="text-sm text-gray-600 ml-1">
+                              {rating.overall}/5
+                            </span>
+                          </div>
+                          {rating.comment && (
+                            <p className="text-sm text-gray-600 bg-gray-50 rounded p-2">
+                              {rating.comment}
+                            </p>
+                          )}
+                        </div>
+                      ))}
                       <Button 
-                        variant="default" 
+                        variant="outline" 
                         size="sm"
                         onClick={() => setShowRating(feedback.id)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                        className="mt-2"
                       >
-                        <Star className="w-4 h-4 mr-1" />
-                        Noter le feedback de {feedback.roaster.name || 'ce roaster'}
+                        Modifier l'évaluation
                       </Button>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div className="pt-3 border-t flex items-center justify-between">
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      onClick={() => setShowRating(feedback.id)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                    >
+                      <Star className="w-4 h-4 mr-1" />
+                      Noter le feedback de {feedback.roaster.name || 'ce roaster'}
+                    </Button>
+                    
                     <Button variant="outline" size="sm">
                       Télécharger PDF
                     </Button>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           )}
         </div>
