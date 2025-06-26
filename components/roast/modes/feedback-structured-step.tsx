@@ -99,7 +99,18 @@ export function FeedbackStructuredStep({
   };
 
   const removeQuestion = (questionId: string) => {
-    onQuestionsChange(questions.filter(q => q.id !== questionId));
+    const questionToRemove = questions.find(q => q.id === questionId);
+    const updatedQuestions = questions.filter(q => q.id !== questionId);
+    
+    // If this was the last question for a domain, remove the domain from selection
+    if (questionToRemove) {
+      const remainingQuestionsForDomain = updatedQuestions.filter(q => q.domain === questionToRemove.domain);
+      if (remainingQuestionsForDomain.length === 0) {
+        onDomainsChange(selectedDomains.filter(d => d !== questionToRemove.domain));
+      }
+    }
+    
+    onQuestionsChange(updatedQuestions);
   };
 
   const updateQuestion = (questionId: string, newText: string) => {

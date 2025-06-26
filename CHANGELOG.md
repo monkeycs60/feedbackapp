@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-06-25-11:40
+### UX Enhancement - Auto-Remove Domains Without Questions
+- **Enhanced structured feedback form** to automatically remove domains when all questions are deleted
+- **User Experience**: When user deletes all questions from a domain, the domain is automatically deselected
+- **Implementation**: Modified `removeQuestion` function in FeedbackStructuredStep to check if domain becomes empty
+- **Benefit**: Prevents orphaned domains without questions from being selected, ensuring form consistency
+
 ## 2025-06-25-11:35
 ### Bug Fix - Missing FOCUS_AREAS Import
 - **Fixed "FOCUS_AREAS is not defined" error** in new-roast-wizard.tsx
