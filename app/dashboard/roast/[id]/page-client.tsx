@@ -24,7 +24,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FeedbackDisplayV2 } from '@/components/dashboard/feedback-display-v2';
 import { FOCUS_AREAS, APP_CATEGORIES } from '@/lib/types/roast-request';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { acceptApplication, rejectApplication } from '@/lib/actions/roast-application';
 
 interface RoastDetailPageClientProps {
   roastRequest: any; // Type this properly based on your data structure
@@ -32,6 +33,8 @@ interface RoastDetailPageClientProps {
 
 export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const [processingApplication, setProcessingApplication] = useState<string | null>(null);
 
   const validAudiences = roastRequest.targetAudiences?.map((ta: any) => ta.targetAudience) || [];
 
@@ -86,6 +89,34 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
 
   const getInitials = (name: string) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
+  };
+
+  const handleAcceptApplication = async (applicationId: string) => {
+    try {
+      setProcessingApplication(applicationId);
+      await acceptApplication(applicationId);
+      // Invalidation propre via router
+      router.refresh();
+    } catch (error) {
+      console.error('Erreur acceptation:', error);
+      alert('Erreur lors de l\'acceptation de la candidature');
+    } finally {
+      setProcessingApplication(null);
+    }
+  };
+
+  const handleRejectApplication = async (applicationId: string) => {
+    try {
+      setProcessingApplication(applicationId);
+      await rejectApplication(applicationId);
+      // Invalidation propre via router
+      router.refresh();
+    } catch (error) {
+      console.error('Erreur refus:', error);
+      alert('Erreur lors du refus de la candidature');
+    } finally {
+      setProcessingApplication(null);
+    }
   };
 
   return (
@@ -282,13 +313,24 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                         </div>
                         
                         <div className="flex gap-2">
-                          <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                          <Button 
+                            size="sm" 
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => handleAcceptApplication(app.id)}
+                            disabled={processingApplication === app.id}
+                          >
                             <ThumbsUp className="w-4 h-4 mr-1" />
-                            Accepter
+                            {processingApplication === app.id ? 'Acceptation...' : 'Accepter'}
                           </Button>
-                          <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => handleRejectApplication(app.id)}
+                            disabled={processingApplication === app.id}
+                          >
                             <ThumbsDown className="w-4 h-4 mr-1" />
-                            Refuser
+                            {processingApplication === app.id ? 'Refus...' : 'Refuser'}
                           </Button>
                         </div>
                       </div>

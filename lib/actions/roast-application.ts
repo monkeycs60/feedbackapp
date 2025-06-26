@@ -398,3 +398,108 @@ export async function getRoasterAcceptedApplications() {
     return [];
   }
 }
+
+/**
+ * Accepte une candidature individuelle
+ */
+export async function acceptApplication(applicationId: string) {
+  try {
+    const user = await getCurrentUser();
+
+    // Vérifier que l'application existe et que l'utilisateur est le créateur
+    const application = await prisma.roastApplication.findUnique({
+      where: { id: applicationId },
+      include: { 
+        roastRequest: {
+          include: {
+            applications: {
+              where: {
+                status: { in: ['accepted', 'auto_selected'] }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!application) {
+      throw new Error("Candidature non trouvée");
+    }
+
+    if (application.roastRequest.creatorId !== user.id) {
+      throw new Error("Seul le créateur peut accepter les candidatures");
+    }
+
+    if (application.status !== 'pending') {
+      throw new Error("Cette candidature a déjà été traitée");
+    }
+
+    // Vérifier qu'il reste des places
+    const acceptedCount = application.roastRequest.applications.length;
+    if (acceptedCount >= application.roastRequest.feedbacksRequested) {
+      throw new Error("Toutes les places ont déjà été attribuées");
+    }
+
+    // Accepter la candidature
+    await prisma.roastApplication.update({
+      where: { id: applicationId },
+      data: { 
+        status: 'accepted',
+        selectedAt: new Date()
+      }
+    });
+
+    // Si toutes les places sont maintenant occupées, passer en statut "in_progress"
+    if (acceptedCount + 1 >= application.roastRequest.feedbacksRequested) {
+      await prisma.roastRequest.update({
+        where: { id: application.roastRequestId },
+        data: { status: 'in_progress' }
+      });
+    }
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur acceptation candidature:', error);
+    throw new Error(error instanceof Error ? error.message : 'Erreur lors de l\'acceptation');
+  }
+}
+
+/**
+ * Refuse une candidature individuelle
+ */
+export async function rejectApplication(applicationId: string) {
+  try {
+    const user = await getCurrentUser();
+
+    // Vérifier que l'application existe et que l'utilisateur est le créateur
+    const application = await prisma.roastApplication.findUnique({
+      where: { id: applicationId },
+      include: { roastRequest: true }
+    });
+
+    if (!application) {
+      throw new Error("Candidature non trouvée");
+    }
+
+    if (application.roastRequest.creatorId !== user.id) {
+      throw new Error("Seul le créateur peut refuser les candidatures");
+    }
+
+    if (application.status !== 'pending') {
+      throw new Error("Cette candidature a déjà été traitée");
+    }
+
+    // Refuser la candidature
+    await prisma.roastApplication.update({
+      where: { id: applicationId },
+      data: { status: 'rejected' }
+    });
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur refus candidature:', error);
+    throw new Error(error instanceof Error ? error.message : 'Erreur lors du refus');
+  }
+}
