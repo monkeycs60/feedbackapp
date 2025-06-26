@@ -9,12 +9,6 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-enum FeedbackMode {
-  FREE
-  TARGETED
-  STRUCTURED
-}
-
 model User {
   id                String             @id
   email             String             @unique
@@ -128,9 +122,8 @@ model RoastRequest {
   coverImage         String?
   feedbacksRequested Int                    @default(1)
   category           String?
-  // New feedback mode system
-  feedbackMode       FeedbackMode           @default(STRUCTURED)
   basePriceMode      Float                  @default(2.00)
+  feedbackMode       FeedbackMode           @default(STRUCTURED)
   freeQuestions      Int                    @default(2)
   questionPrice      Float                  @default(0.20)
   feedbacks          Feedback[]
@@ -193,24 +186,6 @@ model Feedback {
   @@map("feedbacks")
 }
 
-model FeedbackRating {
-  id         String   @id @default(cuid())
-  feedbackId String
-  domain     String?  // NULL pour note globale (FREE mode)
-  clarity    Int      // 1-5: Clarté du feedback
-  relevance  Int      // 1-5: Pertinence des suggestions
-  depth      Int      // 1-5: Profondeur de l'analyse
-  actionable Int      // 1-5: Caractère actionnable
-  overall    Int      // 1-5: Note globale
-  comment    String?  // Commentaire optionnel
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-
-  @@unique([feedbackId, domain])
-  @@map("feedback_ratings")
-}
-
 model QuestionResponse {
   id         String   @id @default(cuid())
   feedbackId String
@@ -247,4 +222,28 @@ model RoastRequestAudience {
 
   @@unique([roastRequestId, targetAudienceId])
   @@map("roast_request_audiences")
+}
+
+model FeedbackRating {
+  id         String   @id @default(cuid())
+  feedbackId String
+  domain     String?  // NULL pour note globale (FREE mode)
+  clarity    Int      // 1-5: Clarté du feedback
+  relevance  Int      // 1-5: Pertinence des suggestions
+  depth      Int      // 1-5: Profondeur de l'analyse
+  actionable Int      // 1-5: Caractère actionnable
+  overall    Int      // 1-5: Note globale
+  comment    String?  // Commentaire optionnel
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, domain])
+  @@map("feedback_ratings")
+}
+
+enum FeedbackMode {
+  FREE
+  TARGETED
+  STRUCTURED
 }

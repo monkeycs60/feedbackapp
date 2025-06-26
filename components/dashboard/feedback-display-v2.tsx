@@ -195,12 +195,14 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
               </div>
             </div>
             
-            {/* Aperçu */}
-            <div className="mt-3 text-sm text-gray-600">
-              <p className="line-clamp-2">
-                {feedback.generalFeedback}
-              </p>
-            </div>
+            {/* Aperçu seulement si le feedback n'est pas étendu */}
+            {expandedFeedback !== feedback.id && (
+              <div className="mt-3 text-sm text-gray-600">
+                <p className="line-clamp-2">
+                  {feedback.generalFeedback}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Contenu détaillé */}
@@ -283,7 +285,10 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
               
               {/* Système de notation */}
               {showRating === feedback.id ? (
-                <div className="pt-6 border-t">
+                <div className="pt-4 border-t space-y-3">
+                  <h6 className="font-medium text-gray-900">
+                    Noter le feedback de {feedback.roaster.name || 'ce roaster'}
+                  </h6>
                   <RatingSystem
                     ref={ratingRef}
                     mode={feedbackMode}
@@ -292,8 +297,9 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                       // Optional: handle real-time changes
                     }}
                   />
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex gap-2">
                     <Button 
+                      size="sm"
                       onClick={async () => {
                         const ratings = ratingRef.current?.getRatings();
                         if (ratings && ratings.length > 0) {
@@ -302,15 +308,15 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                       }}
                       disabled={isSubmittingRating}
                     >
-                      {isSubmittingRating ? 'Soumission...' : 'Soumettre les notes'}
+                      {isSubmittingRating ? 'Soumission...' : 'Soumettre'}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowRating(null)}>
+                    <Button variant="outline" size="sm" onClick={() => setShowRating(null)}>
                       Annuler
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="pt-4 border-t flex items-center justify-between">
+                <div className="pt-3 border-t flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {feedback.creatorRating ? (
                       <div className="flex items-center gap-2">
@@ -335,7 +341,7 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                         className="bg-yellow-500 hover:bg-yellow-600 text-white"
                       >
                         <Star className="w-4 h-4 mr-1" />
-                        Noter ce feedback
+                        Noter le feedback de {feedback.roaster.name || 'ce roaster'}
                       </Button>
                     )}
                   </div>

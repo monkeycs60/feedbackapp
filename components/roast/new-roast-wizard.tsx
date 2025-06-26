@@ -72,9 +72,6 @@ export function NewRoastWizard({
 		},
 	});
 
-	console.log(form.formState.errors);
-	console.log(form.getValues());
-
 	const watchedValues = form.watch();
 
 	const steps = [
