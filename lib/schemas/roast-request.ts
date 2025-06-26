@@ -54,15 +54,25 @@ export const newRoastRequestSchema = z.object({
   })).optional(),
 }).refine((data) => {
   // Validation rules based on feedback mode
-  if (data.feedbackMode === 'STRUCTURED' && (!data.focusAreas || data.focusAreas.length === 0)) {
-    return false;
+  if (data.feedbackMode === 'STRUCTURED') {
+    // Check that at least one domain is selected
+    if (!data.focusAreas || data.focusAreas.length === 0) {
+      return false;
+    }
+    
+    // Check that at least one question exists for STRUCTURED mode
+    if (!data.questions || data.questions.length === 0) {
+      return false;
+    }
   }
+  
   if (data.feedbackMode === 'FREE' && data.questions && data.questions.length > 0) {
     return false;
   }
+  
   return true;
 }, {
-  message: "Configuration invalide pour le mode de feedback sélectionné"
+  message: "Configuration invalide pour le mode de feedback sélectionné. Le mode structuré nécessite au moins un domaine et une question."
 });
 
 export type RoastRequestFormData = z.infer<typeof roastRequestSchema>;

@@ -47,7 +47,19 @@ export function FeedbackStructuredStep({
 }: FeedbackStructuredStepProps) {
   const [newQuestions, setNewQuestions] = useState<Record<string, string>>({});
 
+  // Helper function to check if domain has questions
+  const domainHasQuestions = (domainId: FocusArea) => {
+    const domainConfig = FOCUS_AREAS.find(area => area.id === domainId);
+    return domainConfig?.questions && domainConfig.questions.length > 0;
+  };
+
   const toggleDomain = (domainId: FocusArea) => {
+    // Security check: Only allow domains with questions for STRUCTURED mode
+    if (!domainHasQuestions(domainId)) {
+      console.warn(`Tentative de sélection du domaine ${domainId} qui n'a pas de questions`);
+      return;
+    }
+
     if (selectedDomains.includes(domainId)) {
       // Remove domain and its questions
       onDomainsChange(selectedDomains.filter(d => d !== domainId));
@@ -129,6 +141,13 @@ export function FeedbackStructuredStep({
           Sélectionnez les domaines qui vous intéressent et personnalisez les questions 
           pour obtenir un feedback structuré et actionnable.
         </p>
+        <Alert className="max-w-2xl mx-auto">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Seuls les domaines avec des questions prédéfinies sont disponibles. 
+            Chaque domaine inclut des questions de base que vous pouvez personnaliser.
+          </AlertDescription>
+        </Alert>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-4 max-w-7xl mx-auto">
@@ -138,9 +157,10 @@ export function FeedbackStructuredStep({
             <CardTitle className="text-lg">Domaines d'expertise</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {FOCUS_AREAS.filter(area => area.id !== 'General').map((area) => {
+            {FOCUS_AREAS.filter(area => domainHasQuestions(area.id)).map((area) => {
               const isSelected = selectedDomains.includes(area.id);
               const domainQuestions = getQuestionsForDomain(area.id);
+              const defaultQuestionsCount = area.questions?.length || 0;
               
               return (
                 <div
@@ -170,11 +190,16 @@ export function FeedbackStructuredStep({
                       <p className="text-xs text-muted-foreground mb-2">
                         {area.description}
                       </p>
-                      {isSelected && (
-                        <Badge variant="secondary" className="text-xs">
-                          {domainQuestions.length} question{domainQuestions.length > 1 ? 's' : ''}
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {defaultQuestionsCount} question{defaultQuestionsCount > 1 ? 's' : ''} incluse{defaultQuestionsCount > 1 ? 's' : ''}
                         </Badge>
-                      )}
+                        {isSelected && domainQuestions.length > defaultQuestionsCount && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{domainQuestions.length - defaultQuestionsCount} personnalisée{domainQuestions.length - defaultQuestionsCount > 1 ? 's' : ''}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -21,7 +21,7 @@ import { PricingDisplay, PricingCalculator } from './pricing-calculator';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { newRoastRequestSchema } from '@/lib/schemas/roast-request';
 import { createNewRoastRequest } from '@/lib/actions/roast-request';
-import { type FeedbackMode, type FocusArea, APP_CATEGORIES } from '@/lib/types/roast-request';
+import { type FeedbackMode, type FocusArea, APP_CATEGORIES, FOCUS_AREAS } from '@/lib/types/roast-request';
 import { z } from 'zod';
 
 // Form data type
@@ -155,7 +155,15 @@ export function NewRoastWizard({ targetAudiences, className = "" }: NewRoastWiza
       case 1: // Mode selection
         return !!selectedMode;
       case 2: // Questions
-        return selectedMode === 'FREE' || questions.length > 0;
+        if (selectedMode === 'FREE') {
+          return true; // FREE mode doesn't need questions
+        }
+        // For STRUCTURED mode, need at least one question AND at least one domain with questions
+        const hasValidDomains = selectedDomains.some(domainId => {
+          const domainConfig = FOCUS_AREAS.find(area => area.id === domainId);
+          return domainConfig?.questions && domainConfig.questions.length > 0;
+        });
+        return hasValidDomains && questions.length > 0;
       case 3: // Summary
         return true; // Summary is just display, always valid
       default:

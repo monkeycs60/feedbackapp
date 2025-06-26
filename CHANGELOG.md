@@ -1,5 +1,42 @@
 # Changelog
 
+## 2025-06-25-11:35
+### Bug Fix - Missing FOCUS_AREAS Import
+- **Fixed "FOCUS_AREAS is not defined" error** in new-roast-wizard.tsx
+- **Root cause**: FOCUS_AREAS constant was being used in domain validation logic but wasn't imported
+- **Solution**: Added FOCUS_AREAS to the import statement from '@/lib/types/roast-request'
+- **Impact**: New roast wizard now works correctly without runtime errors
+
+## 2025-06-25-11:30
+### Major UX Redesign - Complete Roast Page Refactor & Form Security
+- **Completely redesigned /roast/:id page**:
+  - **New 3-column layout**: Main content (2 cols) + sidebar application form (1 col)
+  - **Enhanced roaster status display**: Very prominent card showing real-time status with visual indicators
+  - **Simplified information hierarchy**: Single card with all mission details instead of scattered sections
+  - **Improved pricing display**: Bold total with discrete breakdown details
+  - **Better mode distinction**: Clear visual difference between FREE and STRUCTURED modes
+- **Fixed data compatibility issues**:
+  - **Updated audience display**: Now uses new `targetAudiences` relation instead of legacy `targetAudience`
+  - **Enhanced feedback mode support**: Proper handling of FREE vs STRUCTURED modes
+  - **Improved domain display**: Shows icons and question counts for each domain
+  - **Better question organization**: Only shows domains with questions, prevents empty sections
+- **Enhanced roaster status visibility**:
+  - **Color-coded status cards**: Green for completed, blue for in-progress, orange for pending
+  - **Real-time progress tracking**: Shows X/Y roasters selected with completion badges
+  - **Prominent placement**: First card in main column for maximum visibility
+  - **Enhanced status messages**: Clear icons and descriptive text for each state
+- **Added form security and validation**:
+  - **Domain validation**: Prevents selection of domains without questions (like 'General')
+  - **Frontend protection**: Modified `toggleDomain` to only allow domains with questions
+  - **Wizard validation**: Enhanced step validation to check domain validity
+  - **Schema validation**: Improved Zod validation with better error messages
+  - **User guidance**: Added info alerts and question counts for each domain
+- **Visual improvements**:
+  - **Badge system**: Shows feedback mode, completion status, and question counts
+  - **Better spacing**: Cleaner layout with consistent card spacing
+  - **Pricing transparency**: Shows base price and per-question pricing details
+  - **Category display**: Added app category with icons in header
+
 ## 2025-06-25-11:15
 ### Bug Fix - Roaster Application Error for FREE Mode
 - **Fixed application error for impression générale (FREE mode)**: Resolved 500 Internal Server Error when roasters apply to FREE mode roasts
@@ -317,7 +354,7 @@
 - **Significant Contrast Improvements**: Enhanced readability across all dashboard pages
   - Lightened main content background from `oklch(0.15 0 0)` to `oklch(0.25 0 0)` for much better readability
   - Cards and components now use `oklch(0.30 0 0)` for optimal contrast without eye strain
-  - Maintained dark sidebar (`oklch(0.08 0 0)`) for professional contrast separation
+  - Maintained dark sidebar (`oklch(0.08 0 0)` for professional contrast separation
   - Text and UI elements now have proper contrast ratios for comfortable viewing
 - **Fixed Role Switching Functionality**: Resolved session update issues after role changes
   - Replaced `router.refresh()` with `window.location.reload()` for immediate UI updates

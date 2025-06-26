@@ -17,6 +17,7 @@ import {
 	Target,
 	Users,
 	MessageSquare,
+	ImageIcon,
 	ArrowLeft,
 	CheckCircle,
 	Clock,
@@ -26,7 +27,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FEEDBACK_MODES, FOCUS_AREAS, APP_CATEGORIES } from '@/lib/types/roast-request';
+import { FEEDBACK_MODES, FOCUS_AREAS, APP_CATEGORIES, type FeedbackMode } from '@/lib/types/roast-request';
 
 interface RoastPageProps {
 	params: Promise<{
@@ -61,7 +62,11 @@ export default async function RoastPage({ params }: RoastPageProps) {
 		userApplication?.status === 'accepted' ||
 		userApplication?.status === 'auto_selected';
 
+	console.log('roastRequest.status', roastRequest.status);
+	console.log('isAcceptedRoaster', isAcceptedRoaster);
+
 	// Si le roast est fermé, annulé ou complété
+	// OU si le roast est en cours mais l'utilisateur n'est pas un roaster accepté
 	if (
 		roastRequest.status === 'cancelled' ||
 		roastRequest.status === 'completed'
@@ -92,7 +97,7 @@ export default async function RoastPage({ params }: RoastPageProps) {
 
 	return (
 		<div className='min-h-screen bg-gray-50 py-8'>
-			<div className='max-w-7xl mx-auto px-4'>
+			<div className='max-w-6xl mx-auto px-4'>
 				{/* Header compact */}
 				<div className='mb-8'>
 					<div className='flex items-center justify-between mb-6'>
@@ -173,39 +178,77 @@ export default async function RoastPage({ params }: RoastPageProps) {
 						<span className='text-gray-500 text-sm'>
 							• {roastRequest.feedbacksRequested} feedback{roastRequest.feedbacksRequested > 1 ? 's' : ''} demandé{roastRequest.feedbacksRequested > 1 ? 's' : ''}
 						</span>
-						{roastRequest.feedbackMode && (
-							<span className='text-gray-400 text-sm ml-2'>
-								({FEEDBACK_MODES[roastRequest.feedbackMode]?.basePrice}€ base 
-								{roastRequest.feedbackMode === 'STRUCTURED' && roastRequest.questionPrice && roastRequest.questionPrice > 0 && 
-									` + ${roastRequest.questionPrice}€/question`})
-							</span>
-						)}
 					</div>
 				</div>
 
-				<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-					{/* Colonne principale - Informations du roast */}
-					<div className='lg:col-span-2 space-y-6'>
-						{/* Statuts des roasters - TRÈS APPARENT */}
+				<div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+					{/* Informations du roast */}
+					<div className='space-y-6'>
+						{/* Image de couverture */}
+						{roastRequest.coverImage ? (
+							<Card>
+								<CardHeader>
+									<CardTitle className='flex items-center gap-2'>
+										<ImageIcon className='w-5 h-5' />
+										Aperçu de l&apos;application
+									</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className='relative aspect-video w-full overflow-hidden rounded-lg'>
+										<Image
+											src={roastRequest.coverImage}
+											alt={roastRequest.title}
+											fill
+											sizes='(max-width: 768px) 100vw, 50vw'
+											className='object-cover'
+										/>
+									</div>
+								</CardContent>
+							</Card>
+						) : (
+							<Card>
+								<CardContent className='py-8'>
+									<div className='flex flex-col items-center justify-center text-gray-400'>
+										<ImageIcon className='w-12 h-12 mb-2' />
+										<p className='text-sm'>
+											Aucune image de couverture
+										</p>
+									</div>
+								</CardContent>
+							</Card>
+						)}
+
+						{/* Description */}
+						<Card>
+							<CardHeader>
+								<CardTitle>Description du projet</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<p className='text-gray-700 whitespace-pre-wrap'>
+									{roastRequest.description}
+								</p>
+							</CardContent>
+						</Card>
+
+						{/* Roasters status */}
 						{(roastRequest.applications.length > 0 ||
 							roastRequest.feedbacks.length > 0) && (
-							<Card className='border-2 border-blue-200 bg-blue-50/30'>
+							<Card>
 								<CardHeader>
-									<CardTitle className='flex items-center gap-2 text-lg'>
-										<Users className='w-6 h-6 text-blue-600' />
-										État des roasters (
-										{roastRequest.applications.filter(
-											(app) =>
-												app.status === 'accepted' ||
-												app.status === 'auto_selected'
-										).length}
+									<CardTitle className='flex items-center gap-2'>
+										<Users className='w-5 h-5' />
+										Roasters (
+										{
+											roastRequest.applications.filter(
+												(app) =>
+													app.status === 'accepted' ||
+													app.status === 'auto_selected'
+											).length
+										}
 										/{roastRequest.feedbacksRequested})
-										<Badge variant='secondary' className='ml-2'>
-											{roastRequest.feedbacks.filter(f => f.status === 'completed').length} terminé{roastRequest.feedbacks.filter(f => f.status === 'completed').length > 1 ? 's' : ''}
-										</Badge>
 									</CardTitle>
 									<p className='text-sm text-gray-600'>
-										Suivi en temps réel des feedbacks
+										Statut des roasters sélectionnés et candidats
 									</p>
 								</CardHeader>
 								<CardContent>
@@ -216,20 +259,19 @@ export default async function RoastPage({ params }: RoastPageProps) {
 											.map((feedback) => (
 												<div
 													key={feedback.id}
-													className='flex items-center gap-3 p-3 rounded-lg bg-green-50 border-2 border-green-200'>
-													<div className='w-12 h-12 rounded-full bg-green-100 flex items-center justify-center'>
-														<CheckCircle className='w-6 h-6 text-green-600' />
+													className='flex items-center gap-3 p-2 rounded-lg bg-green-50 border border-green-200'>
+													<div className='w-10 h-10 rounded-full bg-green-100 flex items-center justify-center'>
+														<CheckCircle className='w-5 h-5 text-green-600' />
 													</div>
 													<div className='flex-1'>
-														<p className='font-semibold text-gray-900'>
+														<p className='text-sm font-medium text-gray-900'>
 															{feedback.roaster.name ||
 																'Roaster anonyme'}
 														</p>
-														<p className='text-sm text-green-600 font-medium'>
-															✓ Feedback livré
+														<p className='text-xs text-green-600'>
+															Feedback envoyé
 														</p>
 													</div>
-													<Star className='w-5 h-5 text-yellow-500' />
 												</div>
 											))}
 
@@ -249,17 +291,17 @@ export default async function RoastPage({ params }: RoastPageProps) {
 											.map((application) => (
 												<div
 													key={application.id}
-													className='flex items-center gap-3 p-3 rounded-lg bg-blue-50 border-2 border-blue-200'>
-													<div className='w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center'>
-														<Clock className='w-6 h-6 text-blue-600' />
+													className='flex items-center gap-3 p-2 rounded-lg bg-blue-50 border border-blue-200'>
+													<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center'>
+														<Clock className='w-5 h-5 text-blue-600' />
 													</div>
 													<div className='flex-1'>
-														<p className='font-semibold text-gray-900'>
+														<p className='text-sm font-medium text-gray-900'>
 															{application.roaster.name ||
 																'Roaster anonyme'}
 														</p>
-														<p className='text-sm text-blue-600 font-medium'>
-															⏳ En cours de rédaction
+														<p className='text-xs text-blue-600'>
+															Feedback en cours de rédaction
 														</p>
 													</div>
 												</div>
@@ -272,17 +314,17 @@ export default async function RoastPage({ params }: RoastPageProps) {
 											.map((application) => (
 												<div
 													key={application.id}
-													className='flex items-center gap-3 p-3 rounded-lg bg-orange-50 border border-orange-200'>
-													<div className='w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center'>
-														<AlertCircle className='w-6 h-6 text-orange-600' />
+													className='flex items-center gap-3 p-2 rounded-lg bg-orange-50 border border-orange-200'>
+													<div className='w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center'>
+														<AlertCircle className='w-5 h-5 text-orange-600' />
 													</div>
 													<div className='flex-1'>
-														<p className='font-medium text-gray-900'>
+														<p className='text-sm font-medium text-gray-900'>
 															{application.roaster.name ||
 																'Roaster anonyme'}
 														</p>
-														<p className='text-sm text-orange-600'>
-															🗓 Candidature en attente
+														<p className='text-xs text-orange-600'>
+															Candidature en attente
 														</p>
 													</div>
 												</div>
@@ -291,7 +333,7 @@ export default async function RoastPage({ params }: RoastPageProps) {
 										{roastRequest.applications.filter(
 											(app) => app.status === 'pending'
 										).length > 5 && (
-											<p className='text-sm text-gray-500 text-center italic'>
+											<p className='text-sm text-gray-500 text-center'>
 												+{' '}
 												{roastRequest.applications.filter(
 													(app) => app.status === 'pending'
@@ -304,121 +346,107 @@ export default async function RoastPage({ params }: RoastPageProps) {
 							</Card>
 						)}
 
-						{/* Informations essentielles - Card unique */}
+						{/* Audience cible */}
 						<Card>
 							<CardHeader>
-								<CardTitle className='text-xl'>Informations de la mission</CardTitle>
+								<CardTitle className='flex items-center gap-2'>
+									<Target className='w-5 h-5' />
+									Audience cible
+								</CardTitle>
 							</CardHeader>
-							<CardContent className='space-y-6'>
-								{/* Image de couverture */}
-								{roastRequest.coverImage && (
-									<div className='relative aspect-video w-full overflow-hidden rounded-lg border'>
-										<Image
-											src={roastRequest.coverImage}
-											alt={roastRequest.title}
-											fill
-											sizes='(max-width: 768px) 100vw, 66vw'
-											className='object-cover'
-										/>
-									</div>
-								)}
+							<CardContent>
+								<p className='text-gray-700'>
+									{roastRequest.targetAudience}
+								</p>
+							</CardContent>
+						</Card>
 
-								{/* Description */}
-								<div>
-									<h3 className='font-semibold text-gray-900 mb-3 flex items-center gap-2'>
-										<MessageSquare className='w-5 h-5' />
-										Description du projet
-									</h3>
-									<p className='text-gray-700 whitespace-pre-wrap leading-relaxed'>
-										{roastRequest.description}
-									</p>
+						{/* URL de l'app */}
+						<Card>
+							<CardHeader>
+								<CardTitle className='flex items-center gap-2'>
+									<Globe className='w-5 h-5' />
+									Tester l&apos;application
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<a
+									href={roastRequest.appUrl}
+									target='_blank'
+									rel='noopener noreferrer'
+									className='inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium'>
+									Ouvrir l&apos;application
+									<Globe className='w-4 h-4' />
+								</a>
+								<p className='text-sm text-gray-500 mt-1 break-all'>
+									{roastRequest.appUrl}
+								</p>
+							</CardContent>
+						</Card>
+
+						{/* Domaines de feedback */}
+						<Card>
+							<CardHeader>
+								<CardTitle>Domaines à analyser</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className='flex flex-wrap gap-2'>
+									{roastRequest.focusAreas.map((area) => (
+										<Badge
+											key={area}
+											variant='secondary'
+											className='text-sm'>
+											{area}
+										</Badge>
+									))}
 								</div>
+							</CardContent>
+						</Card>
 
-								{/* URL de l'app */}
-								<div>
-									<h3 className='font-semibold text-gray-900 mb-3 flex items-center gap-2'>
-										<Globe className='w-5 h-5' />
-										Tester l&apos;application
-									</h3>
-									<a
-										href={roastRequest.appUrl}
-										target='_blank'
-										rel='noopener noreferrer'
-										className='inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium'>
-										Ouvrir l&apos;application
-										<Globe className='w-4 h-4' />
-									</a>
-									<p className='text-sm text-gray-500 mt-1 break-all'>
-										{roastRequest.appUrl}
-									</p>
-								</div>
-
-								{/* Audiences cibles (nouveau système) */}
-								<div>
-									<h3 className='font-semibold text-gray-900 mb-3 flex items-center gap-2'>
-										<Target className='w-5 h-5' />
-										Audiences cibles
-									</h3>
-									<div className='flex flex-wrap gap-2'>
-										{roastRequest.targetAudiences?.map((ta) => (
-											<Badge
-												key={ta.targetAudience.id}
-												variant='outline'
-												className='text-sm'>
-												{ta.targetAudience.name}
-											</Badge>
-										)) || (
-											<p className='text-gray-500 text-sm'>Aucune audience spécifiée</p>
-										)}
-									</div>
-								</div>
-
-								{/* Mode de feedback et domaines */}
-								{roastRequest.feedbackMode === 'STRUCTURED' ? (
-									<div>
-										<h3 className='font-semibold text-gray-900 mb-3'>
-											📋 Feedback structuré - Domaines à analyser
-										</h3>
-										{roastRequest.focusAreas && roastRequest.focusAreas.length > 0 ? (
-											<div className='flex flex-wrap gap-2 mb-4'>
-												{roastRequest.focusAreas.map((area) => (
-													<Badge
-														key={area}
-														variant='secondary'
-														className='text-sm'>
-														{FOCUS_AREAS.find(f => f.id === area)?.icon} {area}
-													</Badge>
-												))}
-											</div>
-										) : (
-											<p className='text-gray-500 text-sm mb-4'>Aucun domaine spécifique</p>
-										)}
-
-										{/* Questions spécifiques */}
-										{roastRequest.questions && roastRequest.questions.length > 0 && (
-											<div className='space-y-4'>
-												<h4 className='font-medium text-gray-800'>Questions spécifiques</h4>
-												{roastRequest.focusAreas?.map((domain) => {
-													const domainQuestions = roastRequest.questions
+						{/* Questions spécifiques */}
+						{roastRequest.questions &&
+							roastRequest.questions.length > 0 && (
+								<Card>
+									<CardHeader>
+										<CardTitle className='flex items-center gap-2'>
+											<MessageSquare className='w-5 h-5' />
+											Questions à traiter
+										</CardTitle>
+										<p className='text-sm text-gray-600'>
+											Points spécifiques à aborder dans votre
+											feedback
+										</p>
+									</CardHeader>
+									<CardContent>
+										<div className='space-y-6'>
+											{roastRequest.focusAreas.map((domain) => {
+												const domainQuestions =
+													roastRequest.questions
 														.filter((q) => q.domain === domain)
 														.sort((a, b) => a.order - b.order);
 
-													if (domainQuestions.length === 0) return null;
+												if (domainQuestions.length === 0)
+													return null;
 
-													return (
-														<div
-															key={domain}
-															className='border rounded-lg p-4 bg-gray-50'>
-															<div className='flex items-center gap-2 mb-3'>
-																<Badge variant='outline' className='bg-white'>
-																	{FOCUS_AREAS.find(f => f.id === domain)?.icon} {domain}
-																</Badge>
-																<span className='text-sm text-gray-500'>
-																	{domainQuestions.length} question{domainQuestions.length > 1 ? 's' : ''}
-																</span>
-															</div>
-															<div className='space-y-2'>
-																{domainQuestions.map((question, index) => (
+												return (
+													<div
+														key={domain}
+														className='border rounded-lg p-4'>
+														<div className='flex items-center gap-2 mb-3'>
+															<Badge variant='outline'>
+																{domain}
+															</Badge>
+															<span className='text-sm text-gray-500'>
+																{domainQuestions.length}{' '}
+																question
+																{domainQuestions.length > 1
+																	? 's'
+																	: ''}
+															</span>
+														</div>
+														<div className='space-y-2'>
+															{domainQuestions.map(
+																(question, index) => (
 																	<div
 																		key={question.id}
 																		className='flex items-start gap-3'>
@@ -429,28 +457,16 @@ export default async function RoastPage({ params }: RoastPageProps) {
 																			{question.text}
 																		</p>
 																	</div>
-																))}
-															</div>
+																)
+															)}
 														</div>
-													);
-												})}
-											</div>
-										)}
-									</div>
-								) : (
-									<div>
-										<h3 className='font-semibold text-gray-900 mb-3'>
-											🎯 Impression générale
-										</h3>
-										<div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
-											<p className='text-blue-800 text-sm'>
-												<strong>Feedback libre</strong> - Le roaster donnera son impression générale sur l'application sans questions spécifiques à suivre.
-											</p>
+													</div>
+												);
+											})}
 										</div>
-									</div>
-								)}
-							</CardContent>
-						</Card>
+									</CardContent>
+								</Card>
+							)}
 					</div>
 
 					{/* Formulaire de candidature ou de feedback */}

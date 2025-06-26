@@ -15,7 +15,8 @@
       "Bash(npx tsc:*)",
       "mcp__ide__getDiagnostics",
       "Bash(npm run lint:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

@@ -163,26 +163,10 @@ export function FeedbackModeSelection({
                   <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Prix par roaster</span>
-                      <span className="font-semibold text-green-600">
+                      <span className="text-sm font-medium">
                         {calculation.totalPerRoaster.toFixed(2)}€
                       </span>
                     </div>
-                    
-                    <div className="text-xs space-y-1 text-muted-foreground">
-                      <div className="flex justify-between">
-                        <span>Prix de base</span>
-                        <span>{calculation.basePrice.toFixed(2)}€</span>
-                      </div>
-                      {calculation.billableQuestions > 0 && (
-                        <div className="flex justify-between">
-                          <span>
-                            {calculation.billableQuestions} question{calculation.billableQuestions > 1 ? 's' : ''} supplémentaire{calculation.billableQuestions > 1 ? 's' : ''}
-                          </span>
-                          <span>+{calculation.questionsCost.toFixed(2)}€</span>
-                        </div>
-                      )}
-                    </div>
-                    
                     <div className="pt-2 border-t border-gray-200">
                       <div className="flex justify-between items-center text-sm">
                         <span>Total ({roasterCount} roaster{roasterCount > 1 ? 's' : ''})</span>
