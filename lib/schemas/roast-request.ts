@@ -9,7 +9,7 @@ export const roastRequestSchema = z.object({
   customTargetAudience: z.object({
     name: z.string()
   }).optional(),
-  category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
+  category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']).optional(),
   focusAreas: z.array(z.string()).min(1, "Sélectionne au moins un domaine"),
   maxPrice: z.number().min(2, "Le prix minimum est de 2€"),
   feedbacksRequested: z.number().min(1, "Au moins 1 feedback").max(20, "Maximum 20 feedbacks"),
@@ -37,7 +37,7 @@ export const newRoastRequestSchema = z.object({
   customTargetAudience: z.object({
     name: z.string()
   }).optional(),
-  category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']),
+  category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']).optional(),
   feedbacksRequested: z.number().min(1, "Au moins 1 feedback").max(20, "Maximum 20 feedbacks"),
   deadline: z.date().optional(),
   isUrgent: z.boolean().default(false),

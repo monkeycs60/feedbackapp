@@ -188,8 +188,27 @@ model Feedback {
   roastRequest      RoastRequest       @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
   roaster           User               @relation(fields: [roasterId], references: [id], onDelete: Cascade)
   questionResponses QuestionResponse[]
+  ratings           FeedbackRating[]
 
   @@map("feedbacks")
+}
+
+model FeedbackRating {
+  id         String   @id @default(cuid())
+  feedbackId String
+  domain     String?  // NULL pour note globale (FREE mode)
+  clarity    Int      // 1-5: Clarté du feedback
+  relevance  Int      // 1-5: Pertinence des suggestions
+  depth      Int      // 1-5: Profondeur de l'analyse
+  actionable Int      // 1-5: Caractère actionnable
+  overall    Int      // 1-5: Note globale
+  comment    String?  // Commentaire optionnel
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, domain])
+  @@map("feedback_ratings")
 }
 
 model QuestionResponse {

@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Star, 
@@ -14,11 +13,14 @@ import {
   ChevronUp,
   Trophy,
   Calendar,
-  DollarSign
+  DollarSign,
+  FileText
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Image from 'next/image';
+import { RatingSystem, type RatingSystemRef } from '@/components/ui/rating-system';
+import { submitFeedbackRatings } from '@/lib/actions/feedback-rating';
 
 interface QuestionResponse {
   id: string;
@@ -70,31 +72,24 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
   const [expandedFeedback, setExpandedFeedback] = useState<string | null>(
     feedbacks.length === 1 ? feedbacks[0].id : null
   );
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const [showRating, setShowRating] = useState<string | null>(null);
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const ratingRef = useRef<RatingSystemRef>(null);
 
   if (feedbacks.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Feedbacks reçus</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-500 text-center py-8">
-            Aucun feedback reçu pour le moment
-          </p>
-        </CardContent>
-      </Card>
+      <div className="text-center py-8 text-muted-foreground">
+        Aucun feedback reçu pour le moment
+      </div>
     );
   }
 
-  const completedFeedbacks = feedbacks.filter(f => f.status === 'completed');
-  const averageRating = completedFeedbacks.length > 0
-    ? completedFeedbacks.reduce((sum, f) => sum + (f.creatorRating || 0), 0) / completedFeedbacks.length
-    : 0;
+  // Déterminer le mode de feedback (FREE ou STRUCTURED)
+  const feedbackMode = feedbacks[0]?.roastRequest?.questions?.length > 0 ? 'STRUCTURED' : 'FREE';
 
-  // Grouper les questions par domaine pour chaque feedback
+  // Grouper les questions par domaine pour les feedbacks STRUCTURED
   const getQuestionsByDomain = (feedback: FeedbackDisplayV2Props['feedbacks'][0]) => {
-    if (!feedback.roastRequest.questions) return {};
+    if (!feedback.roastRequest.questions || feedbackMode === 'FREE') return {};
     
     return feedback.roastRequest.questions.reduce((acc: Record<string, Array<RoastQuestion & { response: string | null }>>, question: RoastQuestion) => {
       if (!acc[question.domain]) {
@@ -113,291 +108,249 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
     }, {});
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Stats globaux */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total feedbacks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{feedbacks.length}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Complétés</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{completedFeedbacks.length}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Note moyenne</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-1">
-              <Star className="h-5 w-5 text-yellow-500 fill-current" />
-              <span className="text-2xl font-bold">{averageRating.toFixed(1)}</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Investissement total</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {feedbacks.reduce((sum, f) => sum + (f.finalPrice || 0), 0)}€
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+  const handleRatingSubmit = async (feedbackId: string, ratings: any[]) => {
+    try {
+      setIsSubmittingRating(true);
+      await submitFeedbackRatings({ feedbackId, ratings });
+      setShowRating(null);
+      // TODO: Show success message or refresh data
+    } catch (error) {
+      console.error('Erreur soumission rating:', error);
+      // TODO: Show error message
+    } finally {
+      setIsSubmittingRating(false);
+    }
+  };
 
-      {/* Liste des feedbacks */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Feedbacks détaillés</CardTitle>
-          <CardDescription>
-            Cliquez sur un feedback pour voir les détails complets
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {feedbacks.map((feedback) => (
-              <div
-                key={feedback.id}
-                id={`feedback-${feedback.id}`}
-                className="border rounded-lg overflow-hidden"
-              >
-                {/* En-tête du feedback */}
-                <div
-                  className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                  onClick={() => setExpandedFeedback(
-                    expandedFeedback === feedback.id ? null : feedback.id
-                  )}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <Avatar>
-                        <AvatarImage src={feedback.roaster.image || undefined} />
-                        <AvatarFallback>
-                          {feedback.roaster.name?.charAt(0) || 'R'}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium">
-                            {feedback.roaster.name || 'Roaster anonyme'}
-                          </h4>
-                          {feedback.roaster.roasterProfile && (
-                            <>
-                              <Badge variant="secondary" className="text-xs">
-                                {feedback.roaster.roasterProfile.level}
-                              </Badge>
-                              <div className="flex items-center gap-1">
-                                <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                                <span className="text-sm text-gray-600">
-                                  {feedback.roaster.roasterProfile.rating.toFixed(1)}
-                                </span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {formatDistanceToNow(new Date(feedback.createdAt), { 
-                              addSuffix: true, 
-                              locale: fr 
-                            })}
+  return (
+    <div className="space-y-4">
+      {feedbacks.map((feedback) => (
+        <div
+          key={feedback.id}
+          className="border rounded-lg overflow-hidden bg-white"
+        >
+          {/* En-tête du feedback */}
+          <div
+            className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => setExpandedFeedback(
+              expandedFeedback === feedback.id ? null : feedback.id
+            )}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={feedback.roaster.image || undefined} />
+                  <AvatarFallback>
+                    {feedback.roaster.name?.charAt(0) || 'R'}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-medium">
+                      {feedback.roaster.name || 'Roaster anonyme'}
+                    </h4>
+                    {feedback.roaster.roasterProfile && (
+                      <>
+                        <Badge variant="secondary" className="text-xs">
+                          {feedback.roaster.roasterProfile.level}
+                        </Badge>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                          <span className="text-sm text-gray-600">
+                            {feedback.roaster.roasterProfile.rating.toFixed(1)}
                           </span>
-                          {feedback.finalPrice && (
-                            <span className="flex items-center gap-1">
-                              <DollarSign className="h-3 w-3" />
-                              {feedback.finalPrice}€
-                            </span>
-                          )}
-                          {feedback.roaster.roasterProfile && (
-                            <span className="flex items-center gap-1">
-                              <Trophy className="h-3 w-3" />
-                              {feedback.roaster.roasterProfile.completedRoasts} roasts
-                            </span>
-                          )}
                         </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Badge variant={feedback.status === 'completed' ? 'default' : 'secondary'}>
-                        {feedback.status === 'completed' ? 'Complété' : 
-                         feedback.status === 'pending' ? 'En attente' : 'Contesté'}
-                      </Badge>
-                      {expandedFeedback === feedback.id ? (
-                        <ChevronUp className="h-4 w-4 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-gray-400" />
-                      )}
-                    </div>
+                      </>
+                    )}
                   </div>
                   
-                  {/* Aperçu */}
-                  <div className="mt-3 text-sm text-gray-600">
-                    <p className="line-clamp-2">
-                      {feedback.generalFeedback}
-                    </p>
+                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {formatDistanceToNow(new Date(feedback.createdAt), { 
+                        addSuffix: true, 
+                        locale: fr 
+                      })}
+                    </span>
+                    {feedback.finalPrice && (
+                      <span className="flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        {feedback.finalPrice}€
+                      </span>
+                    )}
                   </div>
                 </div>
-
-                {/* Contenu détaillé */}
-                {expandedFeedback === feedback.id && (
-                  <div className="border-t p-4 bg-gray-50">
-                    <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
-                        <TabsTrigger value="questions">Réponses par domaine</TabsTrigger>
-                        <TabsTrigger value="general">Feedback général</TabsTrigger>
-                      </TabsList>
-                        
-                      <TabsContent value="overview" className="mt-4 space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <h5 className="font-medium mb-2">Questions traitées</h5>
-                            <p className="text-2xl font-bold text-blue-600">
-                              {feedback.questionResponses?.length || 0}
-                            </p>
-                          </div>
-                          <div>
-                            <h5 className="font-medium mb-2">Domaines couverts</h5>
-                            <p className="text-2xl font-bold text-purple-600">
-                              {feedback.questionResponses?.length > 0 && feedback.roastRequest.questions ? 
-                                [...new Set(
-                                  feedback.questionResponses
-                                    .map(qr => feedback.roastRequest.questions?.find(q => q.id === qr.questionId)?.domain)
-                                    .filter(Boolean)
-                                )].length : 0
-                              }
-                            </p>
-                          </div>
-                        </div>
-                        
-                        {feedback.screenshots.length > 0 && (
-                          <div>
-                            <h5 className="font-medium mb-2 flex items-center gap-2">
-                              <ImageIcon className="h-4 w-4" />
-                              Captures d&apos;écran ({feedback.screenshots.length})
-                            </h5>
-                            <div className="grid grid-cols-2 gap-2">
-                              {feedback.screenshots.map((screenshot, index) => (
-                                <div key={index} className="relative aspect-video rounded-lg overflow-hidden bg-gray-200">
-                                  <Image
-                                    src={screenshot}
-                                    alt={`Screenshot ${index + 1}`}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </TabsContent>
-                      
-                      <TabsContent value="questions" className="mt-4">
-                        <div className="space-y-6">
-                          {Object.entries(getQuestionsByDomain(feedback)).map(([domain, questions]) => (
-                            <div key={domain}>
-                              <h5 className="font-medium text-lg text-gray-900 mb-3 flex items-center gap-2">
-                                <MessageSquare className="h-5 w-5" />
-                                {domain}
-                              </h5>
-                              <div className="space-y-4">
-                                {questions.map((question, index: number) => (
-                                  <div key={question.id} className="bg-white rounded-lg p-4 border">
-                                    <div className="flex items-start gap-3">
-                                      <span className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">
-                                        {index + 1}
-                                      </span>
-                                      <div className="flex-1">
-                                        <h6 className="font-medium text-gray-900 mb-2">{question.text}</h6>
-                                        {question.response ? (
-                                          <div className="whitespace-pre-wrap text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
-                                            {question.response}
-                                          </div>
-                                        ) : (
-                                          <div className="text-sm text-gray-400 italic">
-                                            Pas de réponse fournie
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="general" className="mt-4">
-                        <div>
-                          <h5 className="font-medium mb-2">Feedback général et recommandations</h5>
-                          <div className="whitespace-pre-wrap text-gray-700 bg-white rounded-lg p-4 border">
-                            {feedback.generalFeedback}
-                          </div>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                    
-                    {/* Actions sur le feedback */}
-                    <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {feedback.creatorRating ? (
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm text-gray-600">Votre note:</span>
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < feedback.creatorRating! 
-                                    ? 'text-yellow-500 fill-current' 
-                                    : 'text-gray-300'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <Button variant="outline" size="sm">
-                            Noter ce feedback
-                          </Button>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
-                          Télécharger PDF
-                        </Button>
-                        {feedback.status === 'completed' && (
-                          <Button variant="outline" size="sm">
-                            Contester
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Badge className={`${feedbackMode === 'FREE' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'} text-xs`}>
+                  {feedbackMode === 'FREE' ? '🎯 Impression générale' : '📋 Feedback structuré'}
+                </Badge>
+                {expandedFeedback === feedback.id ? (
+                  <ChevronUp className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
                 )}
               </div>
-            ))}
+            </div>
+            
+            {/* Aperçu */}
+            <div className="mt-3 text-sm text-gray-600">
+              <p className="line-clamp-2">
+                {feedback.generalFeedback}
+              </p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Contenu détaillé */}
+          {expandedFeedback === feedback.id && (
+            <div className="border-t p-6 bg-gray-50 space-y-6">
+              
+              {/* Feedback général */}
+              <div>
+                <h5 className="font-semibold mb-3 flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                  {feedbackMode === 'FREE' ? 'Impression générale' : 'Feedback général'}
+                </h5>
+                <div className="whitespace-pre-wrap text-gray-700 bg-white rounded-lg p-4 border leading-relaxed">
+                  {feedback.generalFeedback}
+                </div>
+              </div>
+
+              {/* Questions par domaine (seulement pour STRUCTURED) */}
+              {feedbackMode === 'STRUCTURED' && (
+                <div className="space-y-6">
+                  <h5 className="font-semibold flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-purple-600" />
+                    Réponses par domaine
+                  </h5>
+                  {Object.entries(getQuestionsByDomain(feedback)).map(([domain, questions]) => (
+                    <div key={domain} className="bg-white rounded-lg border p-4">
+                      <h6 className="font-medium text-lg text-gray-900 mb-4 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                        {domain}
+                      </h6>
+                      <div className="space-y-4">
+                        {questions.map((question, index: number) => (
+                          <div key={question.id} className="border-l-2 border-purple-200 pl-4">
+                            <div className="flex items-start gap-3">
+                              <span className="flex-shrink-0 w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-sm font-medium text-purple-600">
+                                {index + 1}
+                              </span>
+                              <div className="flex-1">
+                                <h6 className="font-medium text-gray-900 mb-2">{question.text}</h6>
+                                {question.response ? (
+                                  <div className="whitespace-pre-wrap text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
+                                    {question.response}
+                                  </div>
+                                ) : (
+                                  <div className="text-sm text-gray-400 italic">
+                                    Pas de réponse fournie
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Screenshots si disponibles */}
+              {feedback.screenshots.length > 0 && (
+                <div>
+                  <h5 className="font-semibold mb-3 flex items-center gap-2">
+                    <ImageIcon className="h-5 w-5 text-green-600" />
+                    Captures d'écran ({feedback.screenshots.length})
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {feedback.screenshots.map((screenshot, index) => (
+                      <div key={index} className="relative aspect-video rounded-lg overflow-hidden bg-gray-200 border">
+                        <Image
+                          src={screenshot}
+                          alt={`Screenshot ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Système de notation */}
+              {showRating === feedback.id ? (
+                <div className="pt-6 border-t">
+                  <RatingSystem
+                    ref={ratingRef}
+                    mode={feedbackMode}
+                    domains={feedbackMode === 'STRUCTURED' ? Object.keys(getQuestionsByDomain(feedback)) : undefined}
+                    onRatingChange={() => {
+                      // Optional: handle real-time changes
+                    }}
+                  />
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      onClick={async () => {
+                        const ratings = ratingRef.current?.getRatings();
+                        if (ratings && ratings.length > 0) {
+                          await handleRatingSubmit(feedback.id, ratings);
+                        }
+                      }}
+                      disabled={isSubmittingRating}
+                    >
+                      {isSubmittingRating ? 'Soumission...' : 'Soumettre les notes'}
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowRating(null)}>
+                      Annuler
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="pt-4 border-t flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {feedback.creatorRating ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">Votre note:</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                          <span className="font-medium">{feedback.creatorRating}/5</span>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setShowRating(feedback.id)}
+                        >
+                          Modifier
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button 
+                        variant="default" 
+                        size="sm"
+                        onClick={() => setShowRating(feedback.id)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                      >
+                        <Star className="w-4 h-4 mr-1" />
+                        Noter ce feedback
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      Télécharger PDF
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

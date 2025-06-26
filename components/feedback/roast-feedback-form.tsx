@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Star, MessageSquare, Euro, CheckCircle } from "lucide-react";
 import { createFeedback } from "@/lib/actions/feedback";
 import { PRICING, FEEDBACK_MODES, type FeedbackMode } from "@/lib/types/roast-request";
+import { RoastRating } from "@/components/feedback/roast-rating";
 
 // Schéma de validation adaptatif selon le mode
 const createFeedbackSchema = (feedbackMode?: FeedbackMode | null) => {
@@ -311,6 +312,12 @@ export function RoastFeedbackForm({ roastRequest, existingFeedback }: RoastFeedb
           ))
           )}
         </div>
+
+        {/* Évaluation de la mission */}
+        <RoastRating 
+          roastRequestId={roastRequest.id}
+          className="mt-6"
+        />
       </div>
     );
   }

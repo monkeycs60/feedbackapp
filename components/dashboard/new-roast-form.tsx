@@ -67,7 +67,7 @@ const formSchema = z.object({
 		'Landing',
 		'MVP',
 		'Autre',
-	]),
+	]).optional(),
 	coverImage: z.string().optional(),
 	feedbacksRequested: z
 		.number()
@@ -109,7 +109,6 @@ export function NewRoastForm() {
 		defaultValues: {
 			selectedDomains: [],
 			totalPrice: 0,
-			category: undefined,
 			feedbacksRequested: 1,
 		},
 	});

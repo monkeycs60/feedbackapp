@@ -316,7 +316,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm">{app.roaster?.name || 'Roaster anonyme'}</span>
-                            {feedbacks.find((f: any) => f.roasterId === app.roasterId) ? (
+                            {feedbacks.find((f: any) => f.roasterId === app.roasterId && f.status === 'completed') ? (
                               <Badge className="bg-green-100 text-green-800 text-xs">✓ Feedback livré</Badge>
                             ) : (
                               <Badge className="bg-blue-100 text-blue-800 text-xs">⏳ En cours</Badge>

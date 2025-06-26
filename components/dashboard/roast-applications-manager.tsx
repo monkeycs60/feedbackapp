@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { manualSelectRoasters } from '@/lib/actions/roast-application';
 import { useRouter } from 'next/navigation';
+import { RoasterRatingDisplay } from '@/components/roast/roaster-rating-display';
 
 interface RoastApplication {
   id: string;
@@ -28,6 +29,7 @@ interface RoastApplication {
   roaster: {
     id: string;
     name: string | null;
+    image: string | null;
     roasterProfile: {
       specialties: string[];
       experience: string;
@@ -142,46 +144,51 @@ export function RoastApplicationsManager({ roastRequest, applications }: RoastAp
             Roasters sélectionnés ({selectedApplicationsData.length})
           </h2>
           
-          <div className="grid gap-4">
+          <div className="grid gap-6">
             {selectedApplicationsData.map((application) => (
-              <Card key={application.id} className="border-green-200 bg-green-50">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="font-semibold text-lg">
-                          {application.roaster.name || 'Roaster anonyme'}
-                        </h3>
-                        {getLevelBadge(application.roaster.roasterProfile?.level || 'rookie')}
-                        <Badge className="bg-green-100 text-green-800">
-                          {application.status === 'auto_selected' ? 'Sélection auto' : 'Sélectionné'}
-                        </Badge>
+              <div key={application.id} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Info de base et statut */}
+                <Card className="border-green-200 bg-green-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="font-semibold text-lg">
+                        {application.roaster.name || 'Roaster anonyme'}
+                      </h3>
+                      {getLevelBadge(application.roaster.roasterProfile?.level || 'rookie')}
+                      <Badge className="bg-green-100 text-green-800">
+                        {application.status === 'auto_selected' ? 'Sélection auto' : 'Sélectionné'}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-yellow-500" />
+                        <span>{application.roaster.roasterProfile?.rating.toFixed(1) || '0.0'}/5</span>
                       </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          <span>{application.roaster.roasterProfile?.rating.toFixed(1) || '0.0'}/5</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Award className="w-4 h-4 text-blue-500" />
-                          <span>{application.roaster.roasterProfile?.completedRoasts || 0} roasts</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <TrendingUp className="w-4 h-4 text-green-500" />
-                          <span className={getExperienceColor(application.roaster.roasterProfile?.experience || 'Débutant')}>
-                            {application.roaster.roasterProfile?.experience || 'Débutant'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-purple-500" />
-                          <span className="font-medium">{application.score}/100</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Award className="w-4 h-4 text-blue-500" />
+                        <span>{application.roaster.roasterProfile?.completedRoasts || 0} roasts</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-green-500" />
+                        <span className={getExperienceColor(application.roaster.roasterProfile?.experience || 'Débutant')}>
+                          {application.roaster.roasterProfile?.experience || 'Débutant'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-purple-500" />
+                        <span className="font-medium">{application.score}/100</span>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+                
+                {/* Notes qualité */}
+                <RoasterRatingDisplay 
+                  roaster={application.roaster}
+                  className="border-green-200"
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -227,91 +234,95 @@ export function RoastApplicationsManager({ roastRequest, applications }: RoastAp
             {pendingApplications
               .sort((a, b) => b.score - a.score)
               .map((application, index) => (
-              <Card key={application.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    {canSelect && (
-                      <Checkbox
-                        checked={selectedApplications.includes(application.id)}
-                        onCheckedChange={() => handleApplicationToggle(application.id)}
-                        disabled={!selectedApplications.includes(application.id) && selectedApplications.length >= (roastRequest.feedbacksRequested - selectedApplicationsData.length)}
-                        className="mt-1"
-                      />
-                    )}
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-semibold text-lg">
-                            {application.roaster.name || 'Roaster anonyme'}
-                          </h3>
-                          {getLevelBadge(application.roaster.roasterProfile?.level || 'rookie')}
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                            #{index + 1} • Score: {application.score}/100
-                          </Badge>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(application.createdAt).toLocaleDateString('fr-FR')}
-                        </div>
-                      </div>
-
-                      {/* Stats du roaster */}
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          <span>{application.roaster.roasterProfile?.rating.toFixed(1) || '0.0'}/5</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Award className="w-4 h-4 text-blue-500" />
-                          <span>{application.roaster.roasterProfile?.completedRoasts || 0} roasts</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <TrendingUp className="w-4 h-4 text-green-500" />
-                          <span className={getExperienceColor(application.roaster.roasterProfile?.experience || 'Débutant')}>
-                            {application.roaster.roasterProfile?.experience || 'Débutant'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-purple-500" />
-                          <span>{application.roaster.roasterProfile?.completionRate || 100}% fiabilité</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-gray-500" />
-                          <span>Candidat #{index + 1}</span>
-                        </div>
-                      </div>
-
-                      {/* Spécialités */}
-                      <div className="mb-4">
-                        <h4 className="font-medium text-sm text-gray-700 mb-2">Spécialités :</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {application.roaster.roasterProfile?.specialties.map((specialty) => {
-                            const isMatching = roastRequest.focusAreas.includes(specialty);
-                            return (
-                              <Badge 
-                                key={specialty} 
-                                variant={isMatching ? "default" : "secondary"}
-                                className={isMatching ? "bg-green-100 text-green-800" : ""}
-                              >
-                                {specialty}
-                                {isMatching && " ✓"}
-                              </Badge>
-                            );
-                          }) || <span className="text-gray-500 text-sm">Aucune spécialité renseignée</span>}
-                        </div>
-                      </div>
-
-                      {/* Message de motivation */}
-                      {application.motivation && (
-                        <div className="bg-gray-50 rounded-lg p-4">
-                          <h4 className="font-medium text-sm text-gray-700 mb-2">Message de motivation :</h4>
-                          <p className="text-sm text-gray-700 italic">"{application.motivation}"</p>
-                        </div>
+              <div key={application.id} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Info de base et candidature */}
+                <Card className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      {canSelect && (
+                        <Checkbox
+                          checked={selectedApplications.includes(application.id)}
+                          onCheckedChange={() => handleApplicationToggle(application.id)}
+                          disabled={!selectedApplications.includes(application.id) && selectedApplications.length >= (roastRequest.feedbacksRequested - selectedApplicationsData.length)}
+                          className="mt-1"
+                        />
                       )}
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <h3 className="font-semibold text-lg">
+                              {application.roaster.name || 'Roaster anonyme'}
+                            </h3>
+                            {getLevelBadge(application.roaster.roasterProfile?.level || 'rookie')}
+                            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                              #{index + 1} • Score: {application.score}/100
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {new Date(application.createdAt).toLocaleDateString('fr-FR')}
+                          </div>
+                        </div>
+
+                        {/* Stats compactes du roaster */}
+                        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            <span>{application.roaster.roasterProfile?.rating.toFixed(1) || '0.0'}/5</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Award className="w-4 h-4 text-blue-500" />
+                            <span>{application.roaster.roasterProfile?.completedRoasts || 0} roasts</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="w-4 h-4 text-green-500" />
+                            <span className={getExperienceColor(application.roaster.roasterProfile?.experience || 'Débutant')}>
+                              {application.roaster.roasterProfile?.experience || 'Débutant'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-purple-500" />
+                            <span>{application.roaster.roasterProfile?.completionRate || 100}% fiabilité</span>
+                          </div>
+                        </div>
+
+                        {/* Spécialités */}
+                        <div className="mb-4">
+                          <h4 className="font-medium text-sm text-gray-700 mb-2">Spécialités :</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {application.roaster.roasterProfile?.specialties.map((specialty) => {
+                              const isMatching = roastRequest.focusAreas.includes(specialty);
+                              return (
+                                <Badge 
+                                  key={specialty} 
+                                  variant={isMatching ? "default" : "secondary"}
+                                  className={isMatching ? "bg-green-100 text-green-800" : ""}
+                                >
+                                  {specialty}
+                                  {isMatching && " ✓"}
+                                </Badge>
+                              );
+                            }) || <span className="text-gray-500 text-sm">Aucune spécialité renseignée</span>}
+                          </div>
+                        </div>
+
+                        {/* Message de motivation */}
+                        {application.motivation && (
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <h4 className="font-medium text-sm text-gray-700 mb-2">Message de motivation :</h4>
+                            <p className="text-sm text-gray-700 italic">"{application.motivation}"</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+                
+                {/* Notes qualité */}
+                <RoasterRatingDisplay 
+                  roaster={application.roaster}
+                />
+              </div>
             ))}
           </div>
         </div>

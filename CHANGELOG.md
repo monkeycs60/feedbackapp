@@ -1,5 +1,20 @@
 # Changelog
 
+## 2025-06-25-11:55
+### UX Enhancement - Simplified Feedback Display & Bug Fixes
+- **Fixed application status bug**: Roasters who completed feedback were incorrectly shown as "en cours"
+- **Root cause**: Status check was only looking for feedback existence, not completion status
+- **Solution**: Now checks `f.status === 'completed'` for accurate status display
+- **Simplified feedback interface**:
+  - **Removed heavy tabs**: Eliminated complex tabbed interface for cleaner presentation
+  - **Mode-aware display**: Automatically detects FREE vs STRUCTURED mode
+  - **Streamlined layout**: Single expandable card per feedback with logical information flow
+  - **Better visual hierarchy**: Feedback général first, then questions by domain for STRUCTURED mode
+  - **Mode indicators**: Clear badges showing feedback type (🎯 Impression générale vs 📋 Feedback structuré)
+- **Enhanced readability**: Better spacing, typography, and content organization
+- **Responsive design**: Improved mobile experience with simplified interface
+- **Impact**: Much cleaner and more intuitive feedback viewing experience for creators
+
 ## 2025-06-25-11:50
 ### Major UX Redesign - Creator Dashboard Roast Detail Page
 - **Complete redesign of creator dashboard roast detail page** (/dashboard/roast/:id)
