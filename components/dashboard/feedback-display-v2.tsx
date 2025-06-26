@@ -285,10 +285,8 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
               
               {/* Système de notation */}
               {showRating === feedback.id ? (
-                <div className="pt-4 border-t space-y-3">
-                  <h6 className="font-medium text-gray-900">
-                    Noter le feedback de {feedback.roaster.name || 'ce roaster'}
-                  </h6>
+                <div className="pt-4 border-t">
+                  <p className="text-sm mb-3">Feedback de {feedback.roaster.name || 'ce roaster'}</p>
                   <RatingSystem
                     ref={ratingRef}
                     mode={feedbackMode}
@@ -297,7 +295,7 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                       // Optional: handle real-time changes
                     }}
                   />
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-3">
                     <Button 
                       size="sm"
                       onClick={async () => {
