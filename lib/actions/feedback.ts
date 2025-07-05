@@ -69,7 +69,7 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
       throw new Error("Demande de roast non trouvée");
     }
 
-    if (!['open', 'in_progress'].includes(roastRequest.status)) {
+    if (!['open', 'in_progress', 'collecting_applications'].includes(roastRequest.status)) {
       throw new Error("Cette demande n'est plus ouverte");
     }
 
@@ -135,12 +135,12 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
       }
     });
 
-    // Créer les réponses aux questions
-    if (validData.questionResponses && Object.keys(validData.questionResponses).length > 0) {
-      const questionResponsesData = Object.entries(validData.questionResponses).map(([questionId, response]) => ({
+    // Créer les réponses aux questions  
+    if (validData.questionResponses && validData.questionResponses.length > 0) {
+      const questionResponsesData = validData.questionResponses.map((qr) => ({
         feedbackId: feedback.id,
-        questionId,
-        response
+        questionId: qr.questionId,
+        response: qr.response
       }));
 
       await prisma.questionResponse.createMany({

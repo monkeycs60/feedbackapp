@@ -20,32 +20,29 @@ import {
   X,
   Heart,
   TrendingUp,
-  Zap,
   Target,
   Info
 } from "lucide-react";
 import { createFeedback } from "@/lib/actions/feedback";
 import { z } from "zod";
 
-// Schéma unifié pour le nouveau modèle
-const unifiedFeedbackSchema = z.object({
-  // Feedback structuré de base (toujours présent)
+// Form-specific schema that matches the UI
+const formFeedbackSchema = z.object({
   globalRating: z.number().min(1).max(5),
-  firstImpression: z.string().min(20, "Première impression trop courte (min 20 caractères)").max(300),
-  strengths: z.array(z.string().min(5)).min(2, "Listez au moins 2 points forts").max(5),
-  weaknesses: z.array(z.string().min(5)).min(1, "Listez au moins 1 point faible").max(5),
-  recommendations: z.array(z.string().min(10)).min(1, "Donnez au moins 1 recommandation").max(3),
+  firstImpression: z.string().min(10, "L'impression doit faire au moins 10 caractères"),
+  strengths: z.array(z.string().min(1)).min(1, "Au moins un point fort requis"),
+  weaknesses: z.array(z.string().min(1)).min(1, "Au moins un point faible requis"), 
+  recommendations: z.array(z.string().min(1)).min(1, "Au moins une recommandation requise"),
   uxUiRating: z.number().min(1).max(5),
   valueRating: z.number().min(1).max(5),
   performanceRating: z.number().min(1).max(5),
   experienceRating: z.number().min(1).max(5),
   additionalComments: z.string().optional(),
-  
-  // Questions personnalisées (optionnel)
-  questionResponses: z.record(z.string(), z.string().min(10, "Réponse trop courte (min 10 caractères)")).optional(),
+  // Form uses Record format for easier form handling
+  questionResponses: z.record(z.string(), z.string().min(10, "Réponse trop courte")).optional(),
 });
 
-type UnifiedFeedbackData = z.infer<typeof unifiedFeedbackSchema>;
+type FormFeedbackData = z.infer<typeof formFeedbackSchema>;
 
 interface RoastQuestion {
   id: string;
@@ -224,47 +221,57 @@ export function UnifiedFeedbackForm({ roastRequest, existingFeedback }: UnifiedF
     questionsByDomain[domain].sort((a, b) => a.order - b.order);
   });
 
-  const form = useForm<UnifiedFeedbackData>({
-    resolver: zodResolver(unifiedFeedbackSchema),
+  const form = useForm<FormFeedbackData>({
+    resolver: zodResolver(formFeedbackSchema),
     defaultValues: {
       globalRating: existingFeedback?.globalRating || 4,
       firstImpression: existingFeedback?.firstImpression || "",
-      strengths: existingFeedback?.strengths.length > 0 ? existingFeedback.strengths : ["", ""],
-      weaknesses: existingFeedback?.weaknesses.length > 0 ? existingFeedback.weaknesses : [""],
-      recommendations: existingFeedback?.recommendations.length > 0 ? existingFeedback.recommendations : [""],
+      strengths: existingFeedback?.strengths?.length > 0 ? existingFeedback.strengths : ["", ""],
+      weaknesses: existingFeedback?.weaknesses?.length > 0 ? existingFeedback.weaknesses : [""],
+      recommendations: existingFeedback?.recommendations?.length > 0 ? existingFeedback.recommendations : [""],
       uxUiRating: existingFeedback?.uxUiRating || 4,
       valueRating: existingFeedback?.valueRating || 4,
       performanceRating: existingFeedback?.performanceRating || 4,
       experienceRating: existingFeedback?.experienceRating || 4,
       additionalComments: existingFeedback?.additionalComments || "",
-      questionResponses: existingFeedback?.questionResponses.reduce((acc, qr) => {
+      questionResponses: existingFeedback?.questionResponses?.reduce((acc, qr) => {
         acc[qr.questionId] = qr.response;
         return acc;
       }, {} as Record<string, string>) || {},
     }
   });
 
-  const onSubmit = async (data: UnifiedFeedbackData) => {
+  const onSubmit = async (data: FormFeedbackData) => {
+    console.log("Form submission started", data);
     setIsLoading(true);
     setError(null);
     
     try {
-      await createFeedback({
+      // Convert questionResponses from Record<string, string> to array format
+      const questionResponsesArray = data.questionResponses ? 
+        Object.entries(data.questionResponses)
+          .filter(([, response]) => response.trim())
+          .map(([questionId, response]) => ({ questionId, response })) : 
+        [];
+
+      const submissionData = {
+        ...data,
         roastRequestId: roastRequest.id,
-        // Nouveau format structuré
-        globalRating: data.globalRating,
-        firstImpression: data.firstImpression,
+        finalPrice: finalPrice,
+        // Filter out empty strings for better data quality
         strengths: data.strengths.filter(s => s.trim()),
         weaknesses: data.weaknesses.filter(w => w.trim()),
         recommendations: data.recommendations.filter(r => r.trim()),
-        uxUiRating: data.uxUiRating,
-        valueRating: data.valueRating,
-        performanceRating: data.performanceRating,
-        experienceRating: data.experienceRating,
-        additionalComments: data.additionalComments,
-        questionResponses: data.questionResponses || {},
-        finalPrice: finalPrice,
-      });
+        // Convert question responses to expected format
+        questionResponses: questionResponsesArray,
+        // Add missing fields
+        screenshots: [],
+        generalFeedback: "", // Not used in new system but required by schema
+      };
+      
+      console.log("Submitting data:", submissionData);
+      await createFeedback(submissionData);
+      console.log("Feedback created successfully");
     } catch (error) {
       console.error("Erreur:", error);
       setError(error instanceof Error ? error.message : "Une erreur est survenue");
@@ -423,7 +430,10 @@ export function UnifiedFeedbackForm({ roastRequest, existingFeedback }: UnifiedF
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+      console.log("Form validation errors:", errors);
+      setError("Veuillez corriger les erreurs dans le formulaire");
+    })} className="space-y-6">
       {/* Informations */}
       <Alert>
         <Info className="h-4 w-4" />
@@ -433,6 +443,14 @@ export function UnifiedFeedbackForm({ roastRequest, existingFeedback }: UnifiedF
           Rémunération : <strong>{finalPrice}€</strong>
         </AlertDescription>
       </Alert>
+
+      {/* Error Display */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {/* Feedback structuré de base */}
       <Card>
