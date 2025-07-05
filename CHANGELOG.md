@@ -1,5 +1,23 @@
 # Changelog
 
+## 2025-07-06-00:10
+### Final Update - Roast Detail Pages Unified (Phase 5)
+- **Page créateur mise à jour**: `/dashboard/roast/[id]` maintenant cohérente avec nouveau modèle
+  - Suppression section "Questions par domaine" (logique ancienne)
+  - Nouvelle section "Configuration du feedback" avec feedback structuré + questions optionnelles  
+  - Interface claire: feedback de base toujours inclus + questions personnalisées si présentes
+  - Suppression de la logique basée sur `focusAreas` et `domain`
+- **Page roaster corrigée**: `/roast/[id]` maintenant fonctionnelle pour roasters acceptés
+  - Suppression texte "Feedback libre" et logique `feedbackMode === 'STRUCTURED'` 
+  - Nouvelle section "📋 Feedback structuré requis" avec description complète
+  - **Bug critique résolu**: Roasters acceptés accèdent maintenant au formulaire de feedback
+  - Condition élargie: feedback accessible dès acceptation (pas seulement `in_progress`)
+  - Badge unifié "📋 Feedback structuré" dans header remplace badges conditionnels
+- **Expérience utilisateur cohérente**: Toutes les pages alignées sur le nouveau modèle unifié
+  - Terminologie consistante partout
+  - Plus de confusion entre modes FREE/STRUCTURED  
+  - Interface prévisible et compréhensible pour créateurs et roasters
+
 ## 2025-07-05-23:45
 ### Complete - Feedback System Simplification & Legacy Cleanup (Phase 4)
 - **Erreur "use server" corrigée**: Migration du schema vers fichier séparé

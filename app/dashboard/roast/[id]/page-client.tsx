@@ -509,55 +509,74 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
             </div>
           </div>
 
-          {/* Questions par domaine */}
-          {roastRequest.questions && roastRequest.questions.length > 0 && (
-            <div>
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
-                Questions par domaine
-              </h3>
-              
-              <div className="space-y-4">
-                {roastRequest.focusAreas.map((domain: string) => {
-                  const domainQuestions = roastRequest.questions
-                    .filter((q: any) => q.domain === domain)
-                    .sort((a: any, b: any) => a.order - b.order);
-                  
-                  if (domainQuestions.length === 0) return null;
-                  
-                  const focusArea = FOCUS_AREAS.find(area => area.id === domain);
-                  
-                  return (
-                    <div key={domain} className="border rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-center gap-2 mb-3">
-                        {focusArea && <span className="text-xl">{focusArea.icon}</span>}
-                        <h4 className="font-medium">{focusArea?.label || domain}</h4>
-                        <Badge variant="outline" className="ml-auto">
-                          {domainQuestions.length} question{domainQuestions.length > 1 ? 's' : ''}
-                        </Badge>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        {domainQuestions.map((question: any, index: number) => (
-                          <div key={question.id} className="flex items-start gap-3 text-sm">
-                            <span className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">
-                              {index + 1}
-                            </span>
-                            <p className="flex-1">{question.text}</p>
-                            {!question.isDefault && (
-                              <Badge variant="secondary" className="text-xs">
-                                Personnalisée
-                              </Badge>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+          {/* Type de feedback */}
+          <div>
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              Configuration du feedback
+            </h3>
+            
+            <div className="space-y-4">
+              {/* Feedback structuré de base */}
+              <div className="border rounded-lg p-4 bg-blue-50">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xl">📋</span>
+                  <h4 className="font-medium">Feedback structuré inclus</h4>
+                  <Badge variant="secondary" className="ml-auto">
+                    Toujours inclus
+                  </Badge>
+                </div>
+                
+                <div className="text-sm text-gray-700 space-y-1">
+                  <p>• <strong>Note globale</strong> et première impression</p>
+                  <p>• <strong>Points forts</strong> identifiés</p>
+                  <p>• <strong>Points faibles</strong> à améliorer</p>
+                  <p>• <strong>Recommandations</strong> concrètes</p>
+                  <p>• <strong>Notes détaillées</strong> (UX/UI, Performance, Expérience, Valeur)</p>
+                </div>
               </div>
+
+              {/* Questions personnalisées optionnelles */}
+              {roastRequest.questions && roastRequest.questions.length > 0 && (
+                <div className="border rounded-lg p-4 bg-purple-50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xl">💬</span>
+                    <h4 className="font-medium">Questions personnalisées</h4>
+                    <Badge variant="outline" className="ml-auto">
+                      {roastRequest.questions.length} question{roastRequest.questions.length > 1 ? 's' : ''}
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {roastRequest.questions
+                      .sort((a: any, b: any) => a.order - b.order)
+                      .map((question: any, index: number) => (
+                        <div key={question.id} className="flex items-start gap-3 text-sm">
+                          <span className="flex-shrink-0 w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-sm font-medium text-purple-600">
+                            {index + 1}
+                          </span>
+                          <p className="flex-1">{question.text}</p>
+                          {question.domain && (
+                            <Badge variant="secondary" className="text-xs">
+                              {question.domain}
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {roastRequest.questions?.length === 0 && (
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span className="text-lg">ℹ️</span>
+                    <p className="text-sm">Aucune question personnalisée ajoutée. Les roasters fourniront le feedback structuré standard.</p>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
     </div>
