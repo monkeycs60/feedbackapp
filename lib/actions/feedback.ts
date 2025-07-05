@@ -206,7 +206,11 @@ export async function getFeedbackByRoastRequest(roastRequestId: string) {
         roasterId: user.id
       },
       include: {
-        questionResponses: true,
+        questionResponses: {
+          include: {
+            question: true
+          }
+        },
         roastRequest: {
           include: {
             questions: {
@@ -325,7 +329,11 @@ export async function getCreatorFeedbacks(status: 'all' | 'pending' | 'completed
             roasterProfile: true
           }
         },
-        questionResponses: true
+        questionResponses: {
+          include: {
+            question: true
+          }
+        }
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -421,7 +429,11 @@ export async function getFullFeedbackDetails(feedbackId: string) {
             roasterProfile: true
           }
         },
-        questionResponses: true
+        questionResponses: {
+          include: {
+            question: true
+          }
+        }
       }
     });
 

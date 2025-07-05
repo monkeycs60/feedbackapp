@@ -269,7 +269,11 @@ export async function getUserRoastRequests() {
                 roasterProfile: true
               }
             },
-            questionResponses: true,
+            questionResponses: {
+              include: {
+                question: true
+              }
+            },
             roastRequest: {
               select: {
                 id: true,
@@ -561,7 +565,11 @@ export async function getRoastRequestById(id: string) {
                 roasterProfile: true
               }
             },
-            questionResponses: true,
+            questionResponses: {
+              include: {
+                question: true
+              }
+            },
             roastRequest: {
               select: {
                 id: true,

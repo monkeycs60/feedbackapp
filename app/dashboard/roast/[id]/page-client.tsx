@@ -21,9 +21,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FeedbackDisplayV2 } from '@/components/dashboard/feedback-display-v2';
-import { FOCUS_AREAS, APP_CATEGORIES } from '@/lib/types/roast-request';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { UnifiedFeedbackDisplay } from '@/components/dashboard/unified-feedback-display';
+import { APP_CATEGORIES } from '@/lib/types/roast-request';
+import { useRouter } from 'next/navigation';
 import { acceptApplication, rejectApplication } from '@/lib/actions/roast-application';
 import { UnifiedPricingDisplay } from '@/components/roast/unified-pricing-display';
 
@@ -429,7 +429,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <FeedbackDisplayV2 feedbacks={feedbacks} />
+            <UnifiedFeedbackDisplay feedbacks={feedbacks} />
           </CardContent>
         </Card>
       )}

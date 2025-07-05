@@ -114,6 +114,7 @@ model RoastRequest {
   appUrl             String
   description        String
   focusAreas         String[]
+  maxPrice           Float?
   deadline           DateTime?
   status             String                 @default("open")
   createdAt          DateTime               @default(now())
@@ -121,21 +122,13 @@ model RoastRequest {
   coverImage         String?
   feedbacksRequested Int                    @default(1)
   category           String?
-  
-  // New pricing model
+  basePriceMode      Float?
+  feedbackMode       FeedbackMode?
+  freeQuestions      Int?
+  questionPrice      Float?
+  isUrgent           Boolean                @default(false)
   pricePerRoaster    Float                  @default(3.0)
-  
-  // Keep for structured feedback
   useStructuredForm  Boolean                @default(true)
-  
-  // Remove after migration
-  maxPrice           Float? // deprecated
-  basePriceMode      Float? // deprecated
-  feedbackMode       FeedbackMode?         // deprecated
-  freeQuestions      Int?                  // deprecated
-  questionPrice      Float?                // deprecated
-  isUrgent           Boolean               @default(false) // deprecated
-  
   feedbacks          Feedback[]
   applications       RoastApplication[]
   questions          RoastQuestion[]
@@ -146,15 +139,16 @@ model RoastRequest {
 }
 
 model RoastQuestion {
-  id             String       @id @default(cuid())
-  roastRequestId String
-  domain         String
-  text           String
-  order          Int
-  isDefault      Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  roastRequest   RoastRequest @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+  id                String             @id @default(cuid())
+  roastRequestId    String
+  domain            String
+  text              String
+  order             Int
+  isDefault         Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  questionResponses QuestionResponse[]
+  roastRequest      RoastRequest       @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
 
   @@map("roast_questions")
 }
@@ -177,46 +171,44 @@ model RoastApplication {
 }
 
 model Feedback {
-  id                String             @id @default(cuid())
-  roastRequestId    String
-  roasterId         String
-  screenshots       String[]
-  aiQualityScore    Float?
-  creatorRating     Int?
-  finalPrice        Float?
-  status            String             @default("pending")
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  // Legacy field - kept for backward compatibility
-  generalFeedback   String?
-  // New structured feedback fields
-  globalRating      Int?               // 1-5 stars overall rating
-  firstImpression   String?
-  strengths         String[]           @default([])
-  weaknesses        String[]           @default([])
-  recommendations   String[]           @default([])
-  // Detailed ratings
-  uxUiRating        Int?               // 1-5: UX/UI Design, ergonomie et facilité d'utilisation
-  valueRating       Int?               // 1-5: Proposition de valeur - Utilité, pertinence et réponse au besoin
-  performanceRating Int?               // 1-5: Performance & Fiabilité - Rapidité, stabilité et absence de bugs
-  experienceRating  Int?               // 1-5: Expérience globale - Satisfaction générale et recommandation
+  id                 String             @id @default(cuid())
+  roastRequestId     String
+  roasterId          String
+  screenshots        String[]
+  aiQualityScore     Float?
+  creatorRating      Int?
+  finalPrice         Float?
+  status             String             @default("pending")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  generalFeedback    String?
   additionalComments String?
-  roastRequest      RoastRequest       @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
-  roaster           User               @relation(fields: [roasterId], references: [id], onDelete: Cascade)
-  questionResponses QuestionResponse[]
-  ratings           FeedbackRating[]
+  experienceRating   Int?
+  firstImpression    String?
+  globalRating       Int?
+  performanceRating  Int?
+  recommendations    String[]           @default([])
+  strengths          String[]           @default([])
+  uxUiRating         Int?
+  valueRating        Int?
+  weaknesses         String[]           @default([])
+  ratings            FeedbackRating[]
+  roastRequest       RoastRequest       @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
+  roaster            User               @relation(fields: [roasterId], references: [id], onDelete: Cascade)
+  questionResponses  QuestionResponse[]
 
   @@map("feedbacks")
 }
 
 model QuestionResponse {
-  id         String   @id @default(cuid())
+  id         String        @id @default(cuid())
   feedbackId String
   questionId String
   response   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  feedback   Feedback      @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  question   RoastQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([feedbackId, questionId])
   @@map("question_responses")
@@ -250,13 +242,13 @@ model RoastRequestAudience {
 model FeedbackRating {
   id         String   @id @default(cuid())
   feedbackId String
-  domain     String?  // NULL pour note globale (FREE mode)
-  clarity    Int      // 1-5: Clarté du feedback
-  relevance  Int      // 1-5: Pertinence des suggestions
-  depth      Int      // 1-5: Profondeur de l'analyse
-  actionable Int      // 1-5: Caractère actionnable
-  overall    Int      // 1-5: Note globale
-  comment    String?  // Commentaire optionnel
+  domain     String?
+  clarity    Int
+  relevance  Int
+  depth      Int
+  actionable Int
+  overall    Int
+  comment    String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
@@ -265,7 +257,6 @@ model FeedbackRating {
   @@map("feedback_ratings")
 }
 
-// Deprecated - will be removed after migration
 enum FeedbackMode {
   FREE
   TARGETED

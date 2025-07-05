@@ -1,5 +1,40 @@
 # Changelog
 
+## 2025-07-06-00:25
+### Database Relation Fix - QuestionResponse Schema Update
+- **Erreur critique résolue**: "Cannot read properties of undefined (reading 'domain')"
+  - **Cause**: Relation manquante entre `QuestionResponse` et `RoastQuestion` dans Prisma schema
+  - **Solution**: Ajout de la relation `question` dans le modèle `QuestionResponse`
+  - **Migration**: `20250705222452_add_question_response_relation` créée et appliquée
+- **Amélioration des requêtes**: Mise à jour de tous les includes pour charger la relation `question`
+  - `getRoastRequestById()` et `getUserRoastRequests()` dans roast-request.ts
+  - Toutes les actions feedback dans feedback.ts
+  - Queries maintenant cohérentes et complètes
+- **Protection additionnelle**: Ajout de vérifications de sécurité dans `UnifiedFeedbackDisplay`
+  - Check si `qr.question` existe avant d'accéder à ses propriétés
+  - Logs d'avertissement pour débugger les éventuels problèmes futurs
+  - Robustesse accrue du composant
+- **Base de données synchronisée**: Schema et client Prisma mis à jour
+  - Relations bidirectionnelles correctement définies
+  - Types TypeScript générés automatiquement
+  - Cohérence entre modèles de données
+
+## 2025-07-06-00:15
+### Complete Integration - Creator Dashboard Unified (Phase 5 Final)
+- **UnifiedFeedbackDisplay intégré**: Dashboard créateur utilise maintenant le nouveau composant unifié
+  - Remplacement de `FeedbackDisplayV2` par `UnifiedFeedbackDisplay`
+  - Affichage moderne des feedbacks avec cartes expandables et sections organisées
+  - Visualisation intuitive: overview compact + détails en 1 clic
+  - Support complet des nouveaux champs structurés (notes détaillées, recommandations, etc.)
+- **Interface unifiée terminée**: Tous les composants alignés sur le nouveau schéma
+  - Page créateur `/dashboard/roast/[id]` maintenant parfaitement cohérente
+  - Affichage des feedbacks adapté au modèle unifié (structuré + questions optionnelles)
+  - Nettoyage des imports inutilisés pour code plus propre
+- **Migration complète achevée**: Plus aucune référence aux anciens modes FREE/STRUCTURED
+  - Système entièrement unifié de bout en bout
+  - Code simplifié et maintenable
+  - Expérience utilisateur cohérente sur toute l'application
+
 ## 2025-07-06-00:10
 ### Final Update - Roast Detail Pages Unified (Phase 5)
 - **Page créateur mise à jour**: `/dashboard/roast/[id]` maintenant cohérente avec nouveau modèle
