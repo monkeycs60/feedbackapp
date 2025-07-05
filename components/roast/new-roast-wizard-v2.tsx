@@ -37,7 +37,6 @@ const simplifiedRoastSchema = z.object({
 	targetAudienceIds: z.array(z.string()).min(1).max(2),
 	customTargetAudience: z.object({ name: z.string() }).optional(),
 	pricePerRoaster: z.number().min(3).max(50),
-	deadline: z.date().optional(),
 	questions: z.array(z.object({
 		domain: z.string().optional(),
 		text: z.string(),
@@ -489,19 +488,6 @@ function BasicInfoStep({
 					</div>
 				</div>
 
-				{/* Deadline */}
-				<div className='space-y-2'>
-					<Label htmlFor='deadline'>Date limite (optionnel)</Label>
-					<Input
-						id='deadline'
-						type='date'
-						min={new Date().toISOString().split('T')[0]}
-						onChange={(e) => setValue('deadline', e.target.value ? new Date(e.target.value) : undefined)}
-					/>
-					<p className='text-xs text-muted-foreground'>
-						Laissez vide pour une collecte standard de 24h
-					</p>
-				</div>
 			</CardContent>
 		</Card>
 	);

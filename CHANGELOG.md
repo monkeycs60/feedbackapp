@@ -1,5 +1,25 @@
 # Changelog
 
+## 2025-07-05-23:45
+### Complete - Feedback System Simplification & Legacy Cleanup (Phase 4)
+- **Erreur "use server" corrigée**: Migration du schema vers fichier séparé
+  - `structuredFeedbackSchema` déplacé vers `/lib/schemas/feedback.ts`
+  - Suppression des exports non-async du fichier actions
+  - Séparation claire entre schémas de validation et actions serveur
+- **Code legacy nettoyé**: Suppression complète des modes FREE/STRUCTURED
+  - Suppression `feedbackMode` des schémas et actions  
+  - `FeedbackDisplayV2` simplifié: tous les feedbacks traités comme structurés
+  - Suppression de la logique conditionnelle basée sur les modes
+  - Interface unifiée "📋 Feedback structuré" pour tous les feedbacks
+- **Wizard de création simplifié**: Suppression du champ date inutile
+  - Champ "Date limite" retiré de la première étape du wizard v2
+  - Schema `deadline` supprimé (était optionnel et non utilisé)
+  - Interface plus focalisée sur l'essentiel
+- **Stabilité améliorée**: Résolution des erreurs runtime Next.js 15
+  - "use server" files maintenant conformes (async functions only)
+  - Imports et exports bien organisés entre schemas et actions
+  - Code plus robuste et maintenable
+
 ## 2025-07-05-23:20
 ### Implementation Complete - Dashboard & Detail Pages Updated (Phase 3)
 - **Pages de détail mises à jour**: Roast detail pages (créateur et roaster) utilisent maintenant `UnifiedPricingDisplay`

@@ -212,7 +212,6 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
         
         // Keep legacy fields for backward compatibility
         maxPrice: pricePerRoaster * validData.feedbacksRequested,
-        feedbackMode: validData.feedbackMode || 'STRUCTURED',
         basePriceMode: pricePerRoaster,
         freeQuestions: 0,
         questionPrice: 0,

@@ -52,9 +52,6 @@ export const newRoastRequestSchema = z.object({
     order: z.number()
   })).optional(),
   focusAreas: z.array(z.string()).optional(),
-  
-  // Keep for backward compatibility
-  feedbackMode: z.enum(['FREE', 'STRUCTURED'] as const).optional(),
 });
 
 export type RoastRequestFormData = z.infer<typeof roastRequestSchema>;

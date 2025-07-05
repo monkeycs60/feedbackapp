@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
+import { feedbackSubmissionSchema } from "@/lib/schemas/feedback";
 
 /**
  * Helper function to get the current authenticated user
@@ -22,51 +23,15 @@ async function getCurrentUser() {
   return session.user;
 }
 
-// Legacy feedback schema for backward compatibility
-const legacyFeedbackSchema = z.object({
-  roastRequestId: z.string(),
-  questionResponses: z.record(z.string(), z.string().min(10, "Réponse trop courte (min 10 caractères)")),
-  generalFeedback: z.string().min(50, "Feedback général trop court (min 50 caractères)"),
-  screenshots: z.array(z.string()).optional(),
-  finalPrice: z.number().min(1, "Prix minimum de 1€"),
-});
-
-// New structured feedback schema
-const structuredFeedbackSchema = z.object({
-  roastRequestId: z.string(),
-  questionResponses: z.record(z.string(), z.string().min(10, "Réponse trop courte (min 10 caractères)")).optional(),
-  // Global rating
-  globalRating: z.number().min(1, "Note globale requise").max(5, "Note maximum 5"),
-  // Structured feedback fields
-  firstImpression: z.string().min(20, "Première impression trop courte (min 20 caractères)").max(300, "Première impression trop longue (max 300 caractères)"),
-  strengths: z.array(z.string().min(5, "Point fort trop court (min 5 caractères)")).min(2, "Au moins 2 points forts requis").max(5, "Maximum 5 points forts"),
-  weaknesses: z.array(z.string().min(5, "Point faible trop court (min 5 caractères)")).min(1, "Au moins 1 point faible requis").max(5, "Maximum 5 points faibles"),
-  recommendations: z.array(z.string().min(10, "Recommandation trop courte (min 10 caractères)")).min(1, "Au moins 1 recommandation requise").max(3, "Maximum 3 recommandations"),
-  // Detailed ratings
-  uxUiRating: z.number().min(1, "Note UX/UI requise").max(5, "Note maximum 5"),
-  valueRating: z.number().min(1, "Note proposition de valeur requise").max(5, "Note maximum 5"),
-  performanceRating: z.number().min(1, "Note performance requise").max(5, "Note maximum 5"),
-  experienceRating: z.number().min(1, "Note expérience globale requise").max(5, "Note maximum 5"),
-  // Optional fields
-  additionalComments: z.string().optional(),
-  screenshots: z.array(z.string()).optional(),
-  finalPrice: z.number().min(1, "Prix minimum de 1€"),
-});
-
-// Union schema to support both formats
-const feedbackSchema = z.union([
-  legacyFeedbackSchema,
-  structuredFeedbackSchema
-]);
+// Use the feedback submission schema
+const feedbackSchema = feedbackSubmissionSchema;
 
 // Type guards to check which schema is used
-function isStructuredFeedback(data: any): data is z.infer<typeof structuredFeedbackSchema> {
+function isStructuredFeedback(data: any): data is z.infer<typeof feedbackSchema> {
   return 'globalRating' in data && 'firstImpression' in data;
 }
 
 // Export the structured schema for use in components
-export { structuredFeedbackSchema };
-export type StructuredFeedbackData = z.infer<typeof structuredFeedbackSchema>;
 
 
 export async function createFeedback(data: z.infer<typeof feedbackSchema>) {

@@ -23,7 +23,8 @@ import {
   Zap,
   Target
 } from "lucide-react";
-import { createFeedback, structuredFeedbackSchema, type StructuredFeedbackData } from "@/lib/actions/feedback";
+import { createFeedback } from "@/lib/actions/feedback";
+import { structuredFeedbackSchema, type StructuredFeedbackData } from "@/lib/schemas/feedback";
 
 interface StructuredFeedbackFormProps {
   roastRequest: {

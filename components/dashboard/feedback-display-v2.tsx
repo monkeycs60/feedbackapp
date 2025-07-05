@@ -114,12 +114,9 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
     );
   }
 
-  // Déterminer le mode de feedback (FREE ou STRUCTURED)
-  const feedbackMode = feedbacks[0]?.roastRequest?.questions?.length > 0 ? 'STRUCTURED' : 'FREE';
-
-  // Grouper les questions par domaine pour les feedbacks STRUCTURED
+  // Grouper les questions par domaine pour les feedbacks avec questions personnalisées
   const getQuestionsByDomain = (feedback: FeedbackDisplayV2Props['feedbacks'][0]) => {
-    if (!feedback.roastRequest.questions || feedbackMode === 'FREE') return {};
+    if (!feedback.roastRequest.questions) return {};
     
     return feedback.roastRequest.questions.reduce((acc: Record<string, Array<RoastQuestion & { response: string | null }>>, question: RoastQuestion) => {
       if (!acc[question.domain]) {
@@ -248,8 +245,8 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
               </div>
               
               <div className="flex items-center gap-2">
-                <Badge className={`${feedbackMode === 'FREE' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'} text-xs`}>
-                  {feedbackMode === 'FREE' ? '🎯 Impression générale' : '📋 Feedback structuré'}
+                <Badge className="bg-purple-100 text-purple-800 text-xs">
+                  📋 Feedback structuré
                 </Badge>
                 {expandedFeedback === feedback.id ? (
                   <ChevronUp className="h-4 w-4 text-gray-400" />
@@ -277,7 +274,7 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
               <div>
                 <h5 className="font-semibold mb-3 flex items-center gap-2">
                   <FileText className="h-5 w-5 text-blue-600" />
-                  {feedbackMode === 'FREE' ? 'Impression générale' : 'Feedback général'}
+                  Feedback général
                 </h5>
                 <div className="whitespace-pre-wrap text-gray-700 bg-white rounded-lg p-4 border leading-relaxed">
                   {feedback.generalFeedback}
@@ -285,7 +282,7 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
               </div>
 
               {/* Questions par domaine (seulement pour STRUCTURED) */}
-              {feedbackMode === 'STRUCTURED' && (
+              {Object.keys(getQuestionsByDomain(feedback)).length > 0 && (
                 <div className="space-y-6">
                   <h5 className="font-semibold flex items-center gap-2">
                     <MessageSquare className="h-5 w-5 text-purple-600" />
@@ -358,8 +355,8 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                       <p className="text-sm mb-3">Feedback de {feedback.roaster.name || 'ce roaster'}</p>
                       <RatingSystem
                         ref={ratingRef}
-                        mode={feedbackMode}
-                        domains={feedbackMode === 'STRUCTURED' ? Object.keys(getQuestionsByDomain(feedback)) : undefined}
+                        mode="STRUCTURED"
+                        domains={Object.keys(getQuestionsByDomain(feedback))}
                         onRatingChange={() => {
                           // Optional: handle real-time changes
                         }}
@@ -391,7 +388,7 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                       <p className="text-sm mb-3 font-medium">Votre évaluation du feedback de {feedback.roaster.name || 'ce roaster'}</p>
                       {ratings.map((rating: any, index: number) => (
                         <div key={index} className="space-y-2 mb-3">
-                          {feedbackMode === 'STRUCTURED' && rating.domain && (
+                          {rating.domain && (
                             <div className="text-sm font-medium text-gray-700">{rating.domain}</div>
                           )}
                           <div className="flex items-center gap-2">
