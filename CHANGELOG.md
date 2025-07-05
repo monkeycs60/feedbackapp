@@ -1,5 +1,21 @@
 # Changelog
 
+## 2025-07-06-00:30
+### Final Update - Dashboard Feedback Preview Unified
+- **FeedbacksList mis à jour**: Dashboard principal maintenant cohérent avec nouveau modèle
+  - Remplacement de `generalFeedback` par `firstImpression` dans preview
+  - Affichage de la note globale avec étoiles pour aperçu visuel
+  - Badge "📋 Structuré" ajouté pour cohérence avec nouvelle interface
+  - Fallback vers `generalFeedback` pour compatibilité legacy
+- **Interface types mise à jour**: `CreatorDashboardContent` et `FeedbacksList` adaptés
+  - Support complet des nouveaux champs structurés (globalRating, firstImpression, etc.)
+  - Récupération des domaines via la nouvelle relation `question`
+  - Types TypeScript alignés sur le modèle unifié final
+- **Preview améliorée**: Meilleure représentation du feedback dans la liste
+  - Note globale visible immédiatement (étoiles + score)
+  - Première impression comme texte d'aperçu au lieu du feedback général
+  - Indicateurs visuels cohérents avec le reste de l'application
+
 ## 2025-07-06-00:25
 ### Database Relation Fix - QuestionResponse Schema Update
 - **Erreur critique résolue**: "Cannot read properties of undefined (reading 'domain')"

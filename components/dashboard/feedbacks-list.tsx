@@ -31,7 +31,14 @@ interface FeedbacksListProps {
 				rating: number;
 			} | null;
 		};
-		generalFeedback: string;
+		// Legacy field
+		generalFeedback?: string | null;
+		// New unified feedback fields  
+		globalRating?: number | null;
+		firstImpression?: string | null;
+		strengths: string[];
+		weaknesses: string[];
+		recommendations: string[];
 		finalPrice: number | null;
 		createdAt: Date;
 		roastRequest: {
@@ -51,6 +58,9 @@ interface FeedbacksListProps {
 			questionId: string;
 			response: string;
 			createdAt: Date;
+			question?: {
+				domain: string;
+			};
 		}>;
 	}>;
 }
@@ -103,21 +113,16 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
 					const status =
 						statusConfig[feedback.status as keyof typeof statusConfig] ||
 						statusConfig.pending;
-					const domains =
-						feedback.questionResponses && feedback.roastRequest.questions
-							? [
-									...new Set(
-										feedback.questionResponses
-											.map(
-												(qr) =>
-													feedback.roastRequest.questions?.find(
-														(q) => q.id === qr.questionId
-													)?.domain
-											)
-											.filter(Boolean)
-									),
-							  ]
-							: [];
+					// Get domains from question responses using the new relation
+					const domains = feedback.questionResponses
+						? [
+								...new Set(
+									feedback.questionResponses
+										.map((qr) => qr.question?.domain)
+										.filter(Boolean)
+								),
+						  ]
+						: [];
 
 					return (
 						<Card
@@ -132,11 +137,14 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
 								</div>
 
 								{/* Status badge */}
-								<div className=''>
+								<div className='flex gap-1'>
 									<Badge
 										className={`border ${status.color} text-xs flex items-center gap-1`}>
 										{status.icon}
 										{status.label}
+									</Badge>
+									<Badge variant="secondary" className="text-xs">
+										📋 Structuré
 									</Badge>
 								</div>
 							</div>
@@ -184,10 +192,31 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
 									)}
 								</div>
 
-								{/* General feedback preview */}
-								<p className='text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]'>
-									{feedback.generalFeedback}
-								</p>
+								{/* Feedback preview - use new structured format */}
+								<div className='space-y-2'>
+									{feedback.globalRating && (
+										<div className='flex items-center gap-1'>
+											<div className='flex'>
+												{Array.from({ length: 5 }, (_, i) => (
+													<Star
+														key={i}
+														className={`w-3 h-3 ${
+															i < feedback.globalRating!
+																? 'text-yellow-400 fill-current'
+																: 'text-gray-300'
+														}`}
+													/>
+												))}
+											</div>
+											<span className='text-xs text-muted-foreground'>
+												{feedback.globalRating}/5
+											</span>
+										</div>
+									)}
+									<p className='text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]'>
+										{feedback.firstImpression || feedback.generalFeedback || "Aucun aperçu disponible"}
+									</p>
+								</div>
 
 								{/* Domains covered */}
 								<div className='h-6'>

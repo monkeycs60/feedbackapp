@@ -24,15 +24,32 @@ interface CreatorDashboardContentProps {
           rating: number;
         } | null;
       };
-      firstImpression: string;
-      strengthsFound: string[];
-      weaknessesFound: string[];
-      actionableSteps: string[];
-      competitorComparison: string | null;
+      // Legacy field for backward compatibility
+      generalFeedback?: string | null;
+      // New unified feedback fields
+      globalRating?: number | null;
+      firstImpression?: string | null;
+      strengths: string[];
+      weaknesses: string[];
+      recommendations: string[];
       finalPrice: number | null;
       createdAt: Date;
+      questionResponses: Array<{
+        id: string;
+        questionId: string;
+        response: string;
+        question?: {
+          domain: string;
+        };
+      }>;
     }>;
     applications: Array<{ id: string; status: string }>;
+    questions?: Array<{
+      id: string;
+      domain: string;
+      text: string;
+      order: number;
+    }>;
   }>;
 }
 
