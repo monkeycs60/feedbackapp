@@ -1,5 +1,35 @@
 # Changelog
 
+## 2025-07-06-00:40
+### Perfect UX - First Impression Expansion Fix
+- **Expansion indépendante**: Logique séparée pour l'expansion des premières impressions
+  - État `expandedImpressions` distinct de l'expansion générale du feedback
+  - Bouton "Voir plus..." / "Voir moins" fonctionne même quand le feedback n'est pas déplié
+  - Gestion granulaire de l'affichage du texte de première impression
+- **Interaction intuitive**: Contrôles distincts pour différents niveaux de détail
+  - Chevron dans header pour expansion complète du feedback
+  - "Voir plus/moins" dans première impression pour cette section uniquement
+  - Pas d'interférence entre les deux systèmes d'expansion
+- **State management optimisé**: Utilisation de Set pour gérer les impressions expandées
+  - Performance améliorée avec des opérations Set optimisées
+  - Gestion propre de l'ajout/suppression d'éléments expandés
+
+## 2025-07-06-00:35
+### UX Enhancement - Feedback Preview & Navigation
+- **Preview améliorée**: Meilleure gestion de la première impression dans les détails
+  - Limitation à 3 lignes avec bouton "Voir plus..." si le texte dépasse 150 caractères
+  - Expansion automatique du feedback quand on clique sur "Voir plus"
+  - Meilleure lisibilité et expérience utilisateur dans les cartes de feedback
+- **Navigation intelligente**: Auto-scroll et ouverture automatique depuis la liste
+  - Détection du hash URL `#feedback-{id}` pour navigation directe
+  - Scroll automatique et expansion du feedback ciblé
+  - UX fluide depuis "Feedbacks reçus" vers la page de détail
+  - Fonction `scrollIntoView` avec animation smooth pour UX moderne
+- **Robustesse**: Gestion des cas d'erreur et vérifications
+  - Vérification de l'existence du feedback avant expansion
+  - Délai pour s'assurer que le DOM est prêt avant scroll
+  - ID uniques `feedback-{id}` ajoutés aux cartes pour navigation précise
+
 ## 2025-07-06-00:30
 ### Final Update - Dashboard Feedback Preview Unified
 - **FeedbacksList mis à jour**: Dashboard principal maintenant cohérent avec nouveau modèle

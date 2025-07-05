@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -112,6 +112,45 @@ const FeedbackSection = ({ title, items, icon }: {
 
 export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProps) {
   const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
+  const [expandedImpressions, setExpandedImpressions] = useState<Set<string>>(new Set());
+
+  // Toggle impression expansion
+  const toggleImpression = (feedbackId: string) => {
+    setExpandedImpressions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(feedbackId)) {
+        newSet.delete(feedbackId);
+      } else {
+        newSet.add(feedbackId);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle URL hash to auto-scroll and expand feedback
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith('#feedback-')) {
+      const feedbackId = hash.replace('#feedback-', '');
+      const feedbackExists = feedbacks.find(f => f.id === feedbackId);
+      
+      if (feedbackExists) {
+        // Expand the feedback
+        setExpandedFeedback(feedbackId);
+        
+        // Scroll to the feedback after a short delay to ensure DOM is ready
+        setTimeout(() => {
+          const element = document.getElementById(`feedback-${feedbackId}`);
+          if (element) {
+            element.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }
+        }, 100);
+      }
+    }
+  }, [feedbacks]);
 
   if (feedbacks.length === 0) {
     return (
@@ -143,7 +182,11 @@ export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProp
         }, {} as Record<string, typeof feedback.questionResponses>);
 
         return (
-          <Card key={feedback.id} className="hover:shadow-md transition-shadow">
+          <Card 
+            key={feedback.id} 
+            id={`feedback-${feedback.id}`}
+            className="hover:shadow-md transition-shadow"
+          >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
@@ -223,9 +266,27 @@ export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProp
                 {feedback.firstImpression && (
                   <div>
                     <h5 className="text-sm font-medium mb-2">Première impression</h5>
-                    <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
-                      {feedback.firstImpression}
-                    </p>
+                    <div className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
+                      <p className={`${!expandedImpressions.has(feedback.id) ? 'line-clamp-3' : ''}`}>
+                        {feedback.firstImpression}
+                      </p>
+                      {!expandedImpressions.has(feedback.id) && feedback.firstImpression.length > 150 && (
+                        <button
+                          onClick={() => toggleImpression(feedback.id)}
+                          className="text-blue-600 hover:text-blue-800 text-sm mt-2 font-medium"
+                        >
+                          Voir plus...
+                        </button>
+                      )}
+                      {expandedImpressions.has(feedback.id) && feedback.firstImpression.length > 150 && (
+                        <button
+                          onClick={() => toggleImpression(feedback.id)}
+                          className="text-blue-600 hover:text-blue-800 text-sm mt-2 font-medium"
+                        >
+                          Voir moins
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
