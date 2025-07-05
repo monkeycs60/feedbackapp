@@ -170,20 +170,14 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
 
     const validData = validation.data;
 
-    // Validate question count for the selected mode
+    // Simple validation for new model
     const questionCount = validData.questions?.length || 0;
-    const questionValidation = validateQuestionCount(validData.feedbackMode, questionCount);
+    const pricePerRoaster = validData.pricePerRoaster || 3;
     
-    if (!questionValidation.isValid) {
-      throw new Error(questionValidation.error);
+    // Validate price range
+    if (pricePerRoaster < 3 || pricePerRoaster > 50) {
+      throw new Error("Le prix par roaster doit être entre 3€ et 50€");
     }
-
-    // Calculate pricing
-    const pricingCalculation = calculateRoastPricing(
-      validData.feedbackMode,
-      questionCount,
-      validData.feedbacksRequested
-    );
 
     // Handle custom target audience creation
     let customAudienceId = null;
@@ -206,18 +200,22 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
         appUrl: validData.appUrl,
         description: validData.description,
         focusAreas: validData.focusAreas || [],
-        maxPrice: pricingCalculation.totalPrice,
         deadline: validData.deadline,
-        status: validData.isUrgent ? 'collecting_applications' : 'open',
+        status: 'collecting_applications',
         feedbacksRequested: validData.feedbacksRequested,
         category: validData.category,
         coverImage: validData.coverImage,
         
-        // New feedback mode fields
-        feedbackMode: validData.feedbackMode,
-        basePriceMode: pricingCalculation.basePrice,
-        freeQuestions: pricingCalculation.freeQuestions,
-        questionPrice: pricingCalculation.questionPrice,
+        // New simplified pricing model
+        pricePerRoaster: pricePerRoaster,
+        useStructuredForm: true,
+        
+        // Keep legacy fields for backward compatibility
+        maxPrice: pricePerRoaster * validData.feedbacksRequested,
+        feedbackMode: validData.feedbackMode || 'STRUCTURED',
+        basePriceMode: pricePerRoaster,
+        freeQuestions: 0,
+        questionPrice: 0,
         
         // Create target audience relationships
         targetAudiences: {

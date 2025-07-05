@@ -1,5 +1,5 @@
 import { requireOnboardingComplete } from '@/lib/auth-guards';
-import { NewRoastWizard } from '@/components/roast/new-roast-wizard';
+import { NewRoastWizardV2 } from '@/components/roast/new-roast-wizard-v2';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { prisma } from '@/lib/prisma';
 
@@ -24,7 +24,7 @@ export default async function NewRoastPage() {
   return (
     <DashboardLayout>
       <div className="min-h-screen py-8">
-        <NewRoastWizard targetAudiences={targetAudiences} />
+        <NewRoastWizardV2 targetAudiences={targetAudiences} />
       </div>
     </DashboardLayout>
   );

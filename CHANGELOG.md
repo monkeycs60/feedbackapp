@@ -1,5 +1,75 @@
 # Changelog
 
+## 2025-01-26-21:00
+### Major Implementation - Feedback System Simplification (Phase 2)
+- **Formulaire de feedback unifié créé**: `UnifiedFeedbackForm` remplace les anciens formulaires
+  - Combine automatiquement feedback structuré + questions personnalisées optionnelles
+  - Feedback structuré de base toujours inclus (notes, impressions, forces/faiblesses, recommandations)
+  - Questions personnalisées affichées par domaines si présentes
+  - Interface moderne avec étoiles, champs multi-valeurs, validation robuste
+- **Bug wizard corrigé**: Validation automatique à l'étape 3 (tarification)
+  - Ajout mécanisme de confirmation explicite pour éviter soumission accidentelle
+  - L'utilisateur doit maintenant cliquer 2 fois pour confirmer la création
+  - Validation prix 3-50€ ajoutée pour empêcher navigation invalide
+- **Formulaire principal simplifié**: `RoastFeedbackForm` devient un simple wrapper
+  - Plus de logique complexe de modes FREE/STRUCTURED
+  - Délégation complète au formulaire unifié
+  - Interfaces TypeScript mises à jour pour nouveau modèle
+- **Compatibilité maintenue**: Support des anciens feedbacks existants
+  - Transformation automatique des données legacy vers nouveau format
+  - Fallback vers champs par défaut si données manquantes
+  - Pas de perte de données pendant la migration
+
+## 2025-01-26-20:00
+### Major Implementation - Feedback System Simplification (Phase 1)
+- **Migration base de données réalisée**: Nouveau schéma avec `pricePerRoaster` et `useStructuredForm`
+  - Ajout des nouveaux champs: `pricePerRoaster` (3-50€), `useStructuredForm`
+  - Migration automatique des données existantes vers nouveau modèle
+  - Conservation des champs legacy pour compatibilité ascendante
+- **Nouveau wizard de création simplifié**:
+  - **NewRoastWizardV2**: Wizard en 3 étapes au lieu de 4
+  - Étape 1: Informations de base (titre, URL, description, audience, nombre roasters)
+  - Étape 2: Configuration feedback optionnelle (questions personnalisées)
+  - Étape 3: Tarification libre (3-50€ par roaster avec indicateurs de marché)
+- **Actions serveur mises à jour**:
+  - `createNewRoastRequest()` adapté pour nouveau modèle de pricing
+  - Validation simplifiée: plus de calculs complexes par question
+  - Suppression complète de l'option urgence
+- **Schémas Zod simplifiés**:
+  - `newRoastRequestSchema` avec pricing unifié
+  - Validation 3-50€ par roaster
+  - Questions optionnelles sans contraintes de domaines
+- **Marketplace partiellement mise à jour**:
+  - `available-roasts-list.tsx` adapté pour afficher `pricePerRoaster`
+  - Fallback vers calculs legacy pour compatibilité
+  - Badges mis à jour (suppression modes, ajout nombre questions)
+
+## 2025-01-26-18:00
+### Major Refactoring Plan - Feedback System Simplification
+- **Plan de simplification majeur**: Fusion des modes FREE et STRUCTURED en un seul mode CUSTOM
+- **Nouveau modèle de feedback unifié**:
+  - Formulaire structuré de base toujours inclus (notes, forces/faiblesses, recommandations)
+  - Questions personnalisées optionnelles (0 à illimité) organisées par domaines
+  - Suppression du choix de mode qui créait de la confusion
+- **Nouveau système de tarification libre**:
+  - Le créateur fixe son prix par roaster (minimum 3€)
+  - Suppression des calculs complexes par question
+  - Auto-régulation par le marché selon la complexité et la valeur
+  - Suppression complète de l'option urgence
+- **Simplification du wizard de création**:
+  - Réduction à 3 étapes au lieu de 4 actuelles
+  - Étape 1: Informations de base + sélection audience
+  - Étape 2: Configuration feedback (questions optionnelles)
+  - Étape 3: Tarification simple avec indicateurs de marché
+- **Impact technique majeur**:
+  - Mise à jour de 40+ composants et pages
+  - Migration de base de données pour nouveau modèle
+  - Refactoring complet des formulaires et affichages
+  - Nettoyage du code legacy (modes, urgence, anciens calculs)
+- **Documents créés**:
+  - PRD/feedback-simplification-strategy.md - Stratégie complète
+  - PRD/implementation-plan.md - Plan d'implémentation détaillé
+
 ## 2025-06-25-11:55
 ### UX Enhancement - Simplified Feedback Display & Bug Fixes
 - **Fixed application status bug**: Roasters who completed feedback were incorrectly shown as "en cours"

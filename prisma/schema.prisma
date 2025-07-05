@@ -114,7 +114,6 @@ model RoastRequest {
   appUrl             String
   description        String
   focusAreas         String[]
-  maxPrice           Float
   deadline           DateTime?
   status             String                 @default("open")
   createdAt          DateTime               @default(now())
@@ -122,10 +121,21 @@ model RoastRequest {
   coverImage         String?
   feedbacksRequested Int                    @default(1)
   category           String?
-  basePriceMode      Float                  @default(2.00)
-  feedbackMode       FeedbackMode           @default(STRUCTURED)
-  freeQuestions      Int                    @default(2)
-  questionPrice      Float                  @default(0.20)
+  
+  // New pricing model
+  pricePerRoaster    Float                  @default(3.0)
+  
+  // Keep for structured feedback
+  useStructuredForm  Boolean                @default(true)
+  
+  // Remove after migration
+  maxPrice           Float? // deprecated
+  basePriceMode      Float? // deprecated
+  feedbackMode       FeedbackMode?         // deprecated
+  freeQuestions      Int?                  // deprecated
+  questionPrice      Float?                // deprecated
+  isUrgent           Boolean               @default(false) // deprecated
+  
   feedbacks          Feedback[]
   applications       RoastApplication[]
   questions          RoastQuestion[]
@@ -255,6 +265,7 @@ model FeedbackRating {
   @@map("feedback_ratings")
 }
 
+// Deprecated - will be removed after migration
 enum FeedbackMode {
   FREE
   TARGETED

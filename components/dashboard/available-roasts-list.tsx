@@ -26,7 +26,10 @@ type AvailableRoast = {
 	deadline?: Date | null;
 	createdAt: Date;
 	coverImage?: string | null;
-	// New feedback mode fields
+	// New simplified pricing model
+	pricePerRoaster?: number | null;
+	useStructuredForm?: boolean | null;
+	// Legacy fields (deprecated)
 	feedbackMode?: FeedbackMode | null;
 	basePriceMode?: number | null;
 	freeQuestions?: number | null;
@@ -146,7 +149,8 @@ export function AvailableRoastsList({
 						app => app.status === 'accepted' || app.status === 'auto_selected'
 					).length;
 					const spotsLeft = roast.feedbacksRequested - acceptedApplications;
-					const pricePerRoast = Math.round(
+					// Use new pricing model if available, fallback to legacy calculation
+					const pricePerRoast = roast.pricePerRoaster || Math.round(
 						roast.maxPrice / roast.feedbacksRequested
 					);
 
@@ -191,11 +195,11 @@ export function AvailableRoastsList({
 									</div>
 								</div>
 
-								{/* Feedback mode badge */}
-								{roast.feedbackMode && FEEDBACK_MODES[roast.feedbackMode] && (
+								{/* Questions count badge for new model */}
+								{roast.focusAreas && roast.focusAreas.length > 0 && (
 									<div className='absolute top-3 right-3'>
-										<div className='px-2 py-1 rounded text-xs font-medium bg-blue-500/80 text-white backdrop-blur-sm'>
-											{FEEDBACK_MODES[roast.feedbackMode].icon} {FEEDBACK_MODES[roast.feedbackMode].label}
+										<div className='px-2 py-1 rounded text-xs font-medium bg-green-500/80 text-white backdrop-blur-sm'>
+											💬 {roast.focusAreas.length} question{roast.focusAreas.length > 1 ? 's' : ''}
 										</div>
 									</div>
 								)}

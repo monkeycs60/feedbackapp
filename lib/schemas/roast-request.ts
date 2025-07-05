@@ -28,51 +28,33 @@ export const roastRequestSchema = z.object({
   })).optional()
 });
 
-// New schema for the new feedback mode system
+// Simplified schema for the unified feedback system
 export const newRoastRequestSchema = z.object({
-  title: z.string().min(10, "Le titre doit faire au moins 10 caractères").max(100),
+  title: z.string().min(3, "Le titre doit faire au moins 3 caractères").max(100),
   appUrl: z.string().url("URL invalide"),
-  description: z.string().min(50, "La description doit faire au moins 50 caractères").max(1000),
+  description: z.string().min(20, "La description doit faire au moins 20 caractères").max(1000),
   targetAudienceIds: z.array(z.string()).min(1, "Sélectionne au moins une audience cible").max(2, "Maximum 2 audiences cibles"),
   customTargetAudience: z.object({
     name: z.string()
   }).optional(),
-  category: z.enum(['SaaS', 'Mobile', 'E-commerce', 'Landing', 'MVP', 'Autre']).optional(),
-  feedbacksRequested: z.number().min(1, "Au moins 1 feedback").max(20, "Maximum 20 feedbacks"),
+  category: z.string(),
+  feedbacksRequested: z.number().min(1, "Au moins 1 feedback").max(10, "Maximum 10 feedbacks"),
   deadline: z.date().optional(),
-  isUrgent: z.boolean().default(false),
-  additionalContext: z.string().max(500).optional(),
   coverImage: z.string().optional(),
   
-  // New feedback mode system
-  feedbackMode: z.enum(['FREE', 'STRUCTURED'] as const),
-  focusAreas: z.array(z.string()).optional(), // Optional, only for STRUCTURED mode
+  // New unified pricing model
+  pricePerRoaster: z.number().min(3, "Prix minimum 3€").max(50, "Prix maximum 50€"),
+  
+  // Optional custom questions
   questions: z.array(z.object({
     domain: z.string().optional(),
     text: z.string().min(5, "Question trop courte"),
     order: z.number()
   })).optional(),
-}).refine((data) => {
-  // Validation rules based on feedback mode
-  if (data.feedbackMode === 'STRUCTURED') {
-    // Check that at least one domain is selected
-    if (!data.focusAreas || data.focusAreas.length === 0) {
-      return false;
-    }
-    
-    // Check that at least one question exists for STRUCTURED mode
-    if (!data.questions || data.questions.length === 0) {
-      return false;
-    }
-  }
+  focusAreas: z.array(z.string()).optional(),
   
-  if (data.feedbackMode === 'FREE' && data.questions && data.questions.length > 0) {
-    return false;
-  }
-  
-  return true;
-}, {
-  message: "Configuration invalide pour le mode de feedback sélectionné. Le mode structuré nécessite au moins un domaine et une question."
+  // Keep for backward compatibility
+  feedbackMode: z.enum(['FREE', 'STRUCTURED'] as const).optional(),
 });
 
 export type RoastRequestFormData = z.infer<typeof roastRequestSchema>;
