@@ -24,6 +24,7 @@ interface RoastRequestsListProps {
 		description: string;
 		status: string;
 		maxPrice: number;
+		pricePerRoaster?: number | null;
 		feedbacksRequested: number;
 		createdAt: Date;
 		focusAreas: string[];
@@ -126,7 +127,8 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 						statusConfig[request.status as keyof typeof statusConfig];
 					const feedbackProgress =
 						(request._count.feedbacks / request.feedbacksRequested) * 100;
-					const pricePerFeedback = Math.round(
+					// Use new pricing model if available, fallback to legacy calculation
+					const pricePerFeedback = request.pricePerRoaster || Math.round(
 						request.maxPrice / request.feedbacksRequested
 					);
 
@@ -245,7 +247,7 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 											{pricePerFeedback}€
 											<span className='text-xs text-muted-foreground font-normal'>
 												{' '}
-												/feedback
+												/roaster
 											</span>
 										</div>
 

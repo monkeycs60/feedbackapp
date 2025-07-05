@@ -34,6 +34,7 @@ interface RoastApplicationFormProps {
 		id: string;
 		title: string;
 		maxPrice: number;
+		pricePerRoaster?: number | null;
 		feedbacksRequested: number;
 		focusAreas: string[];
 		status: string;
@@ -51,13 +52,10 @@ export function RoastApplicationForm({
 	const [error, setError] = useState<string | null>(null);
 	const [applied, setApplied] = useState(hasApplied);
 
-	const calculatePricePerFeedback = () => {
-		const totalPrice = roastRequest.maxPrice;
-		const domainsPrice = totalPrice / roastRequest.feedbacksRequested;
-		return domainsPrice;
-	};
-
-	const pricePerFeedback = calculatePricePerFeedback();
+	// Use new pricing model if available, fallback to legacy calculation
+	const pricePerFeedback = roastRequest.pricePerRoaster || Math.round(
+		roastRequest.maxPrice / roastRequest.feedbacksRequested
+	);
 	
 	// Calculate remaining spots based on accepted applications
 	const acceptedApplications = roastRequest.applications.filter(
@@ -181,7 +179,7 @@ export function RoastApplicationForm({
 					<Badge
 						variant='outline'
 						className='bg-green-50 text-green-700 border-green-200'>
-						~{pricePerFeedback}€ par feedback
+						{pricePerFeedback}€/roaster
 					</Badge>
 					<Badge 
 						variant={spotsRemaining > 0 ? 'secondary' : 'destructive'}

@@ -31,6 +31,7 @@ import {
 	FOCUS_AREAS,
 	APP_CATEGORIES,
 } from '@/lib/types/roast-request';
+import { UnifiedPricingDisplay } from '@/components/roast/unified-pricing-display';
 
 interface RoastPageProps {
 	params: Promise<{
@@ -185,27 +186,13 @@ export default async function RoastPage({ params }: RoastPageProps) {
 						)}
 					</div>
 
-					<div className='flex items-center gap-2 text-lg'>
-						<Euro className='w-5 h-5 text-green-600' />
-						<span className='font-bold text-green-600 text-xl'>
-							{roastRequest.maxPrice}€ total
-						</span>
-						<span className='text-gray-500 text-sm'>
-							• {roastRequest.feedbacksRequested} feedback
-							{roastRequest.feedbacksRequested > 1 ? 's' : ''} demandé
-							{roastRequest.feedbacksRequested > 1 ? 's' : ''}
-						</span>
-						{roastRequest.feedbackMode && (
-							<span className='text-gray-400 text-sm ml-2'>
-								({FEEDBACK_MODES[roastRequest.feedbackMode]?.basePrice}€
-								base
-								{roastRequest.feedbackMode === 'STRUCTURED' &&
-									roastRequest.questionPrice &&
-									roastRequest.questionPrice > 0 &&
-									` + ${roastRequest.questionPrice}€/question`}
-								)
-							</span>
-						)}
+					<div className='flex items-center gap-2'>
+						<UnifiedPricingDisplay
+							pricePerRoaster={roastRequest.pricePerRoaster || Math.round(roastRequest.maxPrice / roastRequest.feedbacksRequested)}
+							roasterCount={roastRequest.feedbacksRequested}
+							questionCount={roastRequest.questions?.length || 0}
+							compact={true}
+						/>
 					</div>
 				</div>
 

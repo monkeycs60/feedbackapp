@@ -1,5 +1,24 @@
 # Changelog
 
+## 2025-07-05-23:20
+### Implementation Complete - Dashboard & Detail Pages Updated (Phase 3)
+- **Pages de détail mises à jour**: Roast detail pages (créateur et roaster) utilisent maintenant `UnifiedPricingDisplay`
+  - Page créateur (`/dashboard/roast/[id]`): Affichage unifié du prix par roaster avec total
+  - Page roaster (`/roast/[id]`): Pricing compact dans header avec fallback legacy
+  - Application form: Badge prix mis à jour "€/roaster" au lieu de "€ par feedback"
+- **Composant UnifiedPricingDisplay**: Component de tarification moderne créé
+  - Mode compact pour headers et affichages inline
+  - Mode complet avec breakdown détaillé des coûts
+  - Support questions personnalisées avec indicateur "incluses"
+  - Fallback automatique vers calculs legacy pour compatibilité
+- **Cohérence interface**: Tous les affichages utilisent maintenant le nouveau modèle de pricing
+  - `pricePerRoaster` comme source de vérité avec fallback `maxPrice/feedbacksRequested`
+  - Terminologie unifiée "/roaster" remplace "/feedback"
+  - Badges et indicateurs adaptés au nouveau modèle de tarification libre
+- **Nettoyage imports**: Suppression des imports inutilisés dans les pages modifiées
+  - Lint warnings réduites pour les fichiers principaux
+  - Code plus maintenable et lisible
+
 ## 2025-01-26-21:00
 ### Major Implementation - Feedback System Simplification (Phase 2)
 - **Formulaire de feedback unifié créé**: `UnifiedFeedbackForm` remplace les anciens formulaires

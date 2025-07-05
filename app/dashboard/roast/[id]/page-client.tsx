@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,8 +11,7 @@ import {
   Users, 
   MessageSquare, 
   ChevronLeft, 
-  CheckCircle2, 
-  Circle, 
+  CheckCircle2,
   Clock,
   Star,
   AlertCircle,
@@ -26,13 +25,13 @@ import { FeedbackDisplayV2 } from '@/components/dashboard/feedback-display-v2';
 import { FOCUS_AREAS, APP_CATEGORIES } from '@/lib/types/roast-request';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { acceptApplication, rejectApplication } from '@/lib/actions/roast-application';
+import { UnifiedPricingDisplay } from '@/components/roast/unified-pricing-display';
 
 interface RoastDetailPageClientProps {
   roastRequest: any; // Type this properly based on your data structure
 }
 
 export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientProps) {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [processingApplication, setProcessingApplication] = useState<string | null>(null);
 
@@ -157,8 +156,13 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
           </div>
           
           <div className="text-right">
-            <div className="text-2xl font-bold text-primary">{roastRequest.maxPrice}€</div>
-            <div className="text-sm text-muted-foreground">Budget total</div>
+            <UnifiedPricingDisplay
+              pricePerRoaster={roastRequest.pricePerRoaster || Math.round(roastRequest.maxPrice / roastRequest.feedbacksRequested)}
+              roasterCount={roastRequest.feedbacksRequested}
+              questionCount={roastRequest.questions?.length || 0}
+              compact={true}
+              className="justify-end"
+            />
           </div>
         </div>
         
