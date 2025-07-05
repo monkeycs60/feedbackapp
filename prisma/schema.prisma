@@ -177,7 +177,20 @@ model Feedback {
   status            String             @default("pending")
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
-  generalFeedback   String
+  // Legacy field - kept for backward compatibility
+  generalFeedback   String?
+  // New structured feedback fields
+  globalRating      Int?               // 1-5 stars overall rating
+  firstImpression   String?
+  strengths         String[]           @default([])
+  weaknesses        String[]           @default([])
+  recommendations   String[]           @default([])
+  // Detailed ratings
+  uxUiRating        Int?               // 1-5: UX/UI Design, ergonomie et facilité d'utilisation
+  valueRating       Int?               // 1-5: Proposition de valeur - Utilité, pertinence et réponse au besoin
+  performanceRating Int?               // 1-5: Performance & Fiabilité - Rapidité, stabilité et absence de bugs
+  experienceRating  Int?               // 1-5: Expérience globale - Satisfaction générale et recommandation
+  additionalComments String?
   roastRequest      RoastRequest       @relation(fields: [roastRequestId], references: [id], onDelete: Cascade)
   roaster           User               @relation(fields: [roasterId], references: [id], onDelete: Cascade)
   questionResponses QuestionResponse[]

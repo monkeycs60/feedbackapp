@@ -14,6 +14,7 @@ import { AlertCircle, Star, MessageSquare, Euro, CheckCircle } from "lucide-reac
 import { createFeedback } from "@/lib/actions/feedback";
 import { PRICING, FEEDBACK_MODES, type FeedbackMode } from "@/lib/types/roast-request";
 import { RoastRating } from "@/components/feedback/roast-rating";
+import { StructuredFeedbackForm } from "@/components/feedback/structured-feedback-form";
 
 // Schéma de validation adaptatif selon le mode
 const createFeedbackSchema = (feedbackMode?: FeedbackMode | null) => {
@@ -80,12 +81,17 @@ export function RoastFeedbackForm({ roastRequest, existingFeedback }: RoastFeedb
   
   const isCompleted = existingFeedback?.status === 'completed';
 
-  // Fonction pour récupérer la réponse à une question spécifique
-  const getQuestionResponse = (questionId: string): string => {
-    if (!existingFeedback?.questionResponses) return '';
-    const response = existingFeedback.questionResponses.find(qr => qr.questionId === questionId);
-    return response?.response || '';
-  };
+  // Initialize form and calculations at top level
+  const feedbackMode = roastRequest.feedbackMode || 'STRUCTURED';
+  const feedbackSchema = createFeedbackSchema(feedbackMode);
+  
+  const form = useForm<FeedbackFormData>({
+    resolver: zodResolver(feedbackSchema),
+    defaultValues: {
+      questionResponses: {},
+      generalFeedback: "",
+    }
+  });
 
   // Calculer le prix automatiquement basé sur le nouveau modèle
   const calculatePrice = () => {
@@ -105,16 +111,44 @@ export function RoastFeedbackForm({ roastRequest, existingFeedback }: RoastFeedb
   };
 
   const finalPrice = calculatePrice();
-  const feedbackMode = roastRequest.feedbackMode || 'STRUCTURED';
-  const feedbackSchema = createFeedbackSchema(feedbackMode);
 
-  const form = useForm<FeedbackFormData>({
-    resolver: zodResolver(feedbackSchema),
-    defaultValues: {
-      questionResponses: {},
-      generalFeedback: "",
-    }
-  });
+  // Use the new structured feedback form for FREE mode
+  if (roastRequest.feedbackMode === 'FREE') {
+    // Transform the existing feedback to match the structured format if needed
+    const structuredExistingFeedback = existingFeedback ? {
+      id: existingFeedback.id,
+      globalRating: 4, // Default value since legacy doesn't have this
+      firstImpression: existingFeedback.generalFeedback?.substring(0, 300) || "",
+      strengths: ["Point fort 1"], // Default values since legacy doesn't have this
+      weaknesses: ["Point faible 1"],
+      recommendations: ["Recommandation 1"],
+      uxUiRating: 4,
+      valueRating: 4,
+      performanceRating: 4,
+      experienceRating: 4,
+      additionalComments: existingFeedback.generalFeedback,
+      finalPrice: existingFeedback.finalPrice || finalPrice,
+      status: existingFeedback.status,
+      createdAt: existingFeedback.createdAt,
+    } : null;
+
+    return (
+      <StructuredFeedbackForm
+        roastRequest={{
+          ...roastRequest,
+          basePriceMode: finalPrice
+        }}
+        existingFeedback={structuredExistingFeedback}
+      />
+    );
+  }
+
+  // Fonction pour récupérer la réponse à une question spécifique
+  const getQuestionResponse = (questionId: string): string => {
+    if (!existingFeedback?.questionResponses) return '';
+    const response = existingFeedback.questionResponses.find(qr => qr.questionId === questionId);
+    return response?.response || '';
+  };
 
   const questionResponses = form.watch("questionResponses") || {};
   const generalFeedback = form.watch("generalFeedback") || "";
