@@ -48,6 +48,8 @@ npx prisma studio    # Open Prisma Studio GUI
 
 ## Code Guidelines - ALWAYS FOLLOW THESE GUIDELINES WHEN WRITING CODE
 
+-  Never write comments in the code - unless you're handling a complex edge case.
+
 - Always try to use this pattern when I ask you to write code:
    => Write documentation first: where does it takes place in the changelog history (what has been made before), what is required, what are the cases of the scenario, what are the expected results, what are the edge cases, etc. Consider a lot of attention to the edge cases.
    => Then, following the principles of TDD, write the tests first. They need to be comprehensive and cover all the cases of the scenario and follow the same pattern of documentation.

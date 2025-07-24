@@ -22,7 +22,16 @@
       "Bash(git commit:*)",
       "Bash(kill:*)",
       "Bash(true)",
-      "Bash(timeout 30s npm run dev)"
+      "Bash(timeout 30s npm run dev)",
+      "mcp__chrome-mcp-stdio__chrome_navigate",
+      "mcp__playwright__browser_navigate",
+      "mcp__browsermcp__browser_navigate",
+      "mcp__browsermcp__browser_click",
+      "mcp__browsermcp__browser_type",
+      "mcp__browsermcp__browser_snapshot",
+      "mcp__browsermcp__browser_wait",
+      "mcp__browsermcp__browser_press_key",
+      "mcp__brave-search__brave_web_search"
     ],
     "deny": []
   }
