@@ -425,7 +425,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-green-600" />
-              Feedbacks reçus ({feedbacks.length})
+              Feedbacks reçus({feedbacks.length})
             </CardTitle>
           </CardHeader>
           <CardContent>

@@ -3,13 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Star, 
   MessageSquare,
-  ChevronDown,
-  ChevronUp,
   Calendar,
   DollarSign,
   User,
@@ -111,23 +108,8 @@ const FeedbackSection = ({ title, items, icon }: {
 };
 
 export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProps) {
-  const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
-  const [expandedImpressions, setExpandedImpressions] = useState<Set<string>>(new Set());
 
-  // Toggle impression expansion
-  const toggleImpression = (feedbackId: string) => {
-    setExpandedImpressions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(feedbackId)) {
-        newSet.delete(feedbackId);
-      } else {
-        newSet.add(feedbackId);
-      }
-      return newSet;
-    });
-  };
-
-  // Handle URL hash to auto-scroll and expand feedback
+  // Handle URL hash to auto-scroll to feedback
   useEffect(() => {
     const hash = window.location.hash;
     if (hash.startsWith('#feedback-')) {
@@ -135,9 +117,6 @@ export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProp
       const feedbackExists = feedbacks.find(f => f.id === feedbackId);
       
       if (feedbackExists) {
-        // Expand the feedback
-        setExpandedFeedback(feedbackId);
-        
         // Scroll to the feedback after a short delay to ensure DOM is ready
         setTimeout(() => {
           const element = document.getElementById(`feedback-${feedbackId}`);
@@ -164,7 +143,7 @@ export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProp
   return (
     <div className="space-y-4">
       {feedbacks.map((feedback) => {
-        const isExpanded = expandedFeedback === feedback.id;
+        const isExpanded = true; // Always expanded
         
         // Group question respoPnses by domain
         const questionsByDomain = feedback.questionResponses.reduce((acc, qr) => {
@@ -238,17 +217,6 @@ export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProp
                   <Badge className="bg-purple-100 text-purple-800 text-xs">
                     📋 Feedback structuré
                   </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setExpandedFeedback(isExpanded ? null : feedback.id)}
-                  >
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -267,25 +235,9 @@ export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProp
                   <div>
                     <h5 className="text-sm font-medium mb-2">Première impression</h5>
                     <div className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
-                      <p className={`${!expandedImpressions.has(feedback.id) ? 'line-clamp-3' : ''}`}>
+                      <p>
                         {feedback.firstImpression}
                       </p>
-                      {!expandedImpressions.has(feedback.id) && feedback.firstImpression.length > 150 && (
-                        <button
-                          onClick={() => toggleImpression(feedback.id)}
-                          className="text-blue-600 hover:text-blue-800 text-sm mt-2 font-medium"
-                        >
-                          Voir plus...
-                        </button>
-                      )}
-                      {expandedImpressions.has(feedback.id) && feedback.firstImpression.length > 150 && (
-                        <button
-                          onClick={() => toggleImpression(feedback.id)}
-                          className="text-blue-600 hover:text-blue-800 text-sm mt-2 font-medium"
-                        >
-                          Voir moins
-                        </button>
-                      )}
                     </div>
                   </div>
                 )}
