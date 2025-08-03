@@ -12,26 +12,26 @@ interface RoleCardProps {
 const roleConfig = {
   creator: {
     icon: "🚀",
-    title: "J'ai une app à faire roaster",
-    description: "Obtiens des feedbacks brutalement honnêtes",
+    title: "I have an app to get roasted",
+    description: "Get brutally honest feedback",
     benefits: [
-      "✓ Feedback en 24h",
-      "✓ À partir de 5€",
-      "✓ Roasters experts"
+      "✓ Feedback in 24h",
+      "✓ Starting from €5",
+      "✓ Expert roasters"
     ],
-    buttonText: "Commencer comme Creator",
+    buttonText: "Start as Creator",
     gradient: "from-blue-500 to-purple-600"
   },
   roaster: {
     icon: "🔥",
-    title: "Je veux gagner de l'argent en donnant des feedbacks", 
-    description: "Monétise ton expertise, aide la communauté",
+    title: "I want to earn money giving feedback", 
+    description: "Monetize your expertise, help the community",
     benefits: [
-      "✓ 3.50€ par feedback",
-      "✓ Choisis tes missions", 
-      "✓ 15-20 min de travail"
+      "✓ €3.50 per feedback",
+      "✓ Choose your tasks", 
+      "✓ 15-20 min of work"
     ],
-    buttonText: "Commencer comme Roaster",
+    buttonText: "Start as Roaster",
     gradient: "from-orange-500 to-red-600"
   }
 };
@@ -59,7 +59,7 @@ export function RoleCard({ role, isSelected, onSelect, isDisabled = false, disab
           onSelect(role);
         }
       }}
-      aria-label={`Sélectionner le rôle ${role}`}
+      aria-label={`Select ${role} role`}
       aria-disabled={isDisabled}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${config.gradient} opacity-10`} />

@@ -58,9 +58,7 @@ export default async function DashboardPage() {
 				<div className='gap-4 flex flex-col'>
 					<div>
 						{currentRole === 'roaster' && hasRoasterProfile ? (
-							<RoasterStatsRealTime
-								acceptedApplications={acceptedApplications}
-							/>
+							<RoasterStatsRealTime />
 						) : !canSwitchRoles ? (
 							<AddSecondRolePrompt currentRole={currentRole} />
 						) : null}

@@ -13,7 +13,7 @@ interface RoastFeedbackFormProps {
   roastRequest: {
     id: string;
     title: string;
-    maxPrice: number;
+    maxPrice: number | null;
     pricePerRoaster?: number | null;
     questions: RoastQuestion[];
   };
@@ -31,7 +31,7 @@ interface RoastFeedbackFormProps {
     experienceRating?: number | null;
     additionalComments?: string | null;
     screenshots: string[];
-    finalPrice: number;
+    finalPrice: number | null;
     status: string;
     createdAt: Date;
     questionResponses: Array<{

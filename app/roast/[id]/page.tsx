@@ -184,7 +184,7 @@ export default async function RoastPage({ params }: RoastPageProps) {
 
 					<div className='flex items-center gap-2'>
 						<UnifiedPricingDisplay
-							pricePerRoaster={roastRequest.pricePerRoaster || Math.round(roastRequest.maxPrice / roastRequest.feedbacksRequested)}
+							pricePerRoaster={roastRequest.pricePerRoaster || Math.round((roastRequest.maxPrice || 0) / roastRequest.feedbacksRequested)}
 							roasterCount={roastRequest.feedbacksRequested}
 							questionCount={roastRequest.questions?.length || 0}
 							compact={true}

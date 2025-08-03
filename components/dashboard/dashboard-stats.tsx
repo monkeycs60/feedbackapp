@@ -5,7 +5,7 @@ interface DashboardStatsProps {
   roastRequests: Array<{
     id: string;
     status: string;
-    maxPrice: number;
+    maxPrice: number | null;
     feedbacks: Array<{ id: string; status: string }>;
   }>;
   activeFilter: 'all' | 'active' | 'completed' | 'feedbacks';
@@ -17,7 +17,7 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
     totalRequests: roastRequests.length,
     activeRequests: roastRequests.filter(r => r.status === 'open' || r.status === 'in_progress').length,
     completedRequests: roastRequests.filter(r => r.status === 'completed').length,
-    totalBudget: roastRequests.reduce((sum, r) => sum + r.maxPrice, 0),
+    totalBudget: roastRequests.reduce((sum, r) => sum + (r.maxPrice || 0), 0),
     feedbacksReceived: roastRequests.reduce((sum, r) => sum + r.feedbacks.length, 0)
   };
 

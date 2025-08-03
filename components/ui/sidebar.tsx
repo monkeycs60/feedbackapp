@@ -55,7 +55,7 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
         //redirect to dashboard
         router.push("/dashboard");
       } catch (error) {
-        console.error('Erreur lors du changement de rôle:', error);
+        console.error('Role switch error:', error);
       }
     });
   };
@@ -66,13 +66,13 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
       href: "/dashboard",
       label: "Dashboard",
       icon: Home,
-      description: "Vue d'ensemble"
+      description: "Overview"
     },
     {
       href: "/dashboard/new-roast",
-      label: "Nouveau Roast",
+      label: "New Roast",
       icon: Plus,
-      description: "Créer une demande"
+      description: "Create request"
     }
   ];
 
@@ -81,22 +81,22 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
       href: "/dashboard",
       label: "Dashboard",
       icon: Home,
-      description: "Vue d'ensemble"
+      description: "Overview"
     },
     {
       href: "/marketplace",
       label: "Marketplace",
       icon: Search,
-      description: "Roasts disponibles"
+      description: "Available roasts"
     }
   ];
 
   const commonItems = [
     {
       href: "/profile",
-      label: "Profil",
+      label: "Profile",
       icon: Users,
-      description: "Mon profil"
+      description: "My profile"
     }
   ];
 
@@ -112,7 +112,7 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
         {/* User name and greeting */}
         <div>
           <h2 className="text-lg font-semibold text-foreground">
-            Salut {session.user.name} ! 👋
+            Hi {session.user.name}! 👋
           </h2>
           <div className="flex items-center gap-2 mt-1">
             <div className={cn(
@@ -120,7 +120,7 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
               currentRole === 'creator' ? "bg-orange-500" : "bg-blue-500"
             )} />
             <span className="text-sm text-muted-foreground">
-              {currentRole === 'creator' ? 'Mode Créateur' : 'Mode Roaster'}
+              {currentRole === 'creator' ? 'Creator Mode' : 'Roaster Mode'}
             </span>
           </div>
         </div>
@@ -137,12 +137,12 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
             {isPending ? (
               <>
                 <div className="h-3 w-3 animate-spin rounded-full border border-muted border-t-orange-500 mr-2"></div>
-                Changement...
+                Switching...
               </>
             ) : (
               <>
                 <ArrowRightLeft className="h-3 w-3 mr-2" />
-                Passer en {currentRole === 'creator' ? 'Roaster' : 'Créateur'}
+                Switch to {currentRole === 'creator' ? 'Roaster' : 'Creator'}
               </>
             )}
           </Button>
@@ -236,10 +236,10 @@ export function Sidebar({ className, hasCreatorProfile = false, hasRoasterProfil
                 <UserPlus className="h-4 w-4 flex-shrink-0 text-purple-400" />
                 <div className="flex flex-col">
                   <span className="font-medium text-purple-300">
-                    Deviens {currentRole === 'creator' ? 'Roaster' : 'Créateur'}
+                    Become {currentRole === 'creator' ? 'Roaster' : 'Creator'}
                   </span>
                   <span className="text-xs text-purple-400/70">
-                    Débloquer l&apos;autre rôle
+                    Unlock the other role
                   </span>
                 </div>
               </Link>

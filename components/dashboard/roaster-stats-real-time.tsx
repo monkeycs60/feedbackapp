@@ -4,10 +4,10 @@ import { Clock, Star } from 'lucide-react';
 import { getRoasterStatsRealTime } from '@/lib/actions/real-time-stats';
 
 export async function RoasterStatsRealTime() {
-	// Calculer TOUTES les stats en temps réel
+	// Calculate ALL stats in real time
 	const stats = await getRoasterStatsRealTime();
 
-	// Calculer les missions de cette session seulement (non utilisé pour l'instant)
+	// Calculate missions for this session only (not used for now)
 	// const sessionCompleted = acceptedApplications.filter((app) => {
 	// 	const feedback = app.roastRequest.feedbacks[0];
 	// 	return feedback && feedback.status === 'completed';
@@ -19,7 +19,7 @@ export async function RoasterStatsRealTime() {
 			junior: { color: 'bg-blue-100 text-blue-800', label: 'Junior' },
 			confirmed: {
 				color: 'bg-purple-100 text-purple-800',
-				label: 'Confirmé',
+				label: 'Confirmed',
 			},
 			senior: { color: 'bg-orange-100 text-orange-800', label: 'Senior' },
 			expert: { color: 'bg-yellow-100 text-yellow-800', label: 'Expert' },

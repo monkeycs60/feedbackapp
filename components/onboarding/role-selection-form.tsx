@@ -19,7 +19,7 @@ export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile
   const [isPending, startTransition] = useTransition();
   const isAddingSecondRole = searchParams.get('add_role') === 'true';
   
-  // Pré-sélectionner automatiquement le rôle manquant si on ajoute un second rôle
+  // Automatically pre-select the missing role if adding a second role
   const missingRole = hasCreatorProfile && !hasRoasterProfile ? 'roaster' : 
                      !hasCreatorProfile && hasRoasterProfile ? 'creator' : null;
   
@@ -41,8 +41,8 @@ export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile
         router.push('/onboarding/profile-setup');
       });
     } catch (error) {
-      console.error('Erreur sélection rôle:', error);
-      setError('Une erreur est survenue. Veuillez réessayer.');
+      console.error('Role selection error:', error);
+      setError('An error occurred. Please try again.');
       setIsLoading(false);
     }
   };
@@ -53,8 +53,8 @@ export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile
         <Alert className="bg-blue-50 border-blue-200">
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-900">
-            Tu es sur le point d&apos;ajouter un second profil à ton compte. 
-            Cela te permettra de switcher entre les deux rôles quand tu veux !
+            You're about to add a second profile to your account.
+            This will allow you to switch between both roles whenever you want!
           </AlertDescription>
         </Alert>
       )}
@@ -65,14 +65,14 @@ export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile
           isSelected={selectedRole === 'creator'}
           onSelect={setSelectedRole}
           isDisabled={isAddingSecondRole && hasCreatorProfile}
-          disabledMessage="Tu as déjà un profil Créateur"
+          disabledMessage="You already have a Creator profile"
         />
         <RoleCard 
           role="roaster" 
           isSelected={selectedRole === 'roaster'}
           onSelect={setSelectedRole}
           isDisabled={isAddingSecondRole && hasRoasterProfile}
-          disabledMessage="Tu as déjà un profil Roaster"
+          disabledMessage="You already have a Roaster profile"
         />
       </div>
       
@@ -90,7 +90,7 @@ export function RoleSelectionForm({ hasCreatorProfile = false, hasRoasterProfile
             size="lg"
             className="bg-orange-600 hover:bg-orange-700 px-8"
           >
-            {isLoading || isPending ? "Chargement..." : "Continuer"}
+            {isLoading || isPending ? "Loading..." : "Continue"}
           </Button>
         </div>
       )}

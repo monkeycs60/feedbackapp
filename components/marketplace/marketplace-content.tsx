@@ -19,7 +19,7 @@ type AvailableRoast = {
 		};
 	}>;
 	focusAreas: string[];
-	maxPrice: number;
+	maxPrice: number | null;
 	feedbacksRequested: number;
 	deadline?: Date | null;
 	createdAt: Date;

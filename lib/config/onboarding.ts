@@ -11,27 +11,27 @@ export const ROLE_SELECTION_CONFIG: Record<'creator' | 'roaster', RoleSelectionC
   creator: {
     role: 'creator',
     icon: '🚀',
-    title: "J'ai une app à faire roaster",
-    description: "Obtiens des feedbacks brutalement honnêtes",
+    title: "I have an app to get roasted",
+    description: "Get brutally honest feedback",
     benefits: [
-      "✓ Feedback en 24h",
-      "✓ À partir de 5€",
-      "✓ Roasters experts"
+      "✓ Feedback in 24h",
+      "✓ Starting from €5",
+      "✓ Expert roasters"
     ],
-    buttonText: "Commencer comme Creator",
+    buttonText: "Start as Creator",
     gradient: "from-blue-500 to-purple-600"
   },
   roaster: {
     role: 'roaster',
     icon: '🔥',
-    title: "Je veux gagner de l'argent en donnant des feedbacks",
-    description: "Monétise ton expertise, aide la communauté",
+    title: "I want to earn money giving feedback",
+    description: "Monetize your expertise, help the community",
     benefits: [
-      "✓ 3.50€ par feedback",
-      "✓ Choisis tes missions",
-      "✓ 15-20 min de travail"
+      "✓ €3.50 per feedback",
+      "✓ Choose your tasks",
+      "✓ 15-20 min of work"
     ],
-    buttonText: "Commencer comme Roaster",
+    buttonText: "Start as Roaster",
     gradient: "from-orange-500 to-red-600"
   }
 };
@@ -39,7 +39,7 @@ export const ROLE_SELECTION_CONFIG: Record<'creator' | 'roaster', RoleSelectionC
 // Configuration des spécialités roaster
 export const SPECIALTY_OPTIONS: SpecialtyOption[] = [
   { id: 'UX', label: 'UX/UI Design', icon: '🎨' },
-  { id: 'Dev', label: 'Développement', icon: '💻' },
+  { id: 'Dev', label: 'Development', icon: '💻' },
   { id: 'Business', label: 'Business Model', icon: '📊' },
   { id: 'Marketing', label: 'Marketing', icon: '📱' },
   { id: 'Copy', label: 'Copywriting', icon: '✍️' },
@@ -50,19 +50,19 @@ export const SPECIALTY_OPTIONS: SpecialtyOption[] = [
 // Configuration des niveaux d'expérience
 export const EXPERIENCE_OPTIONS: ExperienceOption[] = [
   { 
-    value: 'Débutant', 
-    label: 'Débutant', 
-    description: 'Je découvre' 
+    value: 'Beginner', 
+    label: 'Beginner', 
+    description: "I'm discovering" 
   },
   { 
-    value: 'Intermédiaire', 
-    label: 'Intermédiaire', 
-    description: '2-5 ans d\'expérience' 
+    value: 'Intermediate', 
+    label: 'Intermediate', 
+    description: '2-5 years of experience' 
   },
   { 
     value: 'Expert', 
     label: 'Expert', 
-    description: '5+ ans d\'expérience' 
+    description: '5+ years of experience' 
   }
 ];
 
@@ -101,21 +101,21 @@ export const ROASTER_LEVELS: Record<string, RoasterLevelConfig> = {
 // Configuration des nudges Creator → Roaster
 export const CREATOR_TO_ROASTER_NUDGES: Record<string, NudgeConfig> = {
   afterFirstFeedback: {
-    trigger: "A reçu son premier feedback",
-    message: "Tu vois la valeur d'un bon feedback ? D'autres creators cherchent ton expertise.",
-    cta: "Découvre comment devenir roaster",
+    trigger: "Received their first feedback",
+    message: "See the value of good feedback? Other creators are looking for your expertise.",
+    cta: "Discover how to become a roaster",
     conversionRate: "15%"
   },
   afterPositiveRating: {
-    trigger: "A noté 5⭐ un feedback",
-    message: "Ce roaster a gagné 3.50€ en 20 min. Toi aussi tu pourrais !",
-    cta: "Voir comment ça marche",
+    trigger: "Rated a feedback 5⭐",
+    message: "This roaster earned €3.50 in 20 min. You could too!",
+    cta: "See how it works",
     conversionRate: "23%"
   },
   duringDowntime: {
-    trigger: "Pas de nouvelle app postée depuis 2 semaines",
-    message: "En attendant ton prochain projet, gagne un peu d'argent en aidant d'autres creators",
-    cta: "Explorer les missions disponibles",
+    trigger: "No new app posted in 2 weeks",
+    message: "While waiting for your next project, earn some money helping other creators",
+    cta: "Explore available tasks",
     conversionRate: "31%"
   }
 };
@@ -123,22 +123,22 @@ export const CREATOR_TO_ROASTER_NUDGES: Record<string, NudgeConfig> = {
 // Configuration des nudges Roaster → Creator
 export const ROASTER_TO_CREATOR_NUDGES: Record<string, NudgeConfig> = {
   afterMultipleRoasts: {
-    trigger: "A fait 5+ roasts",
-    message: "Tu donnes de super conseils ! Tu as sûrement une app qui pourrait bénéficier de feedbacks ?",
-    cta: "Poste ton app gratuitement",
-    offer: "Premier roast offert",
+    trigger: "Has done 5+ roasts",
+    message: "You give great advice! You probably have an app that could benefit from feedback?",
+    cta: "Post your app for free",
+    offer: "First roast free",
     conversionRate: "42%"
   },
   afterPositiveApp: {
-    trigger: "A noté positivement une app qu'il a roastée",
-    message: "Cette app t'inspire ? Lance la tienne et obtiens des feedbacks comme tu en donnes",
-    cta: "Créer ma demande",
+    trigger: "Positively rated an app they roasted",
+    message: "This app inspires you? Launch yours and get feedback like you give",
+    cta: "Create my request",
     conversionRate: "18%"
   },
   seasonal: {
-    trigger: "Black Friday, nouvelles résolutions, etc.",
-    message: "2024, l'année de ton side-project ? Commence par tester ton idée",
-    cta: "Valider mon idée",
+    trigger: "Black Friday, new resolutions, etc.",
+    message: "2024, the year of your side project? Start by testing your idea",
+    cta: "Validate my idea",
     conversionRate: "28%"
   }
 };
@@ -153,24 +153,24 @@ export const ONBOARDING_REDIRECTS = {
 // Messages d'onboarding personnalisés
 export const ONBOARDING_MESSAGES = {
   creator: {
-    welcome: "Tu es maintenant prêt à obtenir des feedbacks brutaux",
+    welcome: "You're now ready to get brutal feedback",
     nextSteps: [
-      "Poste ta première app à roaster",
-      "Choisis tes roasters (à partir de 5€)",
-      "Reçois des feedbacks en 24h"
+      "Post your first app to roast",
+      "Choose your roasters (starting from €5)",
+      "Receive feedback in 24h"
     ],
-    futureRole: "Une fois que tu auras reçu des feedbacks, tu pourras devenir roaster et gagner de l'argent !",
-    ctaText: "Poster mon app"
+    futureRole: "Once you've received feedback, you can become a roaster and earn money!",
+    ctaText: "Post my app"
   },
   roaster: {
-    welcome: "Tu es maintenant prêt à monétiser ton expertise",
+    welcome: "You're now ready to monetize your expertise",
     nextSteps: [
-      "Explore les missions disponibles",
-      "Postule à celles qui te correspondent",
-      "Gagne tes premiers 3.50€ !"
+      "Explore available tasks",
+      "Apply to those that match you",
+      "Earn your first €3.50!"
     ],
-    futureRole: "Une fois que tu auras donné quelques feedbacks, tu pourras poster tes propres apps à roaster !",
-    ctaText: "Voir les missions"
+    futureRole: "Once you've given some feedback, you can post your own apps to roast!",
+    ctaText: "See tasks"
   }
 };
 
@@ -180,31 +180,31 @@ export const ACHIEVEMENT_BADGES = {
     id: 'early-adopter',
     name: 'Early Adopter',
     icon: '🚀',
-    description: 'Parmi les premiers utilisateurs'
+    description: 'Among the first users'
   },
   qualityCreator: {
     id: 'quality-creator',
     name: 'Quality Creator',
     icon: '⭐',
-    description: 'Reçoit des feedbacks 4.5+ en moyenne'
+    description: 'Receives 4.5+ average feedback rating'
   },
   expertRoaster: {
     id: 'expert-roaster',
     name: 'Expert Roaster',
     icon: '🔥',
-    description: 'Donne des feedbacks 4.5+ en moyenne'
+    description: 'Gives 4.5+ average feedback rating'
   },
   communityChampion: {
     id: 'community-champion',
     name: 'Community Champion',
     icon: '🏆',
-    description: 'Actif des deux côtés de la plateforme'
+    description: 'Active on both sides of the platform'
   },
   feedbackLoop: {
     id: 'feedback-loop',
     name: 'Feedback Loop',
     icon: '🔄',
-    description: 'A été roaster de quelqu\'un qui l\'a roasté'
+    description: 'Was a roaster for someone who roasted them'
   }
 };
 
@@ -213,22 +213,22 @@ export const CROSS_ROLE_CHALLENGES = {
   perfectLoop: {
     id: 'perfect-loop',
     name: 'Perfect Loop',
-    description: 'Reçois un feedback, donne un feedback',
-    reward: '+1€ bonus sur les 2',
+    description: 'Receive feedback, give feedback',
+    reward: '+€1 bonus on both',
     completionRate: '12%'
   },
   qualityCircle: {
     id: 'quality-circle',
     name: 'Quality Circle',
-    description: 'Donne 5 feedbacks 5⭐, reçois 1 feedback gratuit',
-    reward: '1 roast gratuit',
+    description: 'Give 5 five-star feedbacks, get 1 free feedback',
+    reward: '1 free roast',
     completionRate: '8%'
   },
   communityBuilder: {
     id: 'community-builder',
     name: 'Community Builder',
-    description: 'Aide 10 creators, lance 1 app',
-    reward: 'Badge spécial + priorité matching',
+    description: 'Help 10 creators, launch 1 app',
+    reward: 'Special badge + matching priority',
     completionRate: '3%'
   }
 };

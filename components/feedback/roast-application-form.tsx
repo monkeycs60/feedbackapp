@@ -23,7 +23,7 @@ import { applyForRoast } from '@/lib/actions/roast-application';
 const applicationSchema = z.object({
 	motivation: z
 		.string()
-		.max(500, 'Message trop long (max 500 caractères)')
+		.max(500, 'Message too long (max 500 characters)')
 		.optional(),
 });
 
@@ -33,7 +33,7 @@ interface RoastApplicationFormProps {
 	roastRequest: {
 		id: string;
 		title: string;
-		maxPrice: number;
+		maxPrice: number | null;
 		pricePerRoaster?: number | null;
 		feedbacksRequested: number;
 		focusAreas: string[];

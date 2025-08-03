@@ -91,16 +91,16 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
   };
 
   const statusOptions = [
-    { value: 'not_applied', label: 'Non postulé' },
-    { value: 'in_progress', label: 'En cours' },
-    { value: 'completed', label: 'Complété' }
+    { value: 'not_applied', label: 'Not applied' },
+    { value: 'in_progress', label: 'In progress' },
+    { value: 'completed', label: 'Completed' }
   ];
 
   const dateOptions = [
-    { value: 'today', label: "Aujourd'hui" },
-    { value: 'yesterday', label: 'Hier' },
-    { value: 'last_week', label: 'Cette semaine' },
-    { value: 'last_month', label: 'Ce mois-ci' }
+    { value: 'today', label: 'Today' },
+    { value: 'yesterday', label: 'Yesterday' },
+    { value: 'last_week', label: 'This week' },
+    { value: 'last_month', label: 'This month' }
   ];
 
   return (
@@ -109,10 +109,10 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
         {/* Status filter */}
         <Select value={filters.applicationStatus || 'all'} onValueChange={(value) => handleStatusChange(value === 'all' ? undefined : value as RoastFilters['applicationStatus'])}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Tous les statuts" />
+            <SelectValue placeholder="All statuses" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous les statuts</SelectItem>
+            <SelectItem value="all">All statuses</SelectItem>
             {statusOptions.map(option => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
@@ -126,7 +126,7 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2">
-                Domaines
+                Domains
                 {filters.domains && filters.domains.length > 0 && (
                   <Badge variant="secondary" className="ml-1 h-5 px-1">
                     {filters.domains.length}
@@ -180,10 +180,10 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
         {/* Date filter */}
         <Select value={filters.dateFilter || 'all'} onValueChange={(value) => handleDateFilterChange(value === 'all' ? undefined : value as RoastFilters['dateFilter'])}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Toutes les dates" />
+            <SelectValue placeholder="All dates" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Toutes les dates</SelectItem>
+            <SelectItem value="all">All dates</SelectItem>
             {dateOptions.map(option => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
@@ -196,7 +196,7 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="gap-2">
-              Prix: {priceRange[0]}€ - {priceRange[1]}€
+              Price: €{priceRange[0]} - €{priceRange[1]}
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -204,7 +204,7 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
             <div className="space-y-4">
               <div>
                 <Label className="text-sm font-medium">
-                  Prix par feedback: {priceRange[0]}€ - {priceRange[1]}€
+                  Price per feedback: €{priceRange[0]} - €{priceRange[1]}
                 </Label>
               </div>
               <Slider
@@ -220,7 +220,7 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
                 <span>{availableData.priceRange.max}€</span>
               </div>
               <Button onClick={applyPriceFilter} size="sm" className="w-full">
-                Appliquer
+                Apply
               </Button>
             </div>
           </DropdownMenuContent>
@@ -235,7 +235,7 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
             className="gap-2 text-muted-foreground"
           >
             <X className="h-4 w-4" />
-            Effacer les filtres ({activeFiltersCount})
+            Clear filters ({activeFiltersCount})
           </Button>
         )}
       </div>
@@ -245,7 +245,7 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
         <div className="flex flex-wrap gap-2">
           {filters.applicationStatus && (
             <Badge variant="secondary" className="gap-1">
-              Statut: {statusOptions.find(s => s.value === filters.applicationStatus)?.label}
+              Status: {statusOptions.find(s => s.value === filters.applicationStatus)?.label}
               <button
                 onClick={() => handleStatusChange(undefined)}
                 className="ml-1 hover:text-foreground"
@@ -293,7 +293,7 @@ export function MarketplaceFilterBar({ filters, onFiltersChange, availableData }
           
           {(filters.minPrice !== undefined || filters.maxPrice !== undefined) && (
             <Badge variant="secondary" className="gap-1">
-              Prix: {filters.minPrice || availableData.priceRange.min}€ - {filters.maxPrice || availableData.priceRange.max}€
+              Price: €{filters.minPrice || availableData.priceRange.min} - €{filters.maxPrice || availableData.priceRange.max}
               <button
                 onClick={() => {
                   onFiltersChange({ ...filters, minPrice: undefined, maxPrice: undefined });

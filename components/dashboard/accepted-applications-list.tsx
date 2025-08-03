@@ -19,7 +19,7 @@ type AcceptedApplication = {
 		appUrl: string;
 		description: string;
 		focusAreas: string[];
-		maxPrice: number;
+		maxPrice: number | null;
 		feedbacksRequested: number;
 		createdAt: Date;
 		coverImage?: string | null;
@@ -90,7 +90,7 @@ export function AcceptedApplicationsList({
 		const roast = application.roastRequest;
 		const hasFeedback = roast.feedbacks.length > 0;
 		const feedbackStatus = roast.feedbacks[0]?.status || 'not_started';
-		const earnings = Math.round(roast.maxPrice / roast.feedbacksRequested);
+		const earnings = Math.round((roast.maxPrice || 0) / roast.feedbacksRequested);
 		const isCompleted = hasFeedback && feedbackStatus === 'completed';
 
 		// Get unique domains from questions

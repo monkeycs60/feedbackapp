@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink, Users, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { APP_CATEGORIES, FEEDBACK_MODES, type FeedbackMode } from '@/lib/types/roast-request';
+import { APP_CATEGORIES } from '@/lib/types/roast-request';
 import { authClient } from '@/lib/auth-client';
 
 type AvailableRoast = {
@@ -30,7 +30,7 @@ type AvailableRoast = {
 	pricePerRoaster?: number | null;
 	useStructuredForm?: boolean | null;
 	// Legacy fields (deprecated)
-	feedbackMode?: FeedbackMode | null;
+	feedbackMode?: string | null;
 	basePriceMode?: number | null;
 	freeQuestions?: number | null;
 	questionPrice?: number | null;

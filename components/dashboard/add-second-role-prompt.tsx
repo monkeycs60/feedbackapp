@@ -12,20 +12,20 @@ interface AddSecondRolePromptProps {
 
 export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
   const oppositeRole = currentRole === 'creator' ? 'roaster' : 'creator';
-  const oppositeRoleLabel = oppositeRole === 'creator' ? 'Créateur' : 'Roaster';
+  const oppositeRoleLabel = oppositeRole === 'creator' ? 'Creator' : 'Roaster';
   
   const benefits = currentRole === 'creator' 
     ? [
-        'Donne des feedbacks constructifs aux autres créateurs',
-        'Monétise ton expertise en UX/développement',
-        'Apprends des projets des autres',
-        'Construis ta réputation dans la communauté'
+        'Give constructive feedback to other creators',
+        'Monetize your UX/development expertise',
+        'Learn from other projects',
+        'Build your reputation in the community'
       ]
     : [
-        'Obtiens des feedbacks brutalement honnêtes sur tes projets',
-        'Améliore ton app avec l\'aide d\'experts',
-        'Accélère ton développement produit',
-        'Rejoins une communauté de créateurs passionnés'
+        'Get brutally honest feedback on your projects',
+        'Improve your app with expert help',
+        'Accelerate your product development',
+        'Join a community of passionate creators'
       ];
 
   return (
@@ -35,15 +35,15 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
           <div>
             <CardTitle className="text-xl flex items-center gap-2">
               <Plus className="h-5 w-5 text-purple-400" />
-              Débloquer le mode {oppositeRoleLabel}
+              Unlock {oppositeRoleLabel} mode
             </CardTitle>
             <CardDescription className="mt-2">
-              Tu utilises actuellement RoastMyApp en tant que {currentRole === 'creator' ? 'Créateur' : 'Roaster'}.
-              Découvre l&apos;autre côté de la plateforme !
+              You're currently using RoastMyApp as a {currentRole === 'creator' ? 'Creator' : 'Roaster'}.
+              Discover the other side of the platform!
             </CardDescription>
           </div>
           <Badge variant="secondary" className="bg-purple-400/20 text-purple-300 border-purple-400/30">
-            Nouveau
+            New
           </Badge>
         </div>
       </CardHeader>
@@ -57,17 +57,17 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
             )}
             <div>
               <p className="font-medium text-foreground">
-                Deviens aussi {oppositeRoleLabel}
+                Become a {oppositeRoleLabel} too
               </p>
               <p className="text-sm text-muted-foreground">
-                Accède aux deux côtés de la plateforme et switch quand tu veux
+                Access both sides of the platform and switch whenever you want
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
             <p className="text-sm font-medium">
-              En devenant {oppositeRoleLabel}, tu pourras :
+              By becoming a {oppositeRoleLabel}, you'll be able to:
             </p>
             <ul className="space-y-1">
               {benefits.map((benefit, index) => (
@@ -81,7 +81,7 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
 
           <Link href="/onboarding/role-selection?add_role=true">
             <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
-              Ajouter le profil {oppositeRoleLabel}
+              Add {oppositeRoleLabel} profile
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>

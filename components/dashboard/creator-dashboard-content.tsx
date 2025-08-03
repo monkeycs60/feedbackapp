@@ -10,7 +10,7 @@ interface CreatorDashboardContentProps {
     id: string;
     title: string;
     status: string;
-    maxPrice: number;
+    maxPrice: number | null;
     createdAt: Date;
     feedbacks: Array<{ 
       id: string; 
