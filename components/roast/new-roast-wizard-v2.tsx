@@ -618,101 +618,67 @@ function PricingStep({
 				</CardTitle>
 			</CardHeader>
 			<CardContent className='space-y-6'>
-				{/* Prix calculé automatiquement */}
+				{/* Récapitulatif unifié */}
 				<div className='space-y-4'>
-					<div className='text-center'>
-						<Label className='text-lg font-medium'>Prix calculé automatiquement</Label>
-						<div className='mt-2 p-6 bg-green-50 border-2 border-green-200 rounded-lg'>
-							<div className='text-3xl font-bold text-green-600 mb-2'>
-								{calculatedPrice}€
-							</div>
-							<div className='text-sm text-green-700'>
-								par roaster
-							</div>
-						</div>
-					</div>
-
-					{/* Détail du calcul */}
-					<div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
-						<h4 className='text-sm font-medium text-blue-900 mb-3'>Détail du calcul :</h4>
-						<div className='space-y-2 text-sm'>
-							<div className='flex justify-between text-blue-800'>
-								<span>Prix de base (feedback structuré)</span>
-								<span className='font-medium'>4,00€</span>
-							</div>
-							{questions.length > 0 && (
-								<div className='flex justify-between text-blue-800'>
-									<span>Questions personnalisées ({questions.length} × 0,50€)</span>
-									<span className='font-medium'>+{(questions.length * 0.5).toFixed(2)}€</span>
-								</div>
-							)}
-							<hr className='border-blue-300' />
-							<div className='flex justify-between text-blue-900 font-semibold'>
-								<span>Total par roaster</span>
-								<span>{calculatedPrice}€</span>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				{/* Summary */}
-				<div className='space-y-4'>
-					<h3 className='font-semibold'>Récapitulatif</h3>
+					<h3 className='font-semibold text-center'>Récapitulatif de votre roast</h3>
 					
-					<div className='space-y-4'>
-						{/* Informations générales */}
-						<div className='bg-gray-50 rounded-lg p-4 space-y-2'>
-							<h4 className='font-medium text-gray-900 mb-2'>Informations générales</h4>
-							<div className='grid grid-cols-2 gap-2 text-sm'>
-								<div>
-									<span className='text-gray-600'>Titre :</span>
-									<p className='font-medium truncate'>{watchedValues.title || 'Non défini'}</p>
-								</div>
-								<div>
-									<span className='text-gray-600'>Catégorie :</span>
-									<p className='font-medium'>{watchedValues.category || 'Non définie'}</p>
-								</div>
-								<div>
-									<span className='text-gray-600'>Roasters :</span>
-									<p className='font-medium'>{watchedValues.feedbacksRequested || 2}</p>
-								</div>
-								<div>
-									<span className='text-gray-600'>Questions :</span>
-									<p className='font-medium'>{questions.length}</p>
-								</div>
-							</div>
-						</div>
-
-						{/* Détail du pricing */}
-						<div className='bg-green-50 border border-green-200 rounded-lg p-4'>
-							<h4 className='font-medium text-green-900 mb-3'>Détail de la tarification</h4>
-							<div className='space-y-2 text-sm'>
-								<div className='flex justify-between text-green-800'>
-									<span>Prix de base (feedback structuré)</span>
-									<span className='font-medium'>4,00€</span>
-								</div>
+					{/* Tableau unifié */}
+					<div className='bg-white border border-gray-200 rounded-lg overflow-hidden'>
+						<table className='w-full text-sm'>
+							<tbody className='divide-y divide-gray-200'>
+								{/* Informations générales */}
+								<tr className='bg-gray-50'>
+									<td className='px-4 py-3 font-medium text-gray-900' colSpan={2}>
+										📋 Informations du projet
+									</td>
+								</tr>
+								<tr>
+									<td className='px-4 py-2 text-gray-600'>Titre</td>
+									<td className='px-4 py-2 font-medium'>{watchedValues.title || 'Non défini'}</td>
+								</tr>
+								<tr className='bg-gray-50'>
+									<td className='px-4 py-2 text-gray-600'>Catégorie</td>
+									<td className='px-4 py-2 font-medium'>{watchedValues.category || 'Non définie'}</td>
+								</tr>
+								<tr>
+									<td className='px-4 py-2 text-gray-600'>Roasters demandés</td>
+									<td className='px-4 py-2 font-medium'>{watchedValues.feedbacksRequested || 2}</td>
+								</tr>
+								<tr className='bg-gray-50'>
+									<td className='px-4 py-2 text-gray-600'>Questions personnalisées</td>
+									<td className='px-4 py-2 font-medium'>{questions.length}</td>
+								</tr>
+								
+								{/* Tarification */}
+								<tr className='bg-green-100'>
+									<td className='px-4 py-3 font-medium text-green-900' colSpan={2}>
+										💰 Tarification (prix calculé automatiquement)
+									</td>
+								</tr>
+								<tr>
+									<td className='px-4 py-2 text-green-700'>Prix de base (feedback structuré)</td>
+									<td className='px-4 py-2 font-medium text-green-800'>4,00€</td>
+								</tr>
 								{questions.length > 0 && (
-									<div className='flex justify-between text-green-800'>
-										<span>Questions personnalisées ({questions.length} × 0,50€)</span>
-										<span className='font-medium'>+{(questions.length * 0.5).toFixed(2)}€</span>
-									</div>
+									<tr className='bg-green-50'>
+										<td className='px-4 py-2 text-green-700'>Questions personnalisées ({questions.length} × 0,50€)</td>
+										<td className='px-4 py-2 font-medium text-green-800'>+{(questions.length * 0.5).toFixed(2)}€</td>
+									</tr>
 								)}
-								<hr className='border-green-300 my-2' />
-								<div className='flex justify-between text-green-900 font-semibold'>
-									<span>Prix par roaster</span>
-									<span>{calculatedPrice}€</span>
-								</div>
-								<div className='flex justify-between text-green-900 font-semibold'>
-									<span>Nombre de roasters</span>
-									<span>×{watchedValues.feedbacksRequested || 2}</span>
-								</div>
-								<hr className='border-green-400 my-2' />
-								<div className='flex justify-between text-lg font-bold text-green-900'>
-									<span>Coût total maximum</span>
-									<span className='text-green-600'>{totalPrice}€</span>
-								</div>
-							</div>
-						</div>
+								<tr className='border-t-2 border-green-300'>
+									<td className='px-4 py-2 text-green-800 font-semibold'>Prix par roaster</td>
+									<td className='px-4 py-2 font-bold text-green-900'>{calculatedPrice}€</td>
+								</tr>
+								<tr className='bg-green-50'>
+									<td className='px-4 py-2 text-green-800 font-semibold'>Nombre de roasters</td>
+									<td className='px-4 py-2 font-bold text-green-900'>×{watchedValues.feedbacksRequested || 2}</td>
+								</tr>
+								<tr className='border-t-2 border-green-400 bg-green-100'>
+									<td className='px-4 py-3 text-lg font-bold text-green-900'>Coût total maximum</td>
+									<td className='px-4 py-3 text-xl font-bold text-green-600'>{totalPrice}€</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 
 					<Alert>
