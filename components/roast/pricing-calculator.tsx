@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { 
   Calculator, 
   Info, 
-  TrendingUp, 
   Zap,
   DollarSign,
   HelpCircle 
@@ -18,41 +16,33 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { type FeedbackMode, FEEDBACK_MODES } from '@/lib/types/roast-request';
 import { calculateRoastPricing, formatPricingBreakdown } from '@/lib/utils/pricing';
 
 interface PricingCalculatorProps {
-  mode: FeedbackMode;
   questionCount: number;
   roasterCount: number;
   isUrgent?: boolean;
-  onModeChange?: (mode: FeedbackMode) => void;
   className?: string;
-  showModeComparison?: boolean;
   compact?: boolean;
 }
 
 export function PricingCalculator({
-  mode,
   questionCount,
   roasterCount,
   isUrgent = false,
-  onModeChange,
   className = "",
-  showModeComparison = false,
   compact = false
 }: PricingCalculatorProps) {
   const [calculation, setCalculation] = useState(() =>
-    calculateRoastPricing(mode, questionCount, roasterCount, isUrgent)
+    calculateRoastPricing(questionCount, roasterCount, isUrgent)
   );
 
   // Recalculate when inputs change
   useEffect(() => {
-    setCalculation(calculateRoastPricing(mode, questionCount, roasterCount, isUrgent));
-  }, [mode, questionCount, roasterCount, isUrgent]);
+    setCalculation(calculateRoastPricing(questionCount, roasterCount, isUrgent));
+  }, [questionCount, roasterCount, isUrgent]);
 
   const breakdown = formatPricingBreakdown(calculation);
-  const config = FEEDBACK_MODES[mode];
 
   if (compact) {
     return (
@@ -88,7 +78,7 @@ export function PricingCalculator({
               <Calculator className="w-5 h-5 text-green-600" />
               <h3 className="font-semibold text-foreground">Prix calculé</h3>
               <Badge variant="outline" className="text-xs">
-                {config.icon} {config.label}
+                📋 Feedback structuré
               </Badge>
             </div>
             
@@ -113,22 +103,9 @@ export function PricingCalculator({
               <div className="flex justify-between text-sm">
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground">Questions</span>
-                  {calculation.freeQuestions > 0 && (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="w-3 h-3 text-muted-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{calculation.freeQuestions} questions offertes</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
                 </div>
                 <span>
-                  {calculation.billableQuestions > 0 
-                    ? `${calculation.billableQuestions} × ${calculation.questionPrice.toFixed(2)}€ = ${calculation.questionsCost.toFixed(2)}€`
-                    : 'Incluses'
-                  }
+                  {calculation.questionCount} × {calculation.questionPrice.toFixed(2)}€ = {calculation.questionsCost.toFixed(2)}€
                 </span>
               </div>
             )}
@@ -146,60 +123,22 @@ export function PricingCalculator({
             </div>
           </div>
 
-          {/* Mode comparison suggestion */}
-          {showModeComparison && onModeChange && (
-            <div className="space-y-2">
-              <div className="text-xs text-muted-foreground mb-2">
-                Comparer les modes :
-              </div>
-              <div className="grid grid-cols-2 gap-1">
-                {(['FREE', 'STRUCTURED'] as FeedbackMode[]).map((modeOption) => {
-                  const modeConfig = FEEDBACK_MODES[modeOption];
-                  const modeCalc = calculateRoastPricing(modeOption, 
-                    modeOption === 'FREE' ? 0 : questionCount, 
-                    roasterCount,
-                    false
-                  );
-                  
-                  const isCurrentMode = modeOption === mode;
-                  const isCheaper = modeCalc.totalPrice < calculation.totalPrice && !isCurrentMode;
-                  
-                  return (
-                    <Button
-                      key={modeOption}
-                      variant={isCurrentMode ? "default" : "outline"}
-                      size="sm"
-                      className={`text-xs h-8 ${isCheaper ? 'ring-2 ring-green-400' : ''}`}
-                      onClick={() => onModeChange(modeOption)}
-                      disabled={modeOption === 'FREE' && questionCount > 0}
-                    >
-                      <div className="flex flex-col items-center">
-                        <span>{modeConfig.icon}</span>
-                        <span>{modeCalc.totalPrice.toFixed(0)}€</span>
-                        {isCheaper && (
-                          <TrendingUp className="w-3 h-3 text-green-500" />
-                        )}
-                      </div>
-                    </Button>
-                  );
-                })}
+          {/* Info about pricing */}
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+            <div className="flex items-start gap-2">
+              <Info className="w-4 h-4 text-blue-600 mt-0.5" />
+              <div className="text-sm text-blue-800">
+                <p className="font-medium">Tarification unifiée :</p>
+                <p>4€ de base + 0,50€ par question personnalisée</p>
+                {calculation.questionCount === 0 && (
+                  <p className="mt-1 text-green-700">✓ Feedback structuré complet inclus</p>
+                )}
               </div>
             </div>
-          )}
-
-          {/* Savings indicator */}
-          {calculation.freeQuestions > 0 && calculation.questionCount <= calculation.freeQuestions && (
-            <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-md flex items-center gap-2">
-              <Zap className="w-4 h-4 text-green-600" />
-              <span className="text-sm text-green-800">
-                Économie : {(calculation.questionCount * calculation.questionPrice).toFixed(2)}€ 
-                (questions offertes)
-              </span>
-            </div>
-          )}
+          </div>
 
           {/* Suggestion for too many questions */}
-          {calculation.billableQuestions > 5 && (
+          {calculation.questionCount > 10 && (
             <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-md">
               <div className="flex items-start gap-2">
                 <Info className="w-4 h-4 text-amber-600 mt-0.5" />
@@ -220,13 +159,12 @@ export function PricingCalculator({
  * Simplified pricing display for forms
  */
 export function PricingDisplay({
-  mode,
   questionCount,
   roasterCount,
   isUrgent = false,
   className = ""
-}: Omit<PricingCalculatorProps, 'onModeChange' | 'showModeComparison' | 'compact'>) {
-  const calculation = calculateRoastPricing(mode, questionCount, roasterCount, isUrgent);
+}: Omit<PricingCalculatorProps, 'compact'>) {
+  const calculation = calculateRoastPricing(questionCount, roasterCount, isUrgent);
   
   return (
     <div className={`text-right ${className}`}>

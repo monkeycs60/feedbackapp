@@ -123,7 +123,6 @@ model RoastRequest {
   feedbacksRequested Int                    @default(1)
   category           String?
   basePriceMode      Float?
-  feedbackMode       FeedbackMode?
   freeQuestions      Int?
   questionPrice      Float?
   isUrgent           Boolean                @default(false)
@@ -257,8 +256,3 @@ model FeedbackRating {
   @@map("feedback_ratings")
 }
 
-enum FeedbackMode {
-  FREE
-  TARGETED
-  STRUCTURED
-}

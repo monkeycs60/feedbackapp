@@ -1,80 +1,58 @@
-// Centralized pricing utility functions for the new feedback system
+// Centralized pricing utility functions - Unified system without modes
 
-import { FeedbackMode, FEEDBACK_MODES } from '@/lib/types/roast-request';
+import { PRICING } from '@/lib/types/roast-request';
 
 export interface PricingCalculation {
   basePrice: number;
   questionCount: number;
-  freeQuestions: number;
-  billableQuestions: number;
   questionPrice: number;
   questionsCost: number;
   urgencyCost: number;
   totalPerRoaster: number;
   totalPrice: number;
-  mode: FeedbackMode;
   isUrgent: boolean;
 }
 
 /**
- * Calculate pricing for a roast request based on the new feedback mode system
+ * Calculate pricing for a roast request with unified pricing
  */
 export function calculateRoastPricing(
-  mode: FeedbackMode,
   questionCount: number,
   roasterCount: number,
   isUrgent: boolean = false
 ): PricingCalculation {
-  const config = FEEDBACK_MODES[mode];
-  
-  // For FREE mode, no questions are allowed
-  const actualQuestionCount = mode === 'FREE' ? 0 : questionCount;
-  
-  // Calculate billable questions (questions beyond the free limit)
-  const billableQuestions = Math.max(0, actualQuestionCount - config.freeQuestions);
-  
   // Calculate costs
-  const questionsCost = billableQuestions * config.questionPrice;
-  const urgencyCost = isUrgent ? 0.50 : 0; // 0.50€ per roaster for urgency
-  const totalPerRoaster = config.basePrice + questionsCost + urgencyCost;
+  const questionsCost = questionCount * PRICING.QUESTION_PRICE;
+  const urgencyCost = isUrgent ? PRICING.URGENCY_PRICE : 0;
+  const totalPerRoaster = PRICING.BASE_PRICE + questionsCost + urgencyCost;
   const totalPrice = totalPerRoaster * roasterCount;
 
   return {
-    basePrice: config.basePrice,
-    questionCount: actualQuestionCount,
-    freeQuestions: config.freeQuestions,
-    billableQuestions,
-    questionPrice: config.questionPrice,
+    basePrice: PRICING.BASE_PRICE,
+    questionCount,
+    questionPrice: PRICING.QUESTION_PRICE,
     questionsCost,
     urgencyCost,
     totalPerRoaster,
     totalPrice,
-    mode,
     isUrgent
   };
 }
 
 /**
- * Validate question count limits for a feedback mode
+ * Validate question count limits
  */
-export function validateQuestionCount(mode: FeedbackMode, questionCount: number): {
+export function validateQuestionCount(questionCount: number): {
   isValid: boolean;
   error?: string;
   maxQuestions?: number;
 } {
-  // Define reasonable limits per mode
-  const limits = {
-    FREE: 0,
-    TARGETED: 20,
-    STRUCTURED: 15
-  };
+  const maxQuestions = 20; // Reasonable global limit
 
-  const maxQuestions = limits[mode];
-
-  if (mode === 'FREE' && questionCount > 0) {
+  if (questionCount < 0) {
     return {
       isValid: false,
-      error: 'Le mode "Impression générale" ne permet pas d\'ajouter des questions',
+      error: 'Le nombre de questions ne peut pas être négatif',
       maxQuestions
     };
   }
@@ -82,15 +60,7 @@ export function validateQuestionCount(mode: FeedbackMode, questionCount: number)
   if (questionCount > maxQuestions) {
     return {
       isValid: false,
-      error: `Maximum ${maxQuestions} questions autorisées pour le mode ${FEEDBACK_MODES[mode].label}`,
-      maxQuestions
-    };
-  }
-
-  if (questionCount < 0) {
-    return {
-      isValid: false,
-      error: 'Le nombre de questions ne peut pas être négatif',
+      error: `Maximum ${maxQuestions} questions autorisées`,
       maxQuestions
     };
   }
@@ -108,13 +78,13 @@ export function formatPricingBreakdown(calculation: PricingCalculation): {
   totalLabel: string;
   perRoasterLabel: string;
 } {
-  const { basePrice, billableQuestions, questionPrice, questionsCost, urgencyCost, totalPerRoaster, totalPrice, isUrgent } = calculation;
+  const { basePrice, questionCount, questionPrice, questionsCost, urgencyCost, totalPerRoaster, totalPrice, isUrgent } = calculation;
 
   return {
     baseLabel: `Base : ${basePrice.toFixed(2)}€`,
-    questionsLabel: billableQuestions > 0 
-      ? `Questions : ${billableQuestions} × ${questionPrice.toFixed(2)}€ = ${questionsCost.toFixed(2)}€`
-      : 'Questions : incluses',
+    questionsLabel: questionCount > 0 
+      ? `Questions : ${questionCount} × ${questionPrice.toFixed(2)}€ = ${questionsCost.toFixed(2)}€`
+      : 'Questions : aucune',
     urgencyLabel: isUrgent ? `Urgence : +${urgencyCost.toFixed(2)}€` : '',
     perRoasterLabel: `Par roaster : ${totalPerRoaster.toFixed(2)}€`,
     totalLabel: `Total : ${totalPrice.toFixed(2)}€`
@@ -139,79 +109,42 @@ export function calculateLegacyPricing(
 /**
  * Get the maximum affordable question count for a given budget
  */
-export function getMaxQuestionsForBudget(
-  mode: FeedbackMode,
-  maxBudgetPerRoaster: number
-): number {
-  const config = FEEDBACK_MODES[mode];
+export function getMaxQuestionsForBudget(maxBudgetPerRoaster: number): number {
+  if (maxBudgetPerRoaster < PRICING.BASE_PRICE) return 0;
   
-  if (mode === 'FREE') return 0;
-  
-  if (maxBudgetPerRoaster < config.basePrice) return 0;
-  
-  const availableForQuestions = maxBudgetPerRoaster - config.basePrice;
-  const additionalQuestions = Math.floor(availableForQuestions / config.questionPrice);
-  
-  return config.freeQuestions + additionalQuestions;
+  const availableForQuestions = maxBudgetPerRoaster - PRICING.BASE_PRICE;
+  return Math.floor(availableForQuestions / PRICING.QUESTION_PRICE);
 }
 
 /**
- * Compare pricing between different modes for the same question count
+ * Suggest pricing strategy based on question count
  */
-export function compareModesPricing(questionCount: number, roasterCount: number): {
-  mode: FeedbackMode;
-  calculation: PricingCalculation;
-  isRecommended: boolean;
-}[] {
-  const results = [];
-  
-  for (const mode of Object.keys(FEEDBACK_MODES) as FeedbackMode[]) {
-    const validation = validateQuestionCount(mode, questionCount);
-    
-    if (validation.isValid) {
-      const calculation = calculateRoastPricing(mode, questionCount, roasterCount, false);
-      results.push({
-        mode,
-        calculation,
-        isRecommended: mode === 'STRUCTURED' // Default recommendation
-      });
-    }
-  }
-  
-  // Sort by total price
-  return results.sort((a, b) => a.calculation.totalPrice - b.calculation.totalPrice);
-}
-
-/**
- * Suggest the best mode for a given scenario
- */
-export function suggestBestMode(
-  questionCount: number,
-  hasDomains: boolean = false
-): {
-  suggestedMode: FeedbackMode;
+export function suggestPricingStrategy(questionCount: number): {
+  suggestedPricePerRoaster: number;
   reason: string;
-  alternatives: FeedbackMode[];
+  isEconomical: boolean;
 } {
+  const calculation = calculateRoastPricing(questionCount, 1, false);
+  
   if (questionCount === 0) {
     return {
-      suggestedMode: 'FREE',
-      reason: 'Parfait pour un feedback général sans questions spécifiques',
-      alternatives: ['TARGETED', 'STRUCTURED']
+      suggestedPricePerRoaster: calculation.totalPerRoaster,
+      reason: 'Prix de base pour feedback général',
+      isEconomical: true
     };
   }
   
-  if (questionCount <= 3 && !hasDomains) {
+  if (questionCount <= 2) {
     return {
-      suggestedMode: 'TARGETED',
-      reason: 'Idéal pour quelques questions spécifiques',
-      alternatives: ['STRUCTURED']
+      suggestedPricePerRoaster: calculation.totalPerRoaster,
+      reason: 'Idéal pour quelques questions ciblées',
+      isEconomical: true
     };
   }
   
   return {
-    suggestedMode: 'STRUCTURED',
-    reason: 'Recommandé pour organiser vos questions par domaines d\'expertise',
-    alternatives: ['TARGETED']
+    suggestedPricePerRoaster: calculation.totalPerRoaster,
+    reason: `${questionCount} questions personnalisées`,
+    isEconomical: questionCount <= 6
   };
 }

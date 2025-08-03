@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
-import { calculateRoastPricing, validateQuestionCount } from "@/lib/utils/pricing";
 import { roastRequestSchema, newRoastRequestSchema } from "@/lib/schemas/roast-request";
 
 /**

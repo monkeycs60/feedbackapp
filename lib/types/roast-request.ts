@@ -4,18 +4,6 @@ export type FocusArea = 'General' | 'UX' | 'Onboarding' | 'Pricing' | 'Business'
 export type AppCategory = 'SaaS' | 'Mobile' | 'E-commerce' | 'Landing' | 'MVP' | 'Autre';
 export type RoastStatus = 'draft' | 'open' | 'in_progress' | 'completed' | 'cancelled';
 
-// New feedback mode system
-export type FeedbackMode = 'FREE' | 'STRUCTURED';
-
-export interface FeedbackModeConfig {
-  mode: FeedbackMode;
-  label: string;
-  description: string;
-  icon: string;
-  basePrice: number;
-  freeQuestions: number;
-  questionPrice: number;
-}
 
 export interface DomainQuestion {
   id: string;
@@ -120,33 +108,11 @@ export const FOCUS_AREAS: { id: FocusArea; label: string; icon: string; descript
   }
 ];
 
-// Legacy pricing (for backward compatibility)
+// Unified pricing configuration
 export const PRICING = {
-  BASE_PRICE: 0,
-  DOMAIN_PRICE: 2,
-  ADDITIONAL_QUESTION: 1
-};
-
-// New feedback mode configurations
-export const FEEDBACK_MODES: Record<FeedbackMode, FeedbackModeConfig> = {
-  FREE: {
-    mode: 'FREE',
-    label: 'Impression générale',
-    description: 'Feedback libre sans questions spécifiques',
-    icon: '🎯',
-    basePrice: 4.00,
-    freeQuestions: 0,
-    questionPrice: 0
-  },
-  STRUCTURED: {
-    mode: 'STRUCTURED',
-    label: 'Feedback structuré',
-    description: 'Questions organisées par domaines d\'expertise',
-    icon: '📋',
-    basePrice: 4.00,
-    freeQuestions: 0,
-    questionPrice: 0.50
-  }
+  BASE_PRICE: 4.00,
+  QUESTION_PRICE: 0.50,
+  URGENCY_PRICE: 0.50
 };
 
 export const APP_CATEGORIES: { id: AppCategory; label: string; icon: string; description: string }[] = [

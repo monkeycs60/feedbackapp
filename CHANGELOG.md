@@ -1,5 +1,30 @@
 # Changelog
 
+## 2025-08-03-15:30
+### Major Simplification - Suppression des modes de feedback
+- **Base de données nettoyée**: Suppression complète de l'enum `FeedbackMode` et colonne `feedbackMode`
+  - Migration Prisma pour supprimer `FREE`, `TARGETED`, `STRUCTURED` modes
+  - Plus de complexité liée aux différents types de feedback
+  - Structure unifiée pour tous les roasts
+- **Code simplifié drastiquement**: Suppression de milliers de lignes de code obsolète
+  - Suppression complète de `feedback-mode-selection.tsx` (239 lignes)
+  - Suppression complète de `feedback-structured-step.tsx` (390 lignes)
+  - Refactorisation complète de `pricing-calculator.tsx` (simplification de 50%)
+  - Nettoyage de `new-roast-wizard-v2.tsx` et `lib/actions/roast-request.ts`
+- **Pricing unifié**: Un seul système de tarification transparent
+  - 4€ de base pour le feedback structuré complet
+  - 0,50€ par question personnalisée supplémentaire
+  - Plus de confusion entre modes FREE/STRUCTURED
+  - Configuration centralisée dans `PRICING` constant
+- **UX simplifiée**: Plus de choix compliqué pour les utilisateurs
+  - Suppression de l'étape de sélection de mode dans le wizard
+  - Flow de création plus direct et intuitif
+  - Un seul type de feedback : structuré et personnalisable
+- **Architecture épurée**: Code plus maintenable et performant
+  - Suppression de toute la logique conditionnelle liée aux modes
+  - Types TypeScript simplifiés sans `FeedbackMode`
+  - Fonctions utilitaires nettoyées et optimisées
+
 ## 2025-08-03-15:00
 ### Pricing Update - Nouvelle structure tarifaire
 - **Configuration centrale mise à jour**: Changement des prix dans `FEEDBACK_MODES`

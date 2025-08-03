@@ -125,9 +125,8 @@ export function NewRoastWizardV2({
 
 	const calculateSuggestedPrice = () => {
 		const basePrice = 4;
-		const questionFactor = Math.min(questions.length * 0.5, 5);
-		const complexityFactor = selectedDomains.length > 3 ? 2 : 1;
-		return Math.round((basePrice + questionFactor) * complexityFactor);
+		const questionsCost = questions.length * 0.5;
+		return Math.round(basePrice + questionsCost);
 	};
 
 	const onSubmit = async (data: FormData) => {
@@ -144,7 +143,6 @@ export function NewRoastWizardV2({
 			// Transform data to match server expectations
 			const submitData = {
 				...data,
-				feedbackMode: 'STRUCTURED' as const, // Keep for backward compatibility
 				isUrgent: false, // Always false now
 				questions: questions.map(q => ({
 					domain: q.domain,
@@ -641,7 +639,7 @@ function PricingStep({
 							Prix suggéré : {suggestedPrice}€
 						</p>
 						<p className='text-xs text-blue-700 mt-1'>
-							Basé sur {questions.length} question{questions.length !== 1 ? 's' : ''} personnalisée{questions.length !== 1 ? 's' : ''}
+							Basé sur {questions.length} question{questions.length !== 1 ? 's' : ''} (4€ base + {questions.length} × 0,50€)
 						</p>
 					</div>
 				</div>
