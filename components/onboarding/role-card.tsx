@@ -45,9 +45,9 @@ export function RoleCard({ role, isSelected, onSelect, isDisabled = false, disab
         isDisabled 
           ? 'opacity-50 cursor-not-allowed' 
           : 'hover:scale-105 cursor-pointer'
-      } bg-gray-800 border-gray-700 ${
+      } bg-white border-gray-200 ${
         isSelected ? 'ring-2 ring-orange-500 shadow-xl' : 
-        !isDisabled ? 'hover:shadow-lg hover:border-gray-600' : ''
+        !isDisabled ? 'hover:shadow-lg hover:border-gray-300' : ''
       }`}
       onClick={() => !isDisabled && onSelect(role)}
       data-testid={`${role}-card`}
@@ -66,22 +66,22 @@ export function RoleCard({ role, isSelected, onSelect, isDisabled = false, disab
       
       <CardContent className="p-8 relative">
         {isDisabled && disabledMessage && (
-          <div className="absolute inset-0 bg-gray-900/80 flex items-center justify-center z-10 rounded-lg">
-            <p className="text-gray-300 font-medium text-lg">{disabledMessage}</p>
+          <div className="absolute inset-0 bg-white/90 flex items-center justify-center z-10 rounded-lg">
+            <p className="text-gray-600 font-medium text-lg">{disabledMessage}</p>
           </div>
         )}
         
         <div className="text-center mb-6">
           <div className="text-6xl mb-4">{config.icon}</div>
-          <h3 className="text-2xl font-bold text-white mb-2">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">
             {config.title}
           </h3>
-          <p className="text-gray-300">
+          <p className="text-gray-600">
             {config.description}
           </p>
         </div>
         
-        <ul className="space-y-2 mb-6">
+        <ul className="space-y-2 mb-6 text-gray-700">
           {config.benefits.map((benefit, index) => (
             <li key={index}>
               {benefit}

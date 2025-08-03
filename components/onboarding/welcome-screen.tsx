@@ -42,29 +42,29 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
   const config = ONBOARDING_MESSAGES[isRoaster ? 'roaster' : 'creator'];
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full text-center">
         <div className="mb-8">
           <div className="text-6xl mb-4">{isRoaster ? '🔥' : '🚀'}</div>
-          <h1 className="text-4xl font-bold text-white mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Bienvenue dans RoastMyApp !
           </h1>
-          <p className="text-xl text-gray-300">
+          <p className="text-xl text-gray-600">
             {config.welcome}
           </p>
         </div>
 
         {/* Next steps */}
-        <Card className="mb-8 bg-gray-800 border-gray-700">
+        <Card className="mb-8 bg-white border-gray-200">
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Tes prochaines étapes :
             </h3>
             <div className="space-y-3 text-left">
               {config.nextSteps.map((step, index) => (
                 <div key={index} className="flex items-center gap-3">
-                  <Badge variant="outline" className="shrink-0 text-white">{index + 1}</Badge>
-                  <span className="text-gray-300">{step}</span>
+                  <Badge variant="outline" className="shrink-0">{index + 1}</Badge>
+                  <span className="text-gray-700">{step}</span>
                 </div>
               ))}
             </div>
@@ -72,13 +72,13 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
         </Card>
 
         {/* Preview autre rôle */}
-        <Card className="mb-8 bg-gray-800 border-orange-500/30">
+        <Card className="mb-8 bg-orange-50 border-orange-200">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">💡</span>
-              <h3 className="font-semibold text-white">Bientôt disponible pour toi</h3>
+              <h3 className="font-semibold text-gray-900">Bientôt disponible pour toi</h3>
             </div>
-            <p className="text-gray-300 text-sm">
+            <p className="text-gray-700 text-sm">
               {config.futureRole}
             </p>
           </CardContent>
@@ -86,7 +86,7 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
 
         {error && (
           <div className="mb-4">
-            <p className="text-red-400 text-sm">{error}</p>
+            <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
 
