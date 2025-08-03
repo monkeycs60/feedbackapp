@@ -31,79 +31,79 @@ export interface RoastRequestForm {
 export const FOCUS_AREAS: { id: FocusArea; label: string; icon: string; description: string; questions: string[] }[] = [
   { 
     id: 'General', 
-    label: 'Impression générale', 
+    label: 'General impression', 
     icon: '🎯', 
-    description: 'Retour global sur l\'expérience',
+    description: 'Overall feedback on the experience',
     questions: []
   },
   { 
     id: 'UX', 
     label: 'UX/UI Design', 
     icon: '🎨', 
-    description: 'Interface, navigation, expérience utilisateur',
+    description: 'Interface, navigation, user experience',
     questions: [
-      'Comment améliorer la navigation principale ?',
-      'Quels éléments d\'interface prêtent à confusion ?'
+      'How to improve the main navigation?',
+      'Which interface elements are confusing?'
     ]
   },
   { 
     id: 'Onboarding', 
     label: 'Onboarding', 
     icon: '🚀', 
-    description: 'Première expérience, signup flow',
+    description: 'First experience, signup flow',
     questions: [
-      'Le processus d\'inscription est-il trop long ?',
-      'Comment simplifier la première utilisation ?'
+      'Is the registration process too long?',
+      'How to simplify first use?'
     ]
   },
   { 
     id: 'Pricing', 
     label: 'Pricing', 
     icon: '💰', 
-    description: 'Structure tarifaire, value proposition',
+    description: 'Pricing structure, value proposition',
     questions: [
-      'La grille tarifaire est-elle claire et attractive ?',
-      'La value proposition est-elle convaincante ?'
+      'Is the pricing grid clear and attractive?',
+      'Is the value proposition convincing?'
     ]
   },
   { 
     id: 'Business', 
     label: 'Business Model', 
     icon: '📊', 
-    description: 'Modèle économique, stratégie',
+    description: 'Business model, strategy',
     questions: [
-      'Le modèle économique est-il viable ?',
-      'Quelles opportunités de revenus manqués ?'
+      'Is the business model viable?',
+      'What missed revenue opportunities?'
     ]
   },
   { 
     id: 'Technical', 
     label: 'Technical', 
     icon: '⚙️', 
-    description: 'Performance, bugs, fonctionnalités',
+    description: 'Performance, bugs, features',
     questions: [
-      'Quels problèmes de performance avez-vous remarqués ?',
-      'Quelles fonctionnalités manquent cruellement ?'
+      'What performance issues did you notice?',
+      'What features are sorely missing?'
     ]
   },
   { 
     id: 'Copy', 
     label: 'Copywriting', 
     icon: '✍️', 
-    description: 'Textes, messages, communication',
+    description: 'Texts, messages, communication',
     questions: [
-      'Les messages sont-ils clairs et engageants ?',
-      'Comment améliorer le ton et le style ?'
+      'Are the messages clear and engaging?',
+      'How to improve tone and style?'
     ]
   },
   { 
     id: 'Mobile', 
     label: 'Mobile Experience', 
     icon: '📱', 
-    description: 'Responsive, app mobile',
+    description: 'Responsive, mobile app',
     questions: [
-      'L\'expérience mobile est-elle fluide ?',
-      'Quels problèmes d\'affichage sur mobile ?'
+      'Is the mobile experience smooth?',
+      'What display issues on mobile?'
     ]
   }
 ];
@@ -116,12 +116,12 @@ export const PRICING = {
 };
 
 export const APP_CATEGORIES: { id: AppCategory; label: string; icon: string; description: string }[] = [
-  { id: 'SaaS', label: 'SaaS / Web App', icon: '☁️', description: 'Application web avec abonnement' },
+  { id: 'SaaS', label: 'SaaS / Web App', icon: '☁️', description: 'Web application with subscription' },
   { id: 'Mobile', label: 'App Mobile', icon: '📱', description: 'iOS, Android ou PWA' },
-  { id: 'E-commerce', label: 'E-commerce', icon: '🛒', description: 'Boutique en ligne, marketplace' },
-  { id: 'Landing', label: 'Landing Page', icon: '🚀', description: 'Page de conversion, site vitrine' },
+  { id: 'E-commerce', label: 'E-commerce', icon: '🛒', description: 'Online store, marketplace' },
+  { id: 'Landing', label: 'Landing Page', icon: '🚀', description: 'Conversion page, showcase site' },
   { id: 'MVP', label: 'MVP / Prototype', icon: '🔬', description: 'Version beta, proof of concept' },
-  { id: 'Autre', label: 'Autre', icon: '📦', description: 'Autre type de projet' }
+  { id: 'Autre', label: 'Other', icon: '📦', description: 'Other type of project' }
 ];
 
 // Type pour les roast requests avec relations

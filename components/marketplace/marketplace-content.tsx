@@ -110,8 +110,8 @@ export function MarketplaceContent({ initialRoasts }: MarketplaceContentProps) {
 		<div className='space-y-6 mt-6'>
 			<div>
 				<p className='font-semibold mb-6'>
-					Découvrez les apps qui ont besoin de votre expertise et
-					candidatez pour les roasts qui vous intéressent
+					Discover apps that need your expertise and
+					apply for roasts that interest you
 				</p>
 				<MarketplaceFilterBar
 					filters={filters}

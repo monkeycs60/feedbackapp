@@ -2,8 +2,8 @@ import { RoleSelectionForm } from "@/components/onboarding/role-selection-form";
 import { getUserProfiles } from "@/lib/actions/user-profiles";
 
 export const metadata = {
-  title: "Choisir son rôle - RoastMyApp",
-  description: "Commencez votre parcours sur RoastMyApp en choisissant votre rôle principal"
+  title: "Choose your role - RoastMyApp",
+  description: "Start your journey on RoastMyApp by choosing your primary role"
 };
 
 export default async function RoleSelectionPage() {
@@ -14,10 +14,10 @@ export default async function RoleSelectionPage() {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Bienvenue sur RoastMyApp
+            Welcome to RoastMyApp
           </h1>
           <p className="text-xl text-gray-600">
-            Comment veux-tu commencer ?
+            How do you want to start?
           </p>
         </div>
         
@@ -28,7 +28,7 @@ export default async function RoleSelectionPage() {
         
         <div className="text-center mt-8">
           <p className="text-gray-500 flex items-center justify-center gap-2">
-            💡 Tu pourras facilement switcher plus tard
+            💡 You can easily switch later
           </p>
         </div>
       </div>

@@ -11,23 +11,23 @@ export default async function ProfilePage() {
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-100 mb-2">
-            Mon Profil
+            My Profile
           </h1>
           <p className="text-gray-400">
-            Gérez vos informations personnelles et paramètres de compte
+            Manage your personal information and account settings
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Informations personnelles</CardTitle>
+            <CardTitle>Personal Information</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <dt className="text-sm font-medium text-muted-foreground">Nom</dt>
+                <dt className="text-sm font-medium text-muted-foreground">Name</dt>
                 <dd className="text-sm text-foreground sm:col-span-2">
-                  {user.name || "Non renseigné"}
+                  {user.name || "Not provided"}
                 </dd>
               </div>
               
@@ -39,14 +39,14 @@ export default async function ProfilePage() {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <dt className="text-sm font-medium text-muted-foreground">Rôle principal</dt>
+                <dt className="text-sm font-medium text-muted-foreground">Primary Role</dt>
                 <dd className="text-sm text-foreground sm:col-span-2 capitalize">
-                  {user.primaryRole || "Non défini"}
+                  {user.primaryRole || "Not defined"}
                 </dd>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <dt className="text-sm font-medium text-muted-foreground">ID utilisateur</dt>
+                <dt className="text-sm font-medium text-muted-foreground">User ID</dt>
                 <dd className="text-sm text-foreground sm:col-span-2 font-mono text-xs">
                   {user.id}
                 </dd>
@@ -55,7 +55,7 @@ export default async function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <dt className="text-sm font-medium text-muted-foreground">Onboarding</dt>
                 <dd className="text-sm text-foreground sm:col-span-2">
-                  {user.onboardingStep}/4 (Terminé)
+                  {user.onboardingStep}/4 (Completed)
                 </dd>
               </div>
             </div>

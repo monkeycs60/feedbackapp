@@ -17,7 +17,7 @@ import {
   FileText
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 import Image from 'next/image';
 import { RatingSystem, type RatingSystemRef } from '@/components/ui/rating-system';
 import { submitFeedbackRatings, getFeedbackRatings, getRoasterAverageRating } from '@/lib/actions/feedback-rating';
@@ -231,7 +231,7 @@ export function FeedbackDisplayV2({ feedbacks }: FeedbackDisplayV2Props) {
                       <Calendar className="h-3 w-3" />
                       {formatDistanceToNow(new Date(feedback.createdAt), { 
                         addSuffix: true, 
-                        locale: fr 
+                        locale: enUS 
                       })}
                     </span>
                     {feedback.finalPrice && (

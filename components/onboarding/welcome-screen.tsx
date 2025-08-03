@@ -25,15 +25,15 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
     
     try {
       await completeOnboarding();
-      // La redirection sera gérée par completeOnboarding()
+      // Redirection will be handled by completeOnboarding()
     } catch (error) {
-      // Ne pas traiter les redirections Next.js comme des erreurs
+      // Don't treat Next.js redirections as errors
       if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
         throw error;
       }
       
-      console.error('Erreur finalisation:', error);
-      setError('Une erreur est survenue. Veuillez réessayer.');
+      console.error('Finalization error:', error);
+      setError('An error occurred. Please try again.');
       setIsLoading(false);
     }
   };
@@ -47,7 +47,7 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
         <div className="mb-8">
           <div className="text-6xl mb-4">{isRoaster ? '🔥' : '🚀'}</div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Bienvenue dans RoastMyApp !
+            Welcome to RoastMyApp!
           </h1>
           <p className="text-xl text-gray-600">
             {config.welcome}
@@ -58,7 +58,7 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
         <Card className="mb-8 bg-white border-gray-200">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Tes prochaines étapes :
+              Your next steps:
             </h3>
             <div className="space-y-3 text-left">
               {config.nextSteps.map((step, index) => (
@@ -71,12 +71,12 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
           </CardContent>
         </Card>
 
-        {/* Preview autre rôle */}
+        {/* Preview other role */}
         <Card className="mb-8 bg-orange-50 border-orange-200">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">💡</span>
-              <h3 className="font-semibold text-gray-900">Bientôt disponible pour toi</h3>
+              <h3 className="font-semibold text-gray-900">Coming soon for you</h3>
             </div>
             <p className="text-gray-700 text-sm">
               {config.futureRole}
@@ -96,7 +96,7 @@ export function WelcomeScreen({ user }: WelcomeScreenProps) {
           size="lg"
           className="bg-orange-600 hover:bg-orange-700 px-8"
         >
-          {isLoading ? "Finalisation..." : config.ctaText}
+          {isLoading ? "Finalizing..." : config.ctaText}
         </Button>
       </div>
     </div>

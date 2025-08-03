@@ -4,8 +4,8 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = {
-  title: "Nouveau roast - RoastMyApp",
-  description: "Créez votre demande de feedback avec le nouveau système"
+  title: "New roast - RoastMyApp",
+  description: "Create your feedback request with the new system"
 };
 
 export default async function NewRoastPage() {

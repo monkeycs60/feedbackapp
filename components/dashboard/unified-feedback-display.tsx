@@ -15,7 +15,7 @@ import {
   ThumbsDown
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 
 interface UnifiedFeedbackDisplayProps {
   feedbacks: Array<{
@@ -194,7 +194,7 @@ export function UnifiedFeedbackDisplay({ feedbacks }: UnifiedFeedbackDisplayProp
                         <Calendar className="w-3 h-3" />
                         {formatDistanceToNow(feedback.createdAt, { 
                           addSuffix: true, 
-                          locale: fr 
+                          locale: enUS 
                         })}
                       </div>
                       {feedback.finalPrice && (

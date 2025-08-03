@@ -15,7 +15,7 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 
 interface FeedbacksListProps {
 	feedbacks: Array<{
@@ -247,7 +247,7 @@ export function FeedbacksList({ feedbacks }: FeedbacksListProps) {
 												new Date(feedback.createdAt),
 												{
 													addSuffix: true,
-													locale: fr,
+													locale: enUS,
 												}
 											)}
 										</span>

@@ -3,12 +3,12 @@ import { getOnboardingState } from "@/lib/actions/onboarding";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Bienvenue - RoastMyApp",
-  description: "Félicitations ! Votre profil est maintenant configuré"
+  title: "Welcome - RoastMyApp",
+  description: "Congratulations! Your profile is now configured"
 };
 
 export default async function WelcomePage() {
-  // TODO: Vérifier l'authentification avec Better Auth
+  // TODO: Verify authentication with Better Auth
   // const session = await auth();
   // if (!session?.user) redirect("/login");
 

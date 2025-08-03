@@ -4,12 +4,12 @@ import { getOnboardingState } from "@/lib/actions/onboarding";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Configuration du profil - RoastMyApp",
-  description: "Finalisez votre profil pour commencer sur RoastMyApp"
+  title: "Profile setup - RoastMyApp",
+  description: "Finalize your profile to get started on RoastMyApp"
 };
 
 export default async function ProfileSetupPage() {
-  // TODO: Vérifier l'authentification avec Better Auth
+  // TODO: Verify authentication with Better Auth
   // const session = await auth();
   // if (!session?.user) redirect("/login");
 
@@ -27,12 +27,12 @@ export default async function ProfileSetupPage() {
       <div className="max-w-2xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Finalise ton profil
+            Finalize your profile
           </h1>
           <p className="text-gray-600">
             {isRoaster 
-              ? "Quelques infos pour matcher avec les bonnes missions"
-              : "Quelques infos pour personnaliser ton expérience"
+              ? "A few details to match you with the right tasks"
+              : "A few details to personalize your experience"
             }
           </p>
         </div>

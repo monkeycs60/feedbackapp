@@ -30,8 +30,8 @@ export function CreatorProfileForm() {
         router.push('/onboarding/welcome');
       });
     } catch (error) {
-      console.error('Erreur setup profil:', error);
-      setError('Une erreur est survenue. Veuillez réessayer.');
+      console.error('Profile setup error:', error);
+      setError('An error occurred. Please try again.');
       setIsLoading(false);
     }
   };
@@ -40,13 +40,13 @@ export function CreatorProfileForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">Ton entreprise/projet</CardTitle>
-          <p className="text-gray-500">Optionnel - juste pour personnaliser ton expérience</p>
+          <CardTitle className="text-gray-900">Your company/project</CardTitle>
+          <p className="text-gray-500">Optional - just to personalize your experience</p>
         </CardHeader>
         <CardContent>
           <Input
             {...register('company')}
-            placeholder="Ex: MonStartup, Freelance, Projet perso..."
+            placeholder="Ex: MyStartup, Freelance, Personal project..."
             className="bg-white border-gray-300"
             data-testid="company-input"
           />
@@ -65,7 +65,7 @@ export function CreatorProfileForm() {
         className="w-full bg-orange-600 hover:bg-orange-700"
         size="lg"
       >
-        {isLoading || isPending ? "Chargement..." : "C'est parti !"}
+        {isLoading || isPending ? "Loading..." : "Let's go!"}
       </Button>
     </form>
   );

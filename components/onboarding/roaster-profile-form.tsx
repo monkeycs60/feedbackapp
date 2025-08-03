@@ -14,9 +14,9 @@ import { SPECIALTY_OPTIONS, EXPERIENCE_OPTIONS } from "@/lib/config/onboarding";
 import { ROASTER_SPECIALTIES } from "@/lib/types/onboarding";
 
 const roasterProfileSchema = z.object({
-  specialties: z.array(z.enum(ROASTER_SPECIALTIES)).min(1, "Sélectionne au moins une spécialité"),
+  specialties: z.array(z.enum(ROASTER_SPECIALTIES)).min(1, "Select at least one specialty"),
   languages: z.array(z.string()).min(1),
-  experience: z.enum(['Débutant', 'Intermédiaire', 'Expert']),
+  experience: z.enum(['Beginner', 'Intermediate', 'Expert']),
   bio: z.string().max(500).optional(),
   portfolio: z.string().url().optional().or(z.literal(''))
 });
@@ -33,8 +33,8 @@ export function RoasterProfileForm() {
     resolver: zodResolver(roasterProfileSchema),
     defaultValues: {
       specialties: [],
-      languages: ['Français'],
-      experience: 'Intermédiaire'
+      languages: ['French'],
+      experience: 'Intermediate'
     }
   });
 
@@ -60,19 +60,19 @@ export function RoasterProfileForm() {
         router.push('/onboarding/welcome');
       });
     } catch (error) {
-      console.error('Erreur setup profil:', error);
-      setError('Une erreur est survenue. Veuillez réessayer.');
+      console.error('Profile setup error:', error);
+      setError('An error occurred. Please try again.');
       setIsLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Spécialités */}
+      {/* Specialties */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">Tes spécialités</CardTitle>
-          <p className="text-gray-500">Dans quoi tu excelles ? (sélection multiple)</p>
+          <CardTitle className="text-gray-900">Your specialties</CardTitle>
+          <p className="text-gray-500">What do you excel at? (multiple selection)</p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -101,10 +101,10 @@ export function RoasterProfileForm() {
         </CardContent>
       </Card>
 
-      {/* Expérience */}
+      {/* Experience */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">Ton niveau d'expérience</CardTitle>
+          <CardTitle className="text-gray-900">Your experience level</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -134,16 +134,16 @@ export function RoasterProfileForm() {
         </CardContent>
       </Card>
 
-      {/* Bio optionnelle */}
+      {/* Optional Bio */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">Bio (optionnel)</CardTitle>
-          <p className="text-gray-500">Parle-nous de toi en quelques mots</p>
+          <CardTitle className="text-gray-900">Bio (optional)</CardTitle>
+          <p className="text-gray-500">Tell us about yourself in a few words</p>
         </CardHeader>
         <CardContent>
           <Textarea
             {...register('bio')}
-            placeholder="Ex: UX Designer avec 5 ans d'expérience dans les SaaS B2B..."
+            placeholder="Ex: UX Designer with 5 years of experience in B2B SaaS..."
             className="bg-white border-gray-300"
             rows={4}
             data-testid="bio-textarea"
@@ -159,16 +159,16 @@ export function RoasterProfileForm() {
         </CardContent>
       </Card>
 
-      {/* Portfolio optionnel */}
+      {/* Optional Portfolio */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">Portfolio/LinkedIn (optionnel)</CardTitle>
-          <p className="text-gray-500">Pour rassurer les créateurs</p>
+          <CardTitle className="text-gray-900">Portfolio/LinkedIn (optional)</CardTitle>
+          <p className="text-gray-500">To reassure creators</p>
         </CardHeader>
         <CardContent>
           <Input
             {...register('portfolio')}
-            placeholder="https://linkedin.com/in/tonprofil ou https://tonportfolio.com"
+            placeholder="https://linkedin.com/in/yourprofile or https://yourportfolio.com"
             className="bg-white border-gray-300"
             data-testid="portfolio-input"
           />
@@ -190,7 +190,7 @@ export function RoasterProfileForm() {
         className="w-full bg-orange-600 hover:bg-orange-700"
         size="lg"
       >
-        {isLoading || isPending ? "Chargement..." : "Finaliser mon profil"}
+        {isLoading || isPending ? "Loading..." : "Finalize my profile"}
       </Button>
     </form>
   );

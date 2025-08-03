@@ -77,7 +77,7 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
       <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Filter className="h-4 w-4" />
-          Filtres
+          Filters
           {activeFiltersCount > 0 && (
             <Badge variant="secondary" className="ml-1 h-5 px-1">
               {activeFiltersCount}
@@ -87,13 +87,13 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Filtrer les missions</SheetTitle>
+          <SheetTitle>Filter missions</SheetTitle>
         </SheetHeader>
         
         <div className="mt-6 space-y-6">
-          {/* Statut de candidature */}
+          {/* Application status */}
           <div>
-            <Label className="text-base font-semibold mb-3 block">Statut</Label>
+            <Label className="text-base font-semibold mb-3 block">Status</Label>
             <div className="space-y-2">
               <button
                 onClick={() => handleStatusChange('not_applied')}
@@ -103,7 +103,7 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
                     : 'hover:bg-muted'
                 }`}
               >
-                Non postulé
+                Not applied
               </button>
               <button
                 onClick={() => handleStatusChange('in_progress')}
@@ -113,7 +113,7 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
                     : 'hover:bg-muted'
                 }`}
               >
-                En cours
+                In progress
               </button>
               <button
                 onClick={() => handleStatusChange('completed')}
@@ -123,15 +123,15 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
                     : 'hover:bg-muted'
                 }`}
               >
-                Complété
+                Completed
               </button>
             </div>
           </div>
 
-          {/* Domaines */}
+          {/* Domains */}
           {availableData.domains.length > 0 && (
             <div>
-              <Label className="text-base font-semibold mb-3 block">Domaines</Label>
+              <Label className="text-base font-semibold mb-3 block">Domains</Label>
               <div className="space-y-2">
                 {availableData.domains.map(domain => (
                   <div key={domain} className="flex items-center space-x-2">
@@ -152,10 +152,10 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
             </div>
           )}
 
-          {/* Audience cible */}
+          {/* Target audience */}
           {availableData.targetAudiences.length > 0 && (
             <div>
-              <Label className="text-base font-semibold mb-3 block">Audience cible</Label>
+              <Label className="text-base font-semibold mb-3 block">Target audience</Label>
               <div className="space-y-2">
                 {availableData.targetAudiences.map(audience => (
                   <div key={audience} className="flex items-center space-x-2">
@@ -176,10 +176,10 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
             </div>
           )}
 
-          {/* Types de questions */}
+          {/* Question types */}
           {availableData.questionTypes.length > 0 && (
             <div>
-              <Label className="text-base font-semibold mb-3 block">Types de questions</Label>
+              <Label className="text-base font-semibold mb-3 block">Question types</Label>
               <div className="space-y-2">
                 {availableData.questionTypes.map(type => (
                   <div key={type} className="flex items-center space-x-2">
@@ -200,10 +200,10 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
             </div>
           )}
 
-          {/* Prix */}
+          {/* Price */}
           <div>
             <Label className="text-base font-semibold mb-3 block">
-              Prix par feedback: {localFilters.minPrice || availableData.priceRange.min}€ - {localFilters.maxPrice || availableData.priceRange.max}€
+              Price per feedback: €{localFilters.minPrice || availableData.priceRange.min} - €{localFilters.maxPrice || availableData.priceRange.max}
             </Label>
             <Slider
               min={availableData.priceRange.min}
@@ -221,7 +221,7 @@ export function MarketplaceFilters({ filters, onFiltersChange, availableData }: 
 
         <div className="flex gap-2 mt-8">
           <Button onClick={applyFilters} className="flex-1">
-            Appliquer les filtres
+            Apply filters
           </Button>
           <Button onClick={clearFilters} variant="outline">
             <X className="h-4 w-4" />

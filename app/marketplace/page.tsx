@@ -5,7 +5,7 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 
 export const metadata = {
 	title: 'Marketplace Roaster - RoastMyApp',
-	description: "Trouvez des missions de roast et gagnez de l'argent",
+	description: "Find roast missions and earn money",
 };
 
 export default async function MarketplacePage() {
