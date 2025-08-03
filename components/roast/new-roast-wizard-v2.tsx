@@ -110,6 +110,7 @@ export function NewRoastWizardV2({
 	const goToNext = () => {
 		if (currentStep < steps.length - 1) {
 			setCurrentStep(currentStep + 1);
+			setConfirmSubmit(false);
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	};
@@ -117,6 +118,7 @@ export function NewRoastWizardV2({
 	const goToPrevious = () => {
 		if (currentStep > 0) {
 			setCurrentStep(currentStep - 1);
+			setConfirmSubmit(false);
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	};
@@ -500,8 +502,8 @@ function FeedbackConfigStep({
 }: {
 	questions: Question[];
 	setQuestions: (questions: Question[]) => void;
-	selectedDomains: string[];
-	setSelectedDomains: (domains: string[]) => void;
+	selectedDomains: FocusArea[];
+	setSelectedDomains: (domains: FocusArea[]) => void;
 }) {
 	return (
 		<Card>
