@@ -38,16 +38,16 @@ export function CreatorProfileForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-white">Ton entreprise/projet</CardTitle>
-          <p className="text-gray-400">Optionnel - juste pour personnaliser ton expérience</p>
+          <CardTitle className="text-gray-900">Ton entreprise/projet</CardTitle>
+          <p className="text-gray-500">Optionnel - juste pour personnaliser ton expérience</p>
         </CardHeader>
         <CardContent>
           <Input
             {...register('company')}
             placeholder="Ex: MonStartup, Freelance, Projet perso..."
-            className="bg-gray-800 border-gray-600 text-white"
+            className="bg-white border-gray-300"
             data-testid="company-input"
           />
         </CardContent>
@@ -55,7 +55,7 @@ export function CreatorProfileForm() {
 
       {error && (
         <div className="text-center">
-          <p className="text-red-400 text-sm">{error}</p>
+          <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
 

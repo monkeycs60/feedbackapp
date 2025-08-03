@@ -69,10 +69,10 @@ export function RoasterProfileForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Spécialités */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-white">Tes spécialités</CardTitle>
-          <p className="text-gray-400">Dans quoi tu excelles ? (sélection multiple)</p>
+          <CardTitle className="text-gray-900">Tes spécialités</CardTitle>
+          <p className="text-gray-500">Dans quoi tu excelles ? (sélection multiple)</p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -84,8 +84,8 @@ export function RoasterProfileForm() {
                 data-testid={`specialty-${specialty.id}`}
                 className={`p-3 rounded-lg border-2 transition-all text-left ${
                   selectedSpecialties.includes(specialty.id)
-                    ? 'border-orange-500 bg-orange-500/10 text-orange-400'
-                    : 'border-gray-600 hover:border-gray-500 text-gray-300'
+                    ? 'border-orange-500 bg-orange-500/10 text-orange-600'
+                    : 'border-gray-300 hover:border-gray-400 text-gray-700'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -96,15 +96,15 @@ export function RoasterProfileForm() {
             ))}
           </div>
           {errors.specialties && (
-            <p className="text-red-400 text-sm mt-2">{errors.specialties.message}</p>
+            <p className="text-red-600 text-sm mt-2">{errors.specialties.message}</p>
           )}
         </CardContent>
       </Card>
 
       {/* Expérience */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-white">Ton niveau d'expérience</CardTitle>
+          <CardTitle className="text-gray-900">Ton niveau d'expérience</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -114,7 +114,7 @@ export function RoasterProfileForm() {
                 className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
                   selectedExperience === option.value
                     ? 'border-orange-500 bg-orange-500/10'
-                    : 'border-gray-600 hover:border-gray-500'
+                    : 'border-gray-300 hover:border-gray-400'
                 }`}
                 data-testid={`experience-${option.value}`}
               >
@@ -125,8 +125,8 @@ export function RoasterProfileForm() {
                   className="sr-only"
                 />
                 <div>
-                  <div className="font-medium text-white">{option.label}</div>
-                  <div className="text-sm text-gray-400">{option.description}</div>
+                  <div className="font-medium text-gray-900">{option.label}</div>
+                  <div className="text-sm text-gray-500">{option.description}</div>
                 </div>
               </label>
             ))}
@@ -135,52 +135,52 @@ export function RoasterProfileForm() {
       </Card>
 
       {/* Bio optionnelle */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-white">Bio (optionnel)</CardTitle>
-          <p className="text-gray-400">Parle-nous de toi en quelques mots</p>
+          <CardTitle className="text-gray-900">Bio (optionnel)</CardTitle>
+          <p className="text-gray-500">Parle-nous de toi en quelques mots</p>
         </CardHeader>
         <CardContent>
           <Textarea
             {...register('bio')}
             placeholder="Ex: UX Designer avec 5 ans d'expérience dans les SaaS B2B..."
-            className="bg-gray-800 border-gray-600 text-white"
+            className="bg-white border-gray-300"
             rows={4}
             data-testid="bio-textarea"
           />
           <div className="flex justify-between items-center mt-1">
-            <div className="text-right text-sm text-gray-400">
+            <div className="text-right text-sm text-gray-500">
               {bioLength}/500
             </div>
             {errors.bio && (
-              <p className="text-red-400 text-sm">{errors.bio.message}</p>
+              <p className="text-red-600 text-sm">{errors.bio.message}</p>
             )}
           </div>
         </CardContent>
       </Card>
 
       {/* Portfolio optionnel */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-white">Portfolio/LinkedIn (optionnel)</CardTitle>
-          <p className="text-gray-400">Pour rassurer les créateurs</p>
+          <CardTitle className="text-gray-900">Portfolio/LinkedIn (optionnel)</CardTitle>
+          <p className="text-gray-500">Pour rassurer les créateurs</p>
         </CardHeader>
         <CardContent>
           <Input
             {...register('portfolio')}
             placeholder="https://linkedin.com/in/tonprofil ou https://tonportfolio.com"
-            className="bg-gray-800 border-gray-600 text-white"
+            className="bg-white border-gray-300"
             data-testid="portfolio-input"
           />
           {errors.portfolio && (
-            <p className="text-red-400 text-sm mt-1">{errors.portfolio.message}</p>
+            <p className="text-red-600 text-sm mt-1">{errors.portfolio.message}</p>
           )}
         </CardContent>
       </Card>
 
       {error && (
         <div className="text-center">
-          <p className="text-red-400 text-sm">{error}</p>
+          <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
 
