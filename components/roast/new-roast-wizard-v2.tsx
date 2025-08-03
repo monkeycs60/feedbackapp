@@ -124,7 +124,7 @@ export function NewRoastWizardV2({
 	const calculateSuggestedPrice = () => {
 		const basePrice = 4;
 		const questionsCost = questions.length * 0.5;
-		return Math.round(basePrice + questionsCost);
+		return basePrice + questionsCost;
 	};
 
 	const onSubmit = async (data: FormData) => {
@@ -264,6 +264,7 @@ export function NewRoastWizardV2({
 							form={form}
 							questions={questions}
 							suggestedPrice={calculateSuggestedPrice()}
+							targetAudiences={targetAudiences}
 						/>
 					)}
 				</div>
@@ -599,97 +600,193 @@ function PricingStep({
 	form,
 	questions,
 	suggestedPrice,
+	targetAudiences,
 }: {
 	form: ReturnType<typeof useForm<FormData>>;
 	questions: Question[];
 	suggestedPrice: number;
+	targetAudiences: Array<{ id: string; name: string }>;
 }) {
 	const { watch } = form;
 	const watchedValues = watch();
-	const calculatedPrice = suggestedPrice; // Prix calculé automatiquement
+	const calculatedPrice = suggestedPrice;
 	const totalPrice = calculatedPrice * (watchedValues.feedbacksRequested || 2);
 
+	// Récupérer les informations de catégorie
+	const selectedCategory = APP_CATEGORIES.find(cat => cat.id === watchedValues.category);
+	
+	// Récupérer les audiences sélectionnées
+	const selectedAudiences = targetAudiences.filter(audience => 
+		watchedValues.targetAudienceIds?.includes(audience.id)
+	);
+
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle className='flex items-center gap-2'>
-					<span className='text-2xl'>💰</span>
-					Tarification
-				</CardTitle>
-			</CardHeader>
-			<CardContent className='space-y-6'>
-				{/* Récapitulatif unifié */}
-				<div className='space-y-4'>
-					<h3 className='font-semibold text-center'>Récapitulatif de votre roast</h3>
-					
-					{/* Tableau unifié */}
-					<div className='bg-white border border-gray-200 rounded-lg overflow-hidden'>
+		<div className='space-y-6'>
+			{/* Résumé complet de la request */}
+			<Card>
+				<CardHeader>
+					<CardTitle className='flex items-center gap-2'>
+						<span className='text-2xl'>📋</span>
+						Récapitulatif de votre roast
+					</CardTitle>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					{/* Informations principales */}
+					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+						<div className='space-y-3'>
+							<div>
+								<h4 className='font-medium text-gray-700 mb-1'>Titre</h4>
+								<p className='text-foreground font-medium'>{watchedValues.title || 'Non défini'}</p>
+							</div>
+							
+							<div>
+								<h4 className='font-medium text-gray-700 mb-1'>URL</h4>
+								<p className='text-blue-600 text-sm break-all'>{watchedValues.appUrl || 'Non définie'}</p>
+							</div>
+
+							<div>
+								<h4 className='font-medium text-gray-700 mb-1'>Catégorie</h4>
+								<div className='flex items-center gap-2'>
+									<span className='text-lg'>{selectedCategory?.icon}</span>
+									<span className='font-medium'>{selectedCategory?.label || watchedValues.category}</span>
+								</div>
+							</div>
+						</div>
+
+						<div className='space-y-3'>
+							<div>
+								<h4 className='font-medium text-gray-700 mb-1'>Audiences cibles</h4>
+								<div className='space-y-1'>
+									{selectedAudiences.map(audience => (
+										<div key={audience.id} className='bg-blue-50 px-2 py-1 rounded text-sm'>
+											{audience.name}
+										</div>
+									))}
+									{watchedValues.customTargetAudience?.name && (
+										<div className='bg-purple-50 px-2 py-1 rounded text-sm'>
+											{watchedValues.customTargetAudience.name} <span className='text-xs text-purple-600'>(personnalisée)</span>
+										</div>
+									)}
+								</div>
+							</div>
+
+							<div>
+								<h4 className='font-medium text-gray-700 mb-1'>Nombre de roasters</h4>
+								<p className='font-semibold text-lg text-blue-600'>{watchedValues.feedbacksRequested || 2}</p>
+							</div>
+						</div>
+					</div>
+
+					{/* Description */}
+					<div>
+						<h4 className='font-medium text-gray-700 mb-1'>Description</h4>
+						<p className='text-sm text-gray-600 bg-gray-50 p-3 rounded-md'>
+							{watchedValues.description && watchedValues.description.length > 200 
+								? watchedValues.description.substring(0, 200) + '...'
+								: watchedValues.description || 'Non définie'
+							}
+						</p>
+					</div>
+
+					{/* Questions personnalisées */}
+					{questions.length > 0 && (
+						<div>
+							<h4 className='font-medium text-gray-700 mb-2'>Questions personnalisées ({questions.length})</h4>
+							<div className='space-y-2'>
+								{questions.map((question, index) => (
+									<div key={question.id} className='bg-amber-50 border border-amber-200 p-3 rounded-md'>
+										<div className='flex items-start gap-2'>
+											<span className='bg-amber-500 text-white text-xs px-2 py-1 rounded font-medium'>
+												Q{index + 1}
+											</span>
+											<p className='text-sm text-amber-800 flex-1'>{question.text}</p>
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+				</CardContent>
+			</Card>
+
+			{/* Calcul du pricing - Table compacte */}
+			<Card>
+				<CardHeader>
+					<CardTitle className='flex items-center gap-2'>
+						<span className='text-2xl'>🧮</span>
+						Calcul du prix
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className='bg-green-50 border border-green-200 rounded-lg overflow-hidden'>
 						<table className='w-full text-sm'>
-							<tbody className='divide-y divide-gray-200'>
-								{/* Informations générales */}
-								<tr className='bg-gray-50'>
-									<td className='px-4 py-3 font-medium text-gray-900' colSpan={2}>
-										📋 Informations du projet
-									</td>
-								</tr>
+							<tbody className='divide-y divide-green-200'>
 								<tr>
-									<td className='px-4 py-2 text-gray-600'>Titre</td>
-									<td className='px-4 py-2 font-medium'>{watchedValues.title || 'Non défini'}</td>
-								</tr>
-								<tr className='bg-gray-50'>
-									<td className='px-4 py-2 text-gray-600'>Catégorie</td>
-									<td className='px-4 py-2 font-medium'>{watchedValues.category || 'Non définie'}</td>
-								</tr>
-								<tr>
-									<td className='px-4 py-2 text-gray-600'>Roasters demandés</td>
-									<td className='px-4 py-2 font-medium'>{watchedValues.feedbacksRequested || 2}</td>
-								</tr>
-								<tr className='bg-gray-50'>
-									<td className='px-4 py-2 text-gray-600'>Questions personnalisées</td>
-									<td className='px-4 py-2 font-medium'>{questions.length}</td>
-								</tr>
-								
-								{/* Tarification */}
-								<tr className='bg-green-100'>
-									<td className='px-4 py-3 font-medium text-green-900' colSpan={2}>
-										💰 Tarification (prix calculé automatiquement)
-									</td>
-								</tr>
-								<tr>
-									<td className='px-4 py-2 text-green-700'>Prix de base (feedback structuré)</td>
-									<td className='px-4 py-2 font-medium text-green-800'>4,00€</td>
+									<td className='px-4 py-3 text-green-700'>Feedback structuré (base)</td>
+									<td className='px-4 py-3 font-medium text-green-800 text-right'>4,00€</td>
 								</tr>
 								{questions.length > 0 && (
-									<tr className='bg-green-50'>
-										<td className='px-4 py-2 text-green-700'>Questions personnalisées ({questions.length} × 0,50€)</td>
-										<td className='px-4 py-2 font-medium text-green-800'>+{(questions.length * 0.5).toFixed(2)}€</td>
+									<tr>
+										<td className='px-4 py-3 text-green-700'>
+											Questions personnalisées ({questions.length} × 0,50€)
+										</td>
+										<td className='px-4 py-3 font-medium text-green-800 text-right'>
+											+{(questions.length * 0.5).toFixed(2)}€
+										</td>
 									</tr>
 								)}
-								<tr className='border-t-2 border-green-300'>
-									<td className='px-4 py-2 text-green-800 font-semibold'>Prix par roaster</td>
-									<td className='px-4 py-2 font-bold text-green-900'>{calculatedPrice}€</td>
-								</tr>
-								<tr className='bg-green-50'>
-									<td className='px-4 py-2 text-green-800 font-semibold'>Nombre de roasters</td>
-									<td className='px-4 py-2 font-bold text-green-900'>×{watchedValues.feedbacksRequested || 2}</td>
-								</tr>
-								<tr className='border-t-2 border-green-400 bg-green-100'>
-									<td className='px-4 py-3 text-lg font-bold text-green-900'>Coût total maximum</td>
-									<td className='px-4 py-3 text-xl font-bold text-green-600'>{totalPrice}€</td>
+								<tr className='bg-green-100 border-t-2 border-green-300'>
+									<td className='px-4 py-3 font-bold text-green-900'>Prix par roaster</td>
+									<td className='px-4 py-3 font-bold text-green-900 text-right text-lg'>
+										{calculatedPrice.toFixed(2).replace('.', ',')}€
+									</td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
+				</CardContent>
+			</Card>
 
-					<Alert>
-						<Info className='h-4 w-4' />
-						<AlertDescription>
-							Vous ne payez que pour les feedbacks effectivement reçus. 
-							Le montant affiché est le coût maximum si tous les roasters complètent leur feedback.
-						</AlertDescription>
-					</Alert>
-				</div>
-			</CardContent>
-		</Card>
+			{/* Affichage visuel symbolique du total */}
+			<Card className='border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50'>
+				<CardContent className='p-6'>
+					<div className='text-center space-y-4'>
+						<h3 className='text-lg font-semibold text-gray-800'>Coût total maximum</h3>
+						
+						<div className='flex items-center justify-center gap-4 text-3xl font-bold'>
+							<div className='flex items-center gap-2 bg-white px-4 py-3 rounded-lg shadow-sm border'>
+								<span className='text-2xl'>💰</span>
+								<span className='text-green-600'>{calculatedPrice.toFixed(2).replace('.', ',')}€</span>
+							</div>
+							
+							<span className='text-gray-400'>×</span>
+							
+							<div className='bg-white px-4 py-3 rounded-lg shadow-sm border'>
+								<span className='text-blue-600'>{watchedValues.feedbacksRequested || 2}</span>
+							</div>
+							
+							<span className='text-gray-400'>=</span>
+							
+							<div className='bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-lg shadow-lg'>
+								<span className='text-4xl font-bold'>{totalPrice}€</span>
+							</div>
+						</div>
+						
+						<p className='text-sm text-gray-600'>
+							{calculatedPrice.toFixed(2).replace('.', ',')}€ par roaster × {watchedValues.feedbacksRequested || 2} roaster{(watchedValues.feedbacksRequested || 2) > 1 ? 's' : ''}
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* Information importante */}
+			<Alert>
+				<Info className='h-4 w-4' />
+				<AlertDescription>
+					<strong>Important :</strong> Vous ne payez que pour les feedbacks effectivement reçus. 
+					Le montant affiché est le coût maximum si tous les roasters complètent leur feedback.
+				</AlertDescription>
+			</Alert>
+		</div>
 	);
 }

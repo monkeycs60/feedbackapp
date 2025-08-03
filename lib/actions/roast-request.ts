@@ -170,7 +170,6 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
     const validData = validation.data;
 
     // Simple validation for new model
-    const questionCount = validData.questions?.length || 0;
     const pricePerRoaster = validData.pricePerRoaster || 3;
     
     // Validate price range
