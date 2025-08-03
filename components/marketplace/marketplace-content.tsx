@@ -67,7 +67,7 @@ export function MarketplaceContent({ initialRoasts }: MarketplaceContentProps) {
 
 			// Calculate price range
 			const pricePerRoast = Math.round(
-				roast.maxPrice / roast.feedbacksRequested
+				roast.maxPrice || 0 / roast.feedbacksRequested
 			);
 			minPrice = Math.min(minPrice, pricePerRoast);
 			maxPrice = Math.max(maxPrice, pricePerRoast);
