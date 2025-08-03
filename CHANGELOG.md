@@ -1,5 +1,24 @@
 # Changelog
 
+## 2025-08-03-15:00
+### Pricing Update - Nouvelle structure tarifaire
+- **Configuration centrale mise à jour**: Changement des prix dans `FEEDBACK_MODES`
+  - Prix de base : 3€ → 4€ pour tous les modes de feedback
+  - Prix par question STRUCTURED : 0,25€ → 0,50€ par question supplémentaire
+  - Mode FREE reste sans questions : 4€ fixe par feedback
+- **Wizard de création adapté**: `new-roast-wizard-v2.tsx` mis à jour
+  - Validation minimum : 3€ → 4€ par roaster
+  - Prix par défaut : 5€ → 4€ (nouveau minimum)
+  - Fonction `calculateSuggestedPrice` ajustée pour les nouveaux tarifs
+- **Interface utilisateur cohérente**: Tous les textes hardcodés mis à jour
+  - `feedback-mode-selection.tsx` : Affichage correct des nouveaux prix
+  - `feedback-structured-step.tsx` : Messages de coût par question actualisés
+  - Tous les calculateurs de prix automatiquement cohérents via configuration centrale
+- **Simplicité tarifaire**: Structure plus claire sans questions gratuites
+  - 4€ de base inclut le feedback structuré complet
+  - Chaque question personnalisée coûte 0,50€ supplémentaire
+  - Calculs transparents et prévisibles pour les utilisateurs
+
 ## 2025-07-06-00:40
 ### Perfect UX - First Impression Expansion Fix
 - **Expansion indépendante**: Logique séparée pour l'expansion des premières impressions

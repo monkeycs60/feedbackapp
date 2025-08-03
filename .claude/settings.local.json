@@ -32,7 +32,8 @@
       "mcp__browsermcp__browser_wait",
       "mcp__browsermcp__browser_press_key",
       "mcp__brave-search__brave_web_search",
-      "mcp__Framelink_Figma_MCP__get_figma_data"
+      "mcp__Framelink_Figma_MCP__get_figma_data",
+      "Bash(timeout 15s npm run dev)"
     ],
     "deny": []
   }

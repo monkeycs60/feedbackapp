@@ -134,7 +134,7 @@ export const FEEDBACK_MODES: Record<FeedbackMode, FeedbackModeConfig> = {
     label: 'Impression générale',
     description: 'Feedback libre sans questions spécifiques',
     icon: '🎯',
-    basePrice: 3.00,
+    basePrice: 4.00,
     freeQuestions: 0,
     questionPrice: 0
   },
@@ -143,9 +143,9 @@ export const FEEDBACK_MODES: Record<FeedbackMode, FeedbackModeConfig> = {
     label: 'Feedback structuré',
     description: 'Questions organisées par domaines d\'expertise',
     icon: '📋',
-    basePrice: 3.00,
+    basePrice: 4.00,
     freeQuestions: 0,
-    questionPrice: 0.25
+    questionPrice: 0.50
   }
 };
 

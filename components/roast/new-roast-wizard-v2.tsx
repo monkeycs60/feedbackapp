@@ -36,7 +36,7 @@ const simplifiedRoastSchema = z.object({
 	feedbacksRequested: z.number().min(1).max(10),
 	targetAudienceIds: z.array(z.string()).min(1).max(2),
 	customTargetAudience: z.object({ name: z.string() }).optional(),
-	pricePerRoaster: z.number().min(3).max(50),
+	pricePerRoaster: z.number().min(4).max(50),
 	questions: z.array(z.object({
 		domain: z.string().optional(),
 		text: z.string(),
@@ -77,7 +77,7 @@ export function NewRoastWizardV2({
 		resolver: zodResolver(simplifiedRoastSchema),
 		defaultValues: {
 			feedbacksRequested: 2,
-			pricePerRoaster: 5,
+			pricePerRoaster: 4,
 			targetAudienceIds: [],
 			questions: [],
 			focusAreas: [],
@@ -124,7 +124,7 @@ export function NewRoastWizardV2({
 	};
 
 	const calculateSuggestedPrice = () => {
-		const basePrice = 3;
+		const basePrice = 4;
 		const questionFactor = Math.min(questions.length * 0.5, 5);
 		const complexityFactor = selectedDomains.length > 3 ? 2 : 1;
 		return Math.round((basePrice + questionFactor) * complexityFactor);
@@ -178,7 +178,7 @@ export function NewRoastWizardV2({
 				return true;
 			case 2: // Pricing - require valid price
 				const price = watchedValues.pricePerRoaster;
-				return !!(price && price >= 3 && price <= 50);
+				return !!(price && price >= 4 && price <= 50);
 			default:
 				return false;
 		}
@@ -622,7 +622,7 @@ function PricingStep({
 					</Label>
 					
 					<Slider
-						min={3}
+						min={4}
 						max={50}
 						step={0.5}
 						value={[pricePerRoaster]}
@@ -631,7 +631,7 @@ function PricingStep({
 					/>
 					
 					<div className='flex justify-between text-xs text-muted-foreground'>
-						<span>3€ (minimum)</span>
+						<span>4€ (minimum)</span>
 						<span>50€ (maximum)</span>
 					</div>
 

@@ -339,7 +339,7 @@ export function FeedbackStructuredStep({
               <Sparkles className="h-4 w-4" />
               <AlertDescription>
                 <strong>{totalQuestions} question{totalQuestions > 1 ? 's' : ''} sélectionnée{totalQuestions > 1 ? 's' : ''} !</strong> 
-                Chaque question coûte 0.25€ par roaster.
+                Chaque question coûte 0.50€ par roaster.
               </AlertDescription>
             </Alert>
           )}
@@ -377,7 +377,7 @@ export function FeedbackStructuredStep({
             </CardHeader>
             <CardContent className="space-y-2 text-xs">
               <p>• Organisez vos questions par domaines d'expertise</p>
-              <p>• Chaque question coûte 0,25€ par roaster</p>
+              <p>• Chaque question coûte 0,50€ par roaster</p>
               <p>• Réorganisez les questions par glisser-déposer</p>
               <p>• Les roasters répondent par section organisée</p>
               <p>• Obtenez un feedback structuré et actionnable</p>

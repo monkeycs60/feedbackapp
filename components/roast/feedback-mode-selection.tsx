@@ -47,7 +47,7 @@ export function FeedbackModeSelection({
         };
       case 'STRUCTURED':
         return {
-          description: '3€ de base + 0,25€ par question. Questions organisées par domaines d\'expertise.',
+          description: '4€ de base + 0,50€ par question. Questions organisées par domaines d\'expertise.',
           useCase: 'Parfait pour : Audit complet, amélioration globale, roadmap produit',
           timeline: '📋 Retours en 3-5 jours',
           questionCount: 0
@@ -71,8 +71,8 @@ export function FeedbackModeSelection({
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-3xl mx-auto">
             <h3 className="text-sm font-medium text-blue-800 mb-2">💰 Comment ça marche ?</h3>
             <div className="text-xs text-blue-700 space-y-1">
-              <p>• <strong>Mode FREE :</strong> Prix fixe 3€ par roaster - feedback libre uniquement</p>
-              <p>• <strong>Mode STRUCTURED :</strong> 3€ par roaster + 0,25€ par question (pas de questions offertes)</p>
+              <p>• <strong>Mode FREE :</strong> Prix fixe 4€ par roaster - feedback libre uniquement</p>
+              <p>• <strong>Mode STRUCTURED :</strong> 4€ par roaster + 0,50€ par question (pas de questions offertes)</p>
               <p>• <strong>Option urgence :</strong> +0,50€ par roaster pour traitement prioritaire</p>
             </div>
           </div>
