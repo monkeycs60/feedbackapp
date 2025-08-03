@@ -36,7 +36,6 @@ const simplifiedRoastSchema = z.object({
 	feedbacksRequested: z.number().min(1).max(10),
 	targetAudienceIds: z.array(z.string()).min(1).max(2),
 	customTargetAudience: z.object({ name: z.string() }).optional(),
-	pricePerRoaster: z.number().min(4).max(50),
 	questions: z.array(z.object({
 		domain: z.string().optional(),
 		text: z.string(),
@@ -77,7 +76,6 @@ export function NewRoastWizardV2({
 		resolver: zodResolver(simplifiedRoastSchema),
 		defaultValues: {
 			feedbacksRequested: 2,
-			pricePerRoaster: 4,
 			targetAudienceIds: [],
 			questions: [],
 			focusAreas: [],
@@ -143,6 +141,7 @@ export function NewRoastWizardV2({
 			// Transform data to match server expectations
 			const submitData = {
 				...data,
+				pricePerRoaster: calculateSuggestedPrice(), // Prix calculé automatiquement
 				isUrgent: false, // Always false now
 				questions: questions.map(q => ({
 					domain: q.domain,
@@ -174,9 +173,8 @@ export function NewRoastWizardV2({
 				);
 			case 1: // Feedback config - always valid (questions are optional)
 				return true;
-			case 2: // Pricing - require valid price
-				const price = watchedValues.pricePerRoaster;
-				return !!(price && price >= 4 && price <= 50);
+			case 2: // Pricing - always valid (prix calculé automatiquement)
+				return true;
 			default:
 				return false;
 		}
@@ -533,6 +531,11 @@ function FeedbackConfigStep({
 						<p className='text-sm text-muted-foreground'>
 							Ajoutez des questions spécifiques pour obtenir des retours ciblés
 						</p>
+						<div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2'>
+							<p className='text-xs text-blue-800'>
+								💰 <strong>Tarification :</strong> 4€ de base + 0,50€ par question supplémentaire
+							</p>
+						</div>
 					</div>
 
 					{/* Simplified question interface */}
@@ -576,9 +579,14 @@ function FeedbackConfigStep({
 					</div>
 
 					{questions.length > 0 && (
-						<p className='text-sm text-muted-foreground'>
-							{questions.length} question{questions.length > 1 ? 's' : ''} personnalisée{questions.length > 1 ? 's' : ''}
-						</p>
+						<div className='bg-green-50 border border-green-200 rounded-lg p-3'>
+							<p className='text-sm font-medium text-green-800'>
+								{questions.length} question{questions.length > 1 ? 's' : ''} personnalisée{questions.length > 1 ? 's' : ''}
+							</p>
+							<p className='text-xs text-green-700 mt-1'>
+								Coût supplémentaire : +{(questions.length * 0.5).toFixed(2)}€ par roaster
+							</p>
+						</div>
 					)}
 				</div>
 			</CardContent>
@@ -596,10 +604,10 @@ function PricingStep({
 	questions: Question[];
 	suggestedPrice: number;
 }) {
-	const { watch, setValue } = form;
+	const { watch } = form;
 	const watchedValues = watch();
-	const pricePerRoaster = watchedValues.pricePerRoaster || 5;
-	const totalPrice = pricePerRoaster * (watchedValues.feedbacksRequested || 2);
+	const calculatedPrice = suggestedPrice; // Prix calculé automatiquement
+	const totalPrice = calculatedPrice * (watchedValues.feedbacksRequested || 2);
 
 	return (
 		<Card>
@@ -610,37 +618,40 @@ function PricingStep({
 				</CardTitle>
 			</CardHeader>
 			<CardContent className='space-y-6'>
-				{/* Price Setting */}
+				{/* Prix calculé automatiquement */}
 				<div className='space-y-4'>
-					<Label>
-						Prix par roaster
-						<span className='ml-2 text-2xl font-bold text-green-600'>
-							{pricePerRoaster}€
-						</span>
-					</Label>
-					
-					<Slider
-						min={4}
-						max={50}
-						step={0.5}
-						value={[pricePerRoaster]}
-						onValueChange={([value]) => setValue('pricePerRoaster', value)}
-						className='w-full'
-					/>
-					
-					<div className='flex justify-between text-xs text-muted-foreground'>
-						<span>4€ (minimum)</span>
-						<span>50€ (maximum)</span>
+					<div className='text-center'>
+						<Label className='text-lg font-medium'>Prix calculé automatiquement</Label>
+						<div className='mt-2 p-6 bg-green-50 border-2 border-green-200 rounded-lg'>
+							<div className='text-3xl font-bold text-green-600 mb-2'>
+								{calculatedPrice}€
+							</div>
+							<div className='text-sm text-green-700'>
+								par roaster
+							</div>
+						</div>
 					</div>
 
-					{/* Market Indicator */}
-					<div className='bg-blue-50 p-4 rounded-lg'>
-						<p className='text-sm font-medium text-blue-900'>
-							Prix suggéré : {suggestedPrice}€
-						</p>
-						<p className='text-xs text-blue-700 mt-1'>
-							Basé sur {questions.length} question{questions.length !== 1 ? 's' : ''} (4€ base + {questions.length} × 0,50€)
-						</p>
+					{/* Détail du calcul */}
+					<div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+						<h4 className='text-sm font-medium text-blue-900 mb-3'>Détail du calcul :</h4>
+						<div className='space-y-2 text-sm'>
+							<div className='flex justify-between text-blue-800'>
+								<span>Prix de base (feedback structuré)</span>
+								<span className='font-medium'>4,00€</span>
+							</div>
+							{questions.length > 0 && (
+								<div className='flex justify-between text-blue-800'>
+									<span>Questions personnalisées ({questions.length} × 0,50€)</span>
+									<span className='font-medium'>+{(questions.length * 0.5).toFixed(2)}€</span>
+								</div>
+							)}
+							<hr className='border-blue-300' />
+							<div className='flex justify-between text-blue-900 font-semibold'>
+								<span>Total par roaster</span>
+								<span>{calculatedPrice}€</span>
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -648,27 +659,59 @@ function PricingStep({
 				<div className='space-y-4'>
 					<h3 className='font-semibold'>Récapitulatif</h3>
 					
-					<div className='bg-gray-50 rounded-lg p-4 space-y-3'>
-						<div className='flex justify-between'>
-							<span>Titre</span>
-							<span className='font-medium'>{watchedValues.title || 'Non défini'}</span>
+					<div className='space-y-4'>
+						{/* Informations générales */}
+						<div className='bg-gray-50 rounded-lg p-4 space-y-2'>
+							<h4 className='font-medium text-gray-900 mb-2'>Informations générales</h4>
+							<div className='grid grid-cols-2 gap-2 text-sm'>
+								<div>
+									<span className='text-gray-600'>Titre :</span>
+									<p className='font-medium truncate'>{watchedValues.title || 'Non défini'}</p>
+								</div>
+								<div>
+									<span className='text-gray-600'>Catégorie :</span>
+									<p className='font-medium'>{watchedValues.category || 'Non définie'}</p>
+								</div>
+								<div>
+									<span className='text-gray-600'>Roasters :</span>
+									<p className='font-medium'>{watchedValues.feedbacksRequested || 2}</p>
+								</div>
+								<div>
+									<span className='text-gray-600'>Questions :</span>
+									<p className='font-medium'>{questions.length}</p>
+								</div>
+							</div>
 						</div>
-						<div className='flex justify-between'>
-							<span>Catégorie</span>
-							<span className='font-medium'>{watchedValues.category || 'Non définie'}</span>
-						</div>
-						<div className='flex justify-between'>
-							<span>Roasters demandés</span>
-							<span className='font-medium'>{watchedValues.feedbacksRequested || 2}</span>
-						</div>
-						<div className='flex justify-between'>
-							<span>Questions personnalisées</span>
-							<span className='font-medium'>{questions.length}</span>
-						</div>
-						<hr />
-						<div className='flex justify-between text-lg font-semibold'>
-							<span>Coût total maximum</span>
-							<span className='text-green-600'>{totalPrice}€</span>
+
+						{/* Détail du pricing */}
+						<div className='bg-green-50 border border-green-200 rounded-lg p-4'>
+							<h4 className='font-medium text-green-900 mb-3'>Détail de la tarification</h4>
+							<div className='space-y-2 text-sm'>
+								<div className='flex justify-between text-green-800'>
+									<span>Prix de base (feedback structuré)</span>
+									<span className='font-medium'>4,00€</span>
+								</div>
+								{questions.length > 0 && (
+									<div className='flex justify-between text-green-800'>
+										<span>Questions personnalisées ({questions.length} × 0,50€)</span>
+										<span className='font-medium'>+{(questions.length * 0.5).toFixed(2)}€</span>
+									</div>
+								)}
+								<hr className='border-green-300 my-2' />
+								<div className='flex justify-between text-green-900 font-semibold'>
+									<span>Prix par roaster</span>
+									<span>{calculatedPrice}€</span>
+								</div>
+								<div className='flex justify-between text-green-900 font-semibold'>
+									<span>Nombre de roasters</span>
+									<span>×{watchedValues.feedbacksRequested || 2}</span>
+								</div>
+								<hr className='border-green-400 my-2' />
+								<div className='flex justify-between text-lg font-bold text-green-900'>
+									<span>Coût total maximum</span>
+									<span className='text-green-600'>{totalPrice}€</span>
+								</div>
+							</div>
 						</div>
 					</div>
 
