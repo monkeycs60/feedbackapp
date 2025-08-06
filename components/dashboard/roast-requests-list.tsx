@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-	Calendar,
 	MessageSquare,
 	Users,
 	ExternalLink,
@@ -21,17 +20,22 @@ interface RoastRequestsListProps {
 	roastRequests: Array<{
 		id: string;
 		title: string;
-		description: string;
+		description?: string;
 		status: string;
-		maxPrice: number;
+		maxPrice: number | null;
 		pricePerRoaster?: number | null;
 		feedbacksRequested: number;
 		createdAt: Date;
-		focusAreas: string[];
 		coverImage?: string | null;
 		category?: string | null;
 		feedbacks: Array<{ id: string; status: string }>;
 		applications?: Array<{ id: string; status: string }>;
+		questions: Array<{
+			id: string;
+			domain: string | null;
+			text: string;
+			order: number;
+		}>;
 		_count: {
 			feedbacks: number;
 			applications?: number;
@@ -55,6 +59,14 @@ function formatTimeAgo(date: Date) {
 	const diffInWeeks = Math.round(diffInDays / 7);
 	if (diffInWeeks === 1) return 'Il y a 1 semaine';
 	return `Il y a ${diffInWeeks} semaines`;
+}
+
+function getUniqueDomainsFromQuestions(questions: Array<{domain: string | null}>): string[] {
+	const domains = questions
+		.map(q => q.domain)
+		.filter((domain): domain is string => domain !== null)
+		.filter((domain, index, arr) => arr.indexOf(domain) === index);
+	return domains;
 }
 
 export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
@@ -129,7 +141,7 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 						(request._count.feedbacks / request.feedbacksRequested) * 100;
 					// Use new pricing model if available, fallback to legacy calculation
 					const pricePerFeedback = request.pricePerRoaster || Math.round(
-						request.maxPrice / request.feedbacksRequested
+						(request.maxPrice || 0) / request.feedbacksRequested
 					);
 
 					return (
@@ -182,10 +194,10 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 							<CardContent className='p-4 space-y-3'>
 								{/* Description */}
 								<p className='text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]'>
-									{request.description}
+									{request.description || 'Aucune description disponible'}
 								</p>
 
-								{/* Category and Focus areas */}
+								{/* Category and Question domains */}
 								<div className='flex justify-between my-3'>
 									{/* Category */}
 									{request.category && (
@@ -206,23 +218,26 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 										</div>
 									)}
 
-									{/* Focus areas */}
-									{request.focusAreas.length > 0 && (
-										<div className='flex flex-wrap gap-1'>
-											{request.focusAreas.slice(0, 2).map((area) => (
-												<span
-													key={area}
-													className='text-xs px-2 py-0.5 bg-muted rounded-full'>
-													{area}
-												</span>
-											))}
-											{request.focusAreas.length > 2 && (
-												<span className='text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground'>
-													+{request.focusAreas.length - 2}
-												</span>
-											)}
-										</div>
-									)}
+									{/* Question domains */}
+									{(() => {
+										const domains = getUniqueDomainsFromQuestions(request.questions);
+										return domains.length > 0 && (
+											<div className='flex flex-wrap gap-1'>
+												{domains.slice(0, 2).map((domain) => (
+													<span
+														key={domain}
+														className='text-xs px-2 py-0.5 bg-muted rounded-full'>
+														{domain}
+													</span>
+												))}
+												{domains.length > 2 && (
+													<span className='text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground'>
+														+{domains.length - 2}
+													</span>
+												)}
+											</div>
+										);
+									})()}
 								</div>
 
 								{/* Feedback progress */}

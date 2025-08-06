@@ -39,17 +39,21 @@ interface CreatorDashboardContentProps {
         questionId: string;
         response: string;
         question?: {
-          domain: string;
+          domain: string | null;
         };
       }>;
     }>;
     applications: Array<{ id: string; status: string }>;
-    questions?: Array<{
+    questions: Array<{
       id: string;
-      domain: string;
+      domain: string | null;
       text: string;
       order: number;
     }>;
+    _count: {
+      feedbacks: number;
+      applications: number;
+    };
   }>;
 }
 
