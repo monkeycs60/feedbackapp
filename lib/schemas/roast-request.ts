@@ -51,7 +51,6 @@ export const newRoastRequestSchema = z.object({
     text: z.string().min(5, "Question too short"),
     order: z.number()
   })).optional(),
-  focusAreas: z.array(z.string()).optional(),
 });
 
 export type RoastRequestFormData = z.infer<typeof roastRequestSchema>;

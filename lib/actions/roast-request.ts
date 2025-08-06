@@ -91,7 +91,6 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
         appUrl: validData.appUrl,
         description: validData.description,
         category: validData.category,
-        focusAreas: validData.focusAreas,
         maxPrice: validData.maxPrice,
         feedbacksRequested: validData.feedbacksRequested,
         deadline: validData.deadline,
@@ -197,7 +196,6 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
         title: validData.title,
         appUrl: validData.appUrl,
         description: validData.description,
-        focusAreas: validData.focusAreas || [],
         deadline: validData.deadline,
         status: 'collecting_applications',
         feedbacksRequested: validData.feedbacksRequested,
@@ -206,13 +204,9 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
         
         // New simplified pricing model
         pricePerRoaster: pricePerRoaster,
-        useStructuredForm: true,
         
         // Keep legacy fields for backward compatibility
         maxPrice: pricePerRoaster * validData.feedbacksRequested,
-        basePriceMode: pricePerRoaster,
-        freeQuestions: 0,
-        questionPrice: 0,
         
         // Create target audience relationships
         targetAudiences: {
@@ -477,12 +471,12 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
       });
     }
 
-    // Filter by domains (focus areas)
-    if (filters.domains && filters.domains.length > 0) {
-      filteredRoasts = filteredRoasts.filter(roast =>
-        roast.focusAreas.some(area => filters.domains!.includes(area))
-      );
-    }
+    // Filter by domains (focus areas) - DEPRECATED: focusAreas field removed from schema
+    // if (filters.domains && filters.domains.length > 0) {
+    //   filteredRoasts = filteredRoasts.filter(roast =>
+    //     roast.focusAreas.some(area => filters.domains!.includes(area))
+    //   );
+    // }
 
     // Filter by target audiences
     if (filters.targetAudiences && filters.targetAudiences.length > 0) {
@@ -524,7 +518,7 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
     // Filter by price range
     if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
       filteredRoasts = filteredRoasts.filter(roast => {
-        const pricePerRoast = Math.round(roast.maxPrice / roast.feedbacksRequested);
+        const pricePerRoast = Math.round(roast.maxPrice ?? 0 / roast.feedbacksRequested);
         if (filters.minPrice !== undefined && pricePerRoast < filters.minPrice) return false;
         if (filters.maxPrice !== undefined && pricePerRoast > filters.maxPrice) return false;
         return true;
