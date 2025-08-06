@@ -8,6 +8,14 @@ import Image from 'next/image';
 import { APP_CATEGORIES } from '@/lib/types/roast-request';
 import { authClient } from '@/lib/auth-client';
 
+function getUniqueDomainsFromQuestions(questions: Array<{domain: string | null}>): string[] {
+	const domains = questions
+		.map(q => q.domain)
+		.filter((domain): domain is string => domain !== null)
+		.filter((domain, index, arr) => arr.indexOf(domain) === index);
+	return domains;
+}
+
 type AvailableRoast = {
 	id: string;
 	title: string;
@@ -20,8 +28,7 @@ type AvailableRoast = {
 			name: string;
 		};
 	}>;
-	focusAreas: string[];
-	maxPrice: number;
+	maxPrice: number | null;
 	feedbacksRequested: number;
 	deadline?: Date | null;
 	createdAt: Date;
@@ -47,6 +54,12 @@ type AvailableRoast = {
 		feedbacks: number;
 		applications: number;
 	};
+	questions: Array<{
+		id: string;
+		domain: string | null;
+		text: string;
+		order: number;
+	}>;
 };
 
 interface AvailableRoastsListProps {
@@ -151,7 +164,7 @@ export function AvailableRoastsList({
 					const spotsLeft = roast.feedbacksRequested - acceptedApplications;
 					// Use new pricing model if available, fallback to legacy calculation
 					const pricePerRoast = roast.pricePerRoaster || Math.round(
-						roast.maxPrice / roast.feedbacksRequested
+						(roast.maxPrice || 0) / roast.feedbacksRequested
 					);
 
 					return (
@@ -196,10 +209,10 @@ export function AvailableRoastsList({
 								</div>
 
 								{/* Questions count badge for new model */}
-								{roast.focusAreas && roast.focusAreas.length > 0 && (
+								{roast.questions && roast.questions.length > 0 && (
 									<div className='absolute top-3 right-3'>
 										<div className='px-2 py-1 rounded text-xs font-medium bg-green-500/80 text-white backdrop-blur-sm'>
-											💬 {roast.focusAreas.length} question{roast.focusAreas.length > 1 ? 's' : ''}
+											💬 {roast.questions.length} question{roast.questions.length > 1 ? 's' : ''}
 										</div>
 									</div>
 								)}
@@ -263,23 +276,26 @@ export function AvailableRoastsList({
 										</div>
 									)}
 
-									{/* Focus areas as badges */}
-									{roast.focusAreas.length > 0 && (
-										<div className='flex flex-wrap gap-1'>
-											{roast.focusAreas.slice(0, 2).map((area) => (
-												<span
-													key={area}
-													className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground'>
-													{area}
-												</span>
-											))}
-											{roast.focusAreas.length > 2 && (
-												<span className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground/70'>
-													+{roast.focusAreas.length - 2}
-												</span>
-											)}
-										</div>
-									)}
+									{/* Question domains as badges */}
+									{(() => {
+										const domains = getUniqueDomainsFromQuestions(roast.questions);
+										return domains.length > 0 && (
+											<div className='flex flex-wrap gap-1'>
+												{domains.slice(0, 2).map((domain) => (
+													<span
+														key={domain}
+														className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground'>
+														{domain}
+													</span>
+												))}
+												{domains.length > 2 && (
+													<span className='text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground/70'>
+														+{domains.length - 2}
+													</span>
+												)}
+											</div>
+										);
+									})()}
 								</div>
 
 								{/* Stats & actions */}

@@ -18,7 +18,6 @@ type AcceptedApplication = {
 		title: string;
 		appUrl: string;
 		description: string;
-		focusAreas: string[];
 		maxPrice: number | null;
 		feedbacksRequested: number;
 		createdAt: Date;
@@ -32,7 +31,7 @@ type AcceptedApplication = {
 		};
 		questions: Array<{
 			id: string;
-			domain: string;
+			domain: string | null;
 			text: string;
 			order: number;
 		}>;

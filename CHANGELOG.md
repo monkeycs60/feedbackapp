@@ -1,5 +1,19 @@
 # Changelog
 
+## 2025-01-15-14:30
+### Bug Fix - Schema Alignment with Components
+- **Fixed runtime errors**: Resolved "Cannot read properties of undefined (reading 'length')" errors in dashboard and marketplace
+  - Updated `CreatorDashboardContent` interface to match actual `getUserRoastRequests` return type
+  - Replaced deprecated `focusAreas` field with `questions` structure in all components
+  - Fixed `maxPrice` null handling in pricing calculations
+- **Component updates**:
+  - `RoastRequestsList`: Updated to use question domains instead of focus areas
+  - `MarketplaceContent`: Fixed schema mismatch and added domain extraction utility
+  - `AvailableRoastsList`: Replaced focus areas logic with question domains display
+  - `AcceptedApplicationsList`: Updated interface to match current schema
+- **Utility functions**: Added `getUniqueDomainsFromQuestions` helper for domain extraction
+- **Type safety**: Improved type alignment between database schema and frontend components
+
 ## 2025-08-03-15:30
 ### Major Simplification - Suppression des modes de feedback
 - **Base de données nettoyée**: Suppression complète de l'enum `FeedbackMode` et colonne `feedbackMode`

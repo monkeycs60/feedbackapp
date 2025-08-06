@@ -7,6 +7,14 @@ import type { RoastFilters } from '@/lib/actions/roast-request';
 import { getFilteredRoastRequests } from '@/lib/actions/roast-request';
 import { Skeleton } from '@/components/ui/skeleton';
 
+function getUniqueDomainsFromQuestions(questions: Array<{domain: string | null}>): string[] {
+	const domains = questions
+		.map(q => q.domain)
+		.filter((domain): domain is string => domain !== null)
+		.filter((domain, index, arr) => arr.indexOf(domain) === index);
+	return domains;
+}
+
 type AvailableRoast = {
 	id: string;
 	title: string;
@@ -18,7 +26,6 @@ type AvailableRoast = {
 			name: string;
 		};
 	}>;
-	focusAreas: string[];
 	maxPrice: number | null;
 	feedbacksRequested: number;
 	deadline?: Date | null;
@@ -37,7 +44,12 @@ type AvailableRoast = {
 		feedbacks: number;
 		applications: number;
 	};
-	questions: { domain: string }[];
+	questions: Array<{
+		id: string;
+		domain: string | null;
+		text: string;
+		order: number;
+	}>;
 };
 
 interface MarketplaceContentProps {
@@ -57,8 +69,9 @@ export function MarketplaceContent({ initialRoasts }: MarketplaceContentProps) {
 		let maxPrice = 0;
 
 		initialRoasts.forEach((roast) => {
-			// Extract domains from focus areas
-			roast.focusAreas.forEach((area) => domains.add(area));
+			// Extract domains from questions
+			const roastDomains = getUniqueDomainsFromQuestions(roast.questions);
+			roastDomains.forEach((domain) => domains.add(domain));
 
 			// Extract target audiences
 			roast.targetAudiences.forEach(ta => {
@@ -67,7 +80,7 @@ export function MarketplaceContent({ initialRoasts }: MarketplaceContentProps) {
 
 			// Calculate price range
 			const pricePerRoast = Math.round(
-				roast.maxPrice || 0 / roast.feedbacksRequested
+				(roast.maxPrice || 0) / roast.feedbacksRequested
 			);
 			minPrice = Math.min(minPrice, pricePerRoast);
 			maxPrice = Math.max(maxPrice, pricePerRoast);
