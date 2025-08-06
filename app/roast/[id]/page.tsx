@@ -27,7 +27,6 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-	FOCUS_AREAS,
 	APP_CATEGORIES,
 } from '@/lib/types/roast-request';
 import { UnifiedPricingDisplay } from '@/components/roast/unified-pricing-display';

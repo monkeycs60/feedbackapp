@@ -20,6 +20,14 @@ import {
 } from 'lucide-react';
 import { applyForRoast } from '@/lib/actions/roast-application';
 
+function getUniqueDomainsFromQuestions(questions: Array<{domain: string | null}>): string[] {
+	const domains = questions
+		.map(q => q.domain)
+		.filter((domain): domain is string => domain !== null)
+		.filter((domain, index, arr) => arr.indexOf(domain) === index);
+	return domains;
+}
+
 const applicationSchema = z.object({
 	motivation: z
 		.string()
@@ -36,7 +44,12 @@ interface RoastApplicationFormProps {
 		maxPrice: number | null;
 		pricePerRoaster?: number | null;
 		feedbacksRequested: number;
-		focusAreas: string[];
+		questions: Array<{
+			id: string;
+			domain: string | null;
+			text: string;
+			order: number;
+		}>;
 		status: string;
 		feedbacks: { id: string; status: string }[];
 		applications: { id: string; status: string }[];
@@ -54,7 +67,7 @@ export function RoastApplicationForm({
 
 	// Use new pricing model if available, fallback to legacy calculation
 	const pricePerFeedback = roastRequest.pricePerRoaster || Math.round(
-		roastRequest.maxPrice / roastRequest.feedbacksRequested
+		(roastRequest.maxPrice || 0) / roastRequest.feedbacksRequested
 	);
 	
 	// Calculate remaining spots based on accepted applications
@@ -204,12 +217,12 @@ export function RoastApplicationForm({
 							Domaines à traiter
 						</Label>
 						<div className='flex flex-wrap gap-2'>
-							{roastRequest.focusAreas.map((area) => (
+							{getUniqueDomainsFromQuestions(roastRequest.questions).map((domain) => (
 								<Badge
-									key={area}
+									key={domain}
 									variant='secondary'
 									className='text-sm'>
-									{area}
+									{domain}
 								</Badge>
 							))}
 						</div>

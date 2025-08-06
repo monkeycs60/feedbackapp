@@ -2,7 +2,7 @@
 
 ## 2025-01-15-14:30
 ### Bug Fix - Schema Alignment with Components
-- **Fixed runtime errors**: Resolved "Cannot read properties of undefined (reading 'length')" errors in dashboard and marketplace
+- **Fixed runtime errors**: Resolved "Cannot read properties of undefined" errors in dashboard, marketplace, and roast application pages
   - Updated `CreatorDashboardContent` interface to match actual `getUserRoastRequests` return type
   - Replaced deprecated `focusAreas` field with `questions` structure in all components
   - Fixed `maxPrice` null handling in pricing calculations
@@ -11,7 +11,10 @@
   - `MarketplaceContent`: Fixed schema mismatch and added domain extraction utility
   - `AvailableRoastsList`: Replaced focus areas logic with question domains display
   - `AcceptedApplicationsList`: Updated interface to match current schema
-- **Utility functions**: Added `getUniqueDomainsFromQuestions` helper for domain extraction
+  - `RoastApplicationForm`: Fixed "Cannot read properties of undefined (reading 'map')" error by replacing focusAreas with questions
+- **Page updates**:
+  - `app/roast/[id]/page.tsx`: Removed unused `FOCUS_AREAS` import
+- **Utility functions**: Added `getUniqueDomainsFromQuestions` helper for domain extraction across multiple components
 - **Type safety**: Improved type alignment between database schema and frontend components
 
 ## 2025-08-03-15:30
