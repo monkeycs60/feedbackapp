@@ -17,7 +17,7 @@ async function getCurrentUser() {
   });
   
   if (!session?.user?.id) {
-    throw new Error("Non authentifié");
+    throw new Error("Not authenticated");
   }
   
   return session.user;
@@ -27,23 +27,23 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
   try {
     const user = await getCurrentUser();
 
-    // Vérifier que l'utilisateur a un profil créateur ET que son rôle principal est creator
+    // Verify that the user has a creator profile AND that their primary role is creator
     const userWithProfile = await prisma.user.findUnique({
       where: { id: user.id },
       include: { creatorProfile: true }
     });
 
     if (!userWithProfile?.creatorProfile) {
-      throw new Error("Profil créateur requis");
+      throw new Error("Creator profile required");
     }
 
     if (userWithProfile.primaryRole === 'roaster') {
-      throw new Error("Les roasters ne peuvent pas créer de demandes de roast. Changez de rôle pour accéder à cette fonctionnalité.");
+      throw new Error("Roasters cannot create roast requests. Switch roles to access this feature");
     }
 
     const validation = roastRequestSchema.safeParse(data);
     if (!validation.success) {
-      throw new Error("Données invalides: " + validation.error.issues.map(i => i.message).join(', '));
+      throw new Error("Invalid data: " + validation.error.issues.map(i => i.message).join(', '));
     }
 
     const validData = validation.data;
@@ -105,7 +105,7 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
       }
     });
 
-    // Créer les questions si elles existent
+    // Create questions if they exist
     if (validData.selectedDomains && validData.selectedDomains.length > 0) {
       const questionsToCreate = validData.selectedDomains.flatMap(domain => 
         domain.questions.map(question => ({
@@ -122,7 +122,7 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
       });
     }
 
-    // Mettre à jour le compteur de projets postés
+    // Update posted projects counter
     await prisma.creatorProfile.update({
       where: { userId: user.id },
       data: { projectsPosted: { increment: 1 } }
@@ -135,8 +135,8 @@ export async function createRoastRequest(data: z.infer<typeof roastRequestSchema
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
       throw error;
     }
-    console.error('Erreur création roast request:', error);
-    throw new Error('Erreur lors de la création de la demande');
+    console.error('Error creating roast request:', error);
+    throw new Error('Error creating the request');
   }
 }
 
@@ -154,17 +154,17 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
     });
 
     if (!userWithProfile?.creatorProfile) {
-      throw new Error("Profil créateur requis");
+      throw new Error("Creator profile required");
     }
 
     if (userWithProfile.primaryRole === 'roaster') {
-      throw new Error("Les roasters ne peuvent pas créer de demandes de roast. Changez de rôle pour accéder à cette fonctionnalité.");
+      throw new Error("Roasters cannot create roast requests. Switch roles to access this feature");
     }
 
     // Validate input data
     const validation = newRoastRequestSchema.safeParse(data);
     if (!validation.success) {
-      throw new Error("Données invalides: " + validation.error.issues.map(i => i.message).join(', '));
+      throw new Error("Invalid data: " + validation.error.issues.map(i => i.message).join(', '));
     }
 
     const validData = validation.data;
@@ -174,7 +174,7 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
     
     // Validate price range
     if (pricePerRoaster < 3 || pricePerRoaster > 50) {
-      throw new Error("Le prix par roaster doit être entre 3€ et 50€");
+      throw new Error("Price per roaster must be between €3 and €50");
     }
 
     // Handle custom target audience creation
@@ -247,7 +247,7 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
       throw error;
     }
-    console.error('Erreur création roast request (nouveau système):', error);
+    console.error('Error creating roast request (new system):', error);
     throw new Error(error instanceof Error ? error.message : 'Erreur lors de la création de la demande');
   }
 }
@@ -304,7 +304,7 @@ export async function getUserRoastRequests() {
       }
     });
   } catch (error) {
-    console.error('Erreur récupération roast requests:', error);
+    console.error('Error fetching roast requests:', error);
     return [];
   }
 }
@@ -313,7 +313,7 @@ export async function updateRoastRequestStatus(id: string, status: 'open' | 'in_
   try {
     const user = await getCurrentUser();
 
-    // Vérifier que l'utilisateur est propriétaire de la demande
+    // Verify that the user owns the request
     const roastRequest = await prisma.roastRequest.findFirst({
       where: { 
         id,
@@ -322,7 +322,7 @@ export async function updateRoastRequestStatus(id: string, status: 'open' | 'in_
     });
 
     if (!roastRequest) {
-      throw new Error("Demande non trouvée");
+      throw new Error("Request not found");
     }
 
     await prisma.roastRequest.update({
@@ -333,8 +333,8 @@ export async function updateRoastRequestStatus(id: string, status: 'open' | 'in_
     revalidatePath('/dashboard');
     return { success: true };
   } catch (error) {
-    console.error('Erreur mise à jour statut:', error);
-    throw new Error('Erreur lors de la mise à jour du statut');
+    console.error('Error updating status:', error);
+    throw new Error('Error updating status');
   }
 }
 
@@ -387,7 +387,7 @@ export async function getAvailableRoastRequests() {
       }
     });
   } catch (error) {
-    console.error('Erreur récupération demandes disponibles:', error);
+    console.error('Error fetching available requests:', error);
     return [];
   }
 }
@@ -533,7 +533,7 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
 
     return filteredRoasts;
   } catch (error) {
-    console.error('Erreur récupération demandes filtrées:', error);
+    console.error('Error fetching filtered requests:', error);
     return [];
   }
 }
@@ -624,7 +624,7 @@ export async function getRoastRequestById(id: string) {
 
     return roastRequest;
   } catch (error) {
-    console.error('Erreur récupération roast request:', error);
+    console.error('Error fetching roast request:', error);
     return null;
   }
 }
@@ -633,7 +633,7 @@ export async function deleteRoastRequest(id: string) {
   try {
     const user = await getCurrentUser();
 
-    // Vérifier que l'utilisateur est propriétaire
+    // Verify that the user is the owner
     const roastRequest = await prisma.roastRequest.findFirst({
       where: { 
         id,
@@ -642,23 +642,23 @@ export async function deleteRoastRequest(id: string) {
     });
 
     if (!roastRequest) {
-      throw new Error("Demande non trouvée");
+      throw new Error("Request not found");
     }
 
-    // Ne peut supprimer que si pas de feedbacks commencés
+    // Can only delete if no feedbacks have been started
     const hasFeedbacks = await prisma.feedback.findFirst({
       where: { roastRequestId: id }
     });
 
     if (hasFeedbacks) {
-      throw new Error("Impossible de supprimer une demande avec des feedbacks");
+      throw new Error("Cannot delete a request with existing feedbacks");
     }
 
     await prisma.roastRequest.delete({
       where: { id }
     });
 
-    // Décrémenter le compteur
+    // Decrement the counter
     await prisma.creatorProfile.update({
       where: { userId: user.id },
       data: { projectsPosted: { decrement: 1 } }
@@ -667,7 +667,7 @@ export async function deleteRoastRequest(id: string) {
     revalidatePath('/dashboard');
     return { success: true };
   } catch (error) {
-    console.error('Erreur suppression roast request:', error);
-    throw new Error('Erreur lors de la suppression');
+    console.error('Error deleting roast request:', error);
+    throw new Error('Error during deletion');
   }
 }

@@ -14,7 +14,7 @@ async function getCurrentUser() {
   });
   
   if (!session?.user?.id) {
-    throw new Error("Non authentifié");
+    throw new Error("Not authenticated");
   }
   
   return session.user;
@@ -95,7 +95,7 @@ export async function initializeTargetAudiences() {
     return { success: true };
   } catch (error) {
     console.error("Error initializing target audiences:", error);
-    throw new Error("Erreur lors de l'initialisation des audiences");
+    throw new Error("Error initializing audiences");
   }
 }
 
@@ -119,7 +119,7 @@ export async function getTargetAudiences() {
 }
 
 const createTargetAudienceSchema = z.object({
-  name: z.string().min(2, "Le nom doit faire au moins 2 caractères").max(50)
+  name: z.string().min(2, "Name must be at least 2 characters").max(50)
 });
 
 /**
@@ -131,7 +131,7 @@ export async function createTargetAudience(data: z.infer<typeof createTargetAudi
     
     const validation = createTargetAudienceSchema.safeParse(data);
     if (!validation.success) {
-      throw new Error("Données invalides: " + validation.error.issues.map(i => i.message).join(', '));
+      throw new Error("Invalid data: " + validation.error.issues.map(i => i.message).join(', '));
     }
     
     const validData = validation.data;
@@ -147,7 +147,7 @@ export async function createTargetAudience(data: z.infer<typeof createTargetAudi
     });
     
     if (existing) {
-      throw new Error("Cette audience existe déjà");
+      throw new Error("This audience already exists");
     }
     
     // Create new audience
@@ -162,7 +162,7 @@ export async function createTargetAudience(data: z.infer<typeof createTargetAudi
     return audience;
   } catch (error) {
     console.error("Error creating target audience:", error);
-    throw new Error("Erreur lors de la création de l'audience");
+    throw new Error("Error creating audience");
   }
 }
 

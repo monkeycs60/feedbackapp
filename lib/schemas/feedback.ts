@@ -4,12 +4,12 @@ import { z } from "zod";
 export const structuredFeedbackSchema = z.object({
   // Core structured feedback fields
   globalRating: z.number().min(1).max(5),
-  firstImpression: z.string().min(10, "L'impression doit faire au moins 10 caractères"),
+  firstImpression: z.string().min(10, "Impression must be at least 10 characters"),
   
   // Multi-value structured fields
-  strengths: z.array(z.string().min(1)).min(1, "Au moins un point fort requis"),
-  weaknesses: z.array(z.string().min(1)).min(1, "Au moins un point faible requis"), 
-  recommendations: z.array(z.string().min(1)).min(1, "Au moins une recommandation requise"),
+  strengths: z.array(z.string().min(1)).min(1, "At least one strength required"),
+  weaknesses: z.array(z.string().min(1)).min(1, "At least one weakness required"), 
+  recommendations: z.array(z.string().min(1)).min(1, "At least one recommendation required"),
   
   // Optional rating fields
   uxUiRating: z.number().min(1).max(5).optional(),
@@ -25,7 +25,7 @@ export const structuredFeedbackSchema = z.object({
   // Question responses
   questionResponses: z.array(z.object({
     questionId: z.string(),
-    response: z.string().min(1, "Une réponse est requise")
+    response: z.string().min(1, "A response is required")
   })).default([])
 });
 
@@ -34,7 +34,7 @@ export type StructuredFeedbackData = z.infer<typeof structuredFeedbackSchema>;
 // Extended schema for server actions (includes roastRequestId and finalPrice)
 export const feedbackSubmissionSchema = structuredFeedbackSchema.extend({
   roastRequestId: z.string(),
-  finalPrice: z.number().min(1, "Prix minimum de 1€"),
+  finalPrice: z.number().min(1, "Minimum price €1"),
 });
 
 export type FeedbackSubmissionData = z.infer<typeof feedbackSubmissionSchema>;

@@ -17,7 +17,7 @@ async function getCurrentUser() {
   });
   
   if (!session?.user?.id) {
-    throw new Error("Non authentifié");
+    throw new Error("Not authenticated");
   }
   
   return session.user;
@@ -45,16 +45,16 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
     });
 
     if (!userWithProfile?.roasterProfile) {
-      throw new Error("Profil roaster requis");
+      throw new Error("Roaster profile required");
     }
 
     if (userWithProfile.primaryRole !== 'roaster') {
-      throw new Error("Seuls les roasters peuvent créer des feedbacks. Changez de rôle pour accéder à cette fonctionnalité.");
+      throw new Error("Only roasters can create feedbacks. Switch roles to access this feature");
     }
 
     const validation = feedbackSchema.safeParse(data);
     if (!validation.success) {
-      throw new Error("Données invalides: " + validation.error.issues.map(i => i.message).join(', '));
+      throw new Error("Invalid data: " + validation.error.issues.map(i => i.message).join(', '));
     }
 
     const validData = validation.data;
@@ -66,15 +66,15 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
     });
 
     if (!roastRequest) {
-      throw new Error("Demande de roast non trouvée");
+      throw new Error("Roast request not found");
     }
 
     if (!['open', 'in_progress', 'collecting_applications'].includes(roastRequest.status)) {
-      throw new Error("Cette demande n'est plus ouverte");
+      throw new Error("This request is no longer open");
     }
 
     if (roastRequest.creatorId === user.id) {
-      throw new Error("Vous ne pouvez pas faire un feedback sur votre propre demande");
+      throw new Error("You cannot provide feedback on your own request");
     }
 
     // Vérifier que l'utilisateur a une candidature acceptée
@@ -88,7 +88,7 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
     });
 
     if (!userApplication || !['accepted', 'auto_selected'].includes(userApplication.status)) {
-      throw new Error("Vous devez avoir une candidature acceptée pour soumettre un feedback");
+      throw new Error("You must have an accepted application to submit feedback");
     }
 
     // Vérifier que l'utilisateur n'a pas déjà soumis un feedback pour cette demande
@@ -100,12 +100,12 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
     });
 
     if (existingFeedback) {
-      throw new Error("Vous avez déjà soumis un feedback pour cette demande");
+      throw new Error("You have already submitted feedback for this request");
     }
 
     // Vérifier que le prix ne dépasse pas le budget maximum
     if (validData.finalPrice > roastRequest.maxPrice) {
-      throw new Error(`Le prix ne peut pas dépasser le budget maximum de ${roastRequest.maxPrice}€`);
+      throw new Error(`Price cannot exceed the maximum budget of €${roastRequest.maxPrice}`);
     }
 
     // Créer le feedback principal avec les bons champs selon le type
@@ -165,8 +165,8 @@ export async function createFeedback(data: z.infer<typeof feedbackSchema>) {
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
       throw error;
     }
-    console.error('Erreur création feedback:', error);
-    throw new Error('Erreur lors de la création du feedback');
+    console.error('Error creating feedback:', error);
+    throw new Error('Error creating feedback');
   }
 }
 
@@ -191,7 +191,7 @@ export async function getUserFeedbacks() {
       }
     });
   } catch (error) {
-    console.error('Erreur récupération feedbacks:', error);
+    console.error('Error fetching feedbacks:', error);
     return [];
   }
 }
@@ -224,7 +224,7 @@ export async function getFeedbackByRoastRequest(roastRequestId: string) {
       }
     });
   } catch (error) {
-    console.error('Erreur récupération feedback:', error);
+    console.error('Error fetching feedback:', error);
     return null;
   }
 }
@@ -242,7 +242,7 @@ export async function updateFeedbackStatus(id: string, status: 'pending' | 'comp
     });
 
     if (!feedback) {
-      throw new Error("Feedback non trouvé");
+      throw new Error("Feedback not found");
     }
 
     await prisma.feedback.update({
@@ -253,8 +253,8 @@ export async function updateFeedbackStatus(id: string, status: 'pending' | 'comp
     revalidatePath('/marketplace');
     return { success: true };
   } catch (error) {
-    console.error('Erreur mise à jour statut feedback:', error);
-    throw new Error('Erreur lors de la mise à jour du statut');
+    console.error('Error updating feedback status:', error);
+    throw new Error('Error updating status');
   }
 }
 
@@ -271,12 +271,12 @@ export async function deleteFeedback(id: string) {
     });
 
     if (!feedback) {
-      throw new Error("Feedback non trouvé");
+      throw new Error("Feedback not found");
     }
 
     // Ne peut supprimer que si le feedback est encore en pending
     if (feedback.status !== 'pending') {
-      throw new Error("Impossible de supprimer un feedback qui n'est plus en attente");
+      throw new Error("Cannot delete a feedback that is no longer pending");
     }
 
     await prisma.feedback.delete({
@@ -289,8 +289,8 @@ export async function deleteFeedback(id: string) {
     revalidatePath('/marketplace');
     return { success: true };
   } catch (error) {
-    console.error('Erreur suppression feedback:', error);
-    throw new Error('Erreur lors de la suppression');
+    console.error('Error deleting feedback:', error);
+    throw new Error('Error during deletion');
   }
 }
 
@@ -304,7 +304,7 @@ export async function getCreatorFeedbacks(status: 'all' | 'pending' | 'completed
     });
 
     if (!creator) {
-      throw new Error("Profil créateur introuvable");
+      throw new Error("Creator profile not found");
     }
 
     const where = {
@@ -340,7 +340,7 @@ export async function getCreatorFeedbacks(status: 'all' | 'pending' | 'completed
 
     return feedbacks;
   } catch (error) {
-    console.error('Erreur récupération feedbacks créateur:', error);
+    console.error('Error fetching creator feedbacks:', error);
     return [];
   }
 }
@@ -354,7 +354,7 @@ export async function getCreatorFeedbackStats() {
     });
 
     if (!creator) {
-      throw new Error("Profil créateur introuvable");
+      throw new Error("Creator profile not found");
     }
 
     const stats = await prisma.feedback.groupBy({
@@ -400,7 +400,7 @@ export async function getCreatorFeedbackStats() {
       averageRating: avgRating._avg.creatorRating || 0
     };
   } catch (error) {
-    console.error('Erreur récupération stats feedbacks:', error);
+    console.error('Error fetching feedback stats:', error);
     return {
       total: 0,
       pending: 0,
@@ -438,7 +438,7 @@ export async function getFullFeedbackDetails(feedbackId: string) {
     });
 
     if (!feedback) {
-      throw new Error("Feedback introuvable");
+      throw new Error("Feedback not found");
     }
 
     // Vérifier que l'utilisateur est le créateur ou le roaster
@@ -446,12 +446,12 @@ export async function getFullFeedbackDetails(feedbackId: string) {
     const isRoaster = feedback.roasterId === user.id;
 
     if (!isCreator && !isRoaster) {
-      throw new Error("Accès non autorisé");
+      throw new Error("Unauthorized access");
     }
 
     return feedback;
   } catch (error) {
-    console.error('Erreur récupération détails feedback:', error);
+    console.error('Error fetching feedback details:', error);
     return null;
   }
 }
