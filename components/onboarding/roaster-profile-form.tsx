@@ -14,9 +14,9 @@ import { SPECIALTY_OPTIONS, EXPERIENCE_OPTIONS } from '@/lib/config/onboarding';
 import { ROASTER_SPECIALTIES } from '@/lib/types/onboarding';
 
 const roasterProfileSchema = z.object({
-	specialties: z
-		.array(z.enum(ROASTER_SPECIALTIES))
-		.min(1, 'Select at least one specialty'),
+	specialty: z.enum(ROASTER_SPECIALTIES, {
+		required_error: 'Please select a specialty'
+	}),
 	languages: z.array(z.string()).min(1),
 	experience: z.enum(['Beginner', 'Intermediate', 'Expert']),
 	bio: z.string().max(500).optional(),
@@ -40,22 +40,18 @@ export function RoasterProfileForm() {
 	} = useForm<RoasterProfileForm>({
 		resolver: zodResolver(roasterProfileSchema),
 		defaultValues: {
-			specialties: [],
-			languages: ['French'],
+			specialty: undefined,
+			languages: ['English'],
 			experience: 'Intermediate',
 		},
 	});
 
-	const selectedSpecialties = watch('specialties') || [];
+	const selectedSpecialty = watch('specialty');
 	const selectedExperience = watch('experience');
 	const bioLength = watch('bio')?.length || 0;
 
-	const toggleSpecialty = (specialtyId: string) => {
-		const current = selectedSpecialties;
-		const updated = current.includes(specialtyId as any)
-			? current.filter((id) => id !== specialtyId)
-			: [...current, specialtyId as any];
-		setValue('specialties', updated);
+	const selectSpecialty = (specialtyId: string) => {
+		setValue('specialty', specialtyId as any);
 	};
 
 	const onSubmit = async (data: RoasterProfileForm) => {
@@ -81,7 +77,7 @@ export function RoasterProfileForm() {
 				<CardHeader>
 					<CardTitle className='text-gray-900'>Your specialties</CardTitle>
 					<p className='text-gray-500'>
-						What do you excel at? (multiple selection)
+						What do you excel at? (choose one)
 					</p>
 				</CardHeader>
 				<CardContent>
@@ -90,10 +86,10 @@ export function RoasterProfileForm() {
 							<button
 								key={specialty.id}
 								type='button'
-								onClick={() => toggleSpecialty(specialty.id)}
+								onClick={() => selectSpecialty(specialty.id)}
 								data-testid={`specialty-${specialty.id}`}
 								className={`p-3 rounded-lg border-2 transition-all text-left ${
-									selectedSpecialties.includes(specialty.id)
+									selectedSpecialty === specialty.id
 										? 'border-orange-500 bg-orange-500/10 text-orange-600'
 										: 'border-gray-300 hover:border-gray-400 text-gray-700'
 								}`}>
@@ -106,9 +102,9 @@ export function RoasterProfileForm() {
 							</button>
 						))}
 					</div>
-					{errors.specialties && (
+					{errors.specialty && (
 						<p className='text-red-600 text-sm mt-2'>
-							{errors.specialties.message}
+							{errors.specialty.message}
 						</p>
 					)}
 				</CardContent>

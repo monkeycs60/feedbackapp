@@ -33,9 +33,9 @@ const roleSelectionSchema = z.object({
 });
 
 const roasterProfileSchema = z.object({
-	specialties: z
-		.array(z.enum(ROASTER_SPECIALTIES))
-		.min(1, 'Select at least one specialty'),
+	specialty: z.enum(ROASTER_SPECIALTIES, {
+		required_error: 'Please select a specialty'
+	}),
 	languages: z.array(z.string()).min(1, 'At least one language required'),
 	experience: z.enum(['Beginner', 'Intermediate', 'Expert']),
 	bio: z.string().max(500, 'Bio too long (max 500 characters)').optional(),
@@ -133,7 +133,7 @@ export async function setupRoasterProfile(data: RoasterProfileFormData) {
 		await prisma.roasterProfile.update({
 			where: { userId: user.id },
 			data: {
-				specialties: validatedData.specialties,
+				specialties: [validatedData.specialty],
 				languages: validatedData.languages,
 				experience: validatedData.experience,
 				bio: validatedData.bio || null,

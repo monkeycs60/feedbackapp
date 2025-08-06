@@ -54,7 +54,7 @@ export interface ExperienceOption {
 
 // Données du formulaire roaster
 export interface RoasterProfileFormData {
-  specialties: RoasterSpecialty[];
+  specialty: RoasterSpecialty;
   languages: string[];
   experience: ExperienceLevel;
   bio?: string;

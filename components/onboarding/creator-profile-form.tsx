@@ -41,7 +41,7 @@ export function CreatorProfileForm() {
 			<Card className='bg-white border-gray-200'>
 				<CardHeader>
 					<CardTitle className='text-gray-900'>
-						Your company/project
+						Your company/project name
 					</CardTitle>
 					<p className='text-gray-500'>
 						Optional - just to personalize your experience
