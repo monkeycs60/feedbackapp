@@ -5,7 +5,7 @@ export const roastRequestSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters").max(100),
   appUrl: z.string().url("Invalid URL"),
   description: z.string().min(50, "Description must be at least 50 characters").max(1000),
-  targetAudienceIds: z.array(z.string()).min(1, "Select at least one target audience").max(2, "Maximum 2 target audiences"),
+  targetAudienceNames: z.array(z.string()).min(1, "Select at least one target audience").max(2, "Maximum 2 target audiences"),
   customTargetAudience: z.object({
     name: z.string()
   }).optional(),
@@ -33,7 +33,7 @@ export const newRoastRequestSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(100),
   appUrl: z.string().url("Invalid URL"),
   description: z.string().min(20, "Description must be at least 20 characters").max(1000),
-  targetAudienceIds: z.array(z.string()).min(1, "Select at least one target audience").max(2, "Maximum 2 target audiences"),
+  targetAudienceNames: z.array(z.string()).min(1, "Select at least one target audience").max(2, "Maximum 2 target audiences"),
   customTargetAudience: z.object({
     name: z.string()
   }).optional(),

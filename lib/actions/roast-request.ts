@@ -176,57 +176,38 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
       throw new Error("Price per roaster must be between €3 and €50");
     }
 
-    // Handle target audiences - create them if they don't exist
-    const audienceIds = [];
+    // Simple target audience names - create or find them in DB
+    const targetAudienceNames = [...validData.targetAudienceNames];
     
-    for (const audienceId of validData.targetAudienceIds) {
-      // Check if it's a fake ID from the English audience list (en_X format)
-      if (audienceId.startsWith('en_')) {
-        const index = parseInt(audienceId.replace('en_', ''));
-        const { TARGET_AUDIENCES_EN } = await import('@/lib/data/target-audiences');
-        const audienceName = TARGET_AUDIENCES_EN[index];
-        
-        if (audienceName) {
-          // Check if this audience already exists
-          let existingAudience = await prisma.targetAudience.findFirst({
-            where: { 
-              name: {
-                equals: audienceName,
-                mode: 'insensitive'
-              }
-            }
-          });
-          
-          // Create it if it doesn't exist
-          if (!existingAudience) {
-            existingAudience = await prisma.targetAudience.create({
-              data: {
-                name: audienceName,
-                isDefault: true,
-                createdBy: user.id
-              }
-            });
-          }
-          
-          audienceIds.push(existingAudience.id);
-        }
-      } else {
-        // Regular audience ID - just use it directly
-        audienceIds.push(audienceId);
-      }
-    }
-
-    // Handle custom target audience creation
-    let customAudienceId = null;
+    // Add custom audience if provided
     if (validData.customTargetAudience?.name) {
-      const customAudience = await prisma.targetAudience.create({
-        data: {
-          name: validData.customTargetAudience.name,
-          isDefault: false,
-          createdBy: user.id
+      targetAudienceNames.push(validData.customTargetAudience.name);
+    }
+    
+    // Create or find target audiences by name
+    const audienceIds = [];
+    for (const name of targetAudienceNames) {
+      // Find existing or create new
+      let audience = await prisma.targetAudience.findFirst({
+        where: { 
+          name: {
+            equals: name,
+            mode: 'insensitive'
+          }
         }
       });
-      customAudienceId = customAudience.id;
+      
+      if (!audience) {
+        audience = await prisma.targetAudience.create({
+          data: {
+            name: name,
+            isDefault: false,
+            createdBy: user.id
+          }
+        });
+      }
+      
+      audienceIds.push(audience.id);
     }
 
     // Create the roast request with new fields
@@ -250,10 +231,7 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
         
         // Create target audience relationships
         targetAudiences: {
-          create: [
-            ...audienceIds.map(id => ({ targetAudienceId: id })),
-            ...(customAudienceId ? [{ targetAudienceId: customAudienceId }] : [])
-          ]
+          create: audienceIds.map(id => ({ targetAudienceId: id }))
         }
       }
     });

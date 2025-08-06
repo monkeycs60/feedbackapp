@@ -32,7 +32,7 @@ const simplifiedRoastSchema = z.object({
 	category: z.string(),
 	coverImage: z.string().optional(),
 	feedbacksRequested: z.number().min(1).max(10),
-	targetAudienceIds: z.array(z.string()).min(1).max(2),
+	targetAudienceNames: z.array(z.string()).min(1).max(2),
 	customTargetAudience: z.object({ name: z.string() }).optional(),
 	questions: z
 		.array(
@@ -56,8 +56,8 @@ interface Question {
 }
 
 export function NewRoastWizardV2() {
-	const audiencesToUse = TARGET_AUDIENCES_EN.map((name, index) => ({
-		id: `en_${index}`,
+	const audiencesToUse = TARGET_AUDIENCES_EN.map((name) => ({
+		id: name,
 		name,
 	}));
 	const [currentStep, setCurrentStep] = useState(0);
@@ -71,7 +71,7 @@ export function NewRoastWizardV2() {
 		resolver: zodResolver(simplifiedRoastSchema),
 		defaultValues: {
 			feedbacksRequested: 2,
-			targetAudienceIds: [],
+			targetAudienceNames: [],
 			questions: [],
 			focusAreas: [],
 		},
@@ -164,7 +164,7 @@ export function NewRoastWizardV2() {
 					watchedValues.appUrl &&
 					watchedValues.description &&
 					watchedValues.category &&
-					watchedValues.targetAudienceIds?.length > 0
+					watchedValues.targetAudienceNames?.length > 0
 				);
 			case 1: // Feedback config - always valid (questions are optional)
 				return true;
@@ -408,9 +408,9 @@ function BasicInfoStep({
 					<div className='max-h-40 overflow-y-auto border rounded-lg p-3'>
 						{targetAudiences.map((audience) => {
 							const isSelected =
-								watchedValues.targetAudienceIds?.includes(audience.id);
+								watchedValues.targetAudienceNames?.includes(audience.id);
 							const isDisabled =
-								watchedValues.targetAudienceIds?.length >= 2 &&
+								watchedValues.targetAudienceNames?.length >= 2 &&
 								!isSelected;
 
 							return (
@@ -427,15 +427,15 @@ function BasicInfoStep({
 										disabled={isDisabled}
 										onChange={(e) => {
 											const current =
-												watchedValues.targetAudienceIds || [];
+												watchedValues.targetAudienceNames || [];
 											if (e.target.checked) {
-												setValue('targetAudienceIds', [
+												setValue('targetAudienceNames', [
 													...current,
 													audience.id,
 												]);
 											} else {
 												setValue(
-													'targetAudienceIds',
+													'targetAudienceNames',
 													current.filter(
 														(id: string) => id !== audience.id
 													)
@@ -638,7 +638,7 @@ function PricingStep({
 
 	// Get selected audiences
 	const selectedAudiences = targetAudiences.filter((audience) =>
-		watchedValues.targetAudienceIds?.includes(audience.id)
+		watchedValues.targetAudienceNames?.includes(audience.id)
 	);
 
 	return (
