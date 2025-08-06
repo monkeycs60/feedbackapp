@@ -20,10 +20,8 @@ import {
 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { createNewRoastRequest } from '@/lib/actions/roast-request';
-import {
-	type FocusArea,
-	APP_CATEGORIES,
-} from '@/lib/types/roast-request';
+import { type FocusArea, APP_CATEGORIES } from '@/lib/types/roast-request';
+import { TARGET_AUDIENCES_EN } from '@/lib/data/target-audiences';
 import { z } from 'zod';
 
 // Simplified schema for new model
@@ -36,11 +34,15 @@ const simplifiedRoastSchema = z.object({
 	feedbacksRequested: z.number().min(1).max(10),
 	targetAudienceIds: z.array(z.string()).min(1).max(2),
 	customTargetAudience: z.object({ name: z.string() }).optional(),
-	questions: z.array(z.object({
-		domain: z.string().optional(),
-		text: z.string(),
-		order: z.number(),
-	})).optional(),
+	questions: z
+		.array(
+			z.object({
+				domain: z.string().optional(),
+				text: z.string(),
+				order: z.number(),
+			})
+		)
+		.optional(),
 	focusAreas: z.array(z.string()).optional(),
 });
 
@@ -53,18 +55,11 @@ interface Question {
 	order: number;
 }
 
-interface NewRoastWizardV2Props {
-	targetAudiences: Array<{
-		id: string;
-		name: string;
-	}>;
-	className?: string;
-}
-
-export function NewRoastWizardV2({
-	targetAudiences,
-	className = '',
-}: NewRoastWizardV2Props) {
+export function NewRoastWizardV2() {
+	const audiencesToUse = TARGET_AUDIENCES_EN.map((name, index) => ({
+		id: `en_${index}`,
+		name,
+	}));
 	const [currentStep, setCurrentStep] = useState(0);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
@@ -143,7 +138,7 @@ export function NewRoastWizardV2({
 				...data,
 				pricePerRoaster: calculateSuggestedPrice(), // Prix calculé automatiquement
 				isUrgent: false, // Always false now
-				questions: questions.map(q => ({
+				questions: questions.map((q) => ({
 					domain: q.domain,
 					text: q.text,
 					order: q.order,
@@ -183,7 +178,7 @@ export function NewRoastWizardV2({
 	const canProceed = isStepValid(currentStep);
 
 	return (
-		<div className={`max-w-4xl mx-auto ${className}`}>
+		<div className='max-w-4xl mx-auto'>
 			{/* Header */}
 			<div className='mb-8'>
 				<div className='mb-4'>
@@ -244,10 +239,7 @@ export function NewRoastWizardV2({
 				{/* Step Content */}
 				<div className='mb-8'>
 					{currentStep === 0 && (
-						<BasicInfoStep
-							form={form}
-							targetAudiences={targetAudiences}
-						/>
+						<BasicInfoStep form={form} targetAudiences={audiencesToUse} />
 					)}
 
 					{currentStep === 1 && (
@@ -264,7 +256,7 @@ export function NewRoastWizardV2({
 							form={form}
 							questions={questions}
 							suggestedPrice={calculateSuggestedPrice()}
-							targetAudiences={targetAudiences}
+							targetAudiences={audiencesToUse}
 						/>
 					)}
 				</div>
@@ -282,7 +274,8 @@ export function NewRoastWizardV2({
 					<Alert className='mb-6 border-orange-200 bg-orange-50'>
 						<AlertCircle className='h-4 w-4 text-orange-600' />
 						<AlertDescription className='text-orange-800'>
-							<strong>Dernière étape :</strong> Cliquez à nouveau sur "Confirmer et créer" pour publier votre roast.
+							<strong>Dernière étape :</strong> Cliquez à nouveau sur
+							"Confirmer et créer" pour publier votre roast.
 						</AlertDescription>
 					</Alert>
 				)}
@@ -310,7 +303,9 @@ export function NewRoastWizardV2({
 						<Button
 							type='submit'
 							disabled={!canProceed || isSubmitting}
-							className={confirmSubmit ? 'bg-green-600 hover:bg-green-700' : ''}>
+							className={
+								confirmSubmit ? 'bg-green-600 hover:bg-green-700' : ''
+							}>
 							{isSubmitting ? (
 								'Création...'
 							) : confirmSubmit ? (
@@ -380,7 +375,9 @@ function BasicInfoStep({
 						{...register('appUrl')}
 					/>
 					{errors.appUrl && (
-						<p className='text-red-500 text-sm'>{errors.appUrl.message}</p>
+						<p className='text-red-500 text-sm'>
+							{errors.appUrl.message}
+						</p>
 					)}
 				</div>
 
@@ -411,25 +408,39 @@ function BasicInfoStep({
 					<Label>Audience cible * (max 2)</Label>
 					<div className='max-h-40 overflow-y-auto border rounded-lg p-3'>
 						{targetAudiences.map((audience) => {
-							const isSelected = watchedValues.targetAudienceIds?.includes(audience.id);
-							const isDisabled = watchedValues.targetAudienceIds?.length >= 2 && !isSelected;
-							
+							const isSelected =
+								watchedValues.targetAudienceIds?.includes(audience.id);
+							const isDisabled =
+								watchedValues.targetAudienceIds?.length >= 2 &&
+								!isSelected;
+
 							return (
 								<label
 									key={audience.id}
 									className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
-										isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+										isDisabled
+											? 'opacity-50 cursor-not-allowed'
+											: 'hover:bg-gray-50'
 									}`}>
 									<input
 										type='checkbox'
 										checked={isSelected}
 										disabled={isDisabled}
 										onChange={(e) => {
-											const current = watchedValues.targetAudienceIds || [];
+											const current =
+												watchedValues.targetAudienceIds || [];
 											if (e.target.checked) {
-												setValue('targetAudienceIds', [...current, audience.id]);
+												setValue('targetAudienceIds', [
+													...current,
+													audience.id,
+												]);
 											} else {
-												setValue('targetAudienceIds', current.filter((id: string) => id !== audience.id));
+												setValue(
+													'targetAudienceIds',
+													current.filter(
+														(id: string) => id !== audience.id
+													)
+												);
 											}
 										}}
 										className='w-4 h-4'
@@ -478,15 +489,18 @@ function BasicInfoStep({
 						max={10}
 						step={1}
 						value={[watchedValues.feedbacksRequested || 2]}
-						onValueChange={([value]) => setValue('feedbacksRequested', value)}
+						onValueChange={([value]) =>
+							setValue('feedbacksRequested', value)
+						}
 					/>
 					<div className='flex justify-between text-xs text-muted-foreground'>
 						<span>1 roaster</span>
-						<span className='text-green-600 font-medium'>2-3 recommandé</span>
+						<span className='text-green-600 font-medium'>
+							2-3 recommandé
+						</span>
 						<span>10 roasters</span>
 					</div>
 				</div>
-
 			</CardContent>
 		</Card>
 	);
@@ -515,7 +529,8 @@ function FeedbackConfigStep({
 				<Alert>
 					<Info className='h-4 w-4' />
 					<AlertDescription>
-						<strong>Feedback structuré inclus :</strong> Chaque roaster fournira automatiquement :
+						<strong>Feedback structuré inclus :</strong> Chaque roaster
+						fournira automatiquement :
 						<ul className='list-disc list-inside mt-2'>
 							<li>Note globale et première impression</li>
 							<li>Points forts et points faibles</li>
@@ -528,13 +543,17 @@ function FeedbackConfigStep({
 				{/* Custom Questions Section */}
 				<div className='space-y-4'>
 					<div>
-						<h3 className='font-semibold mb-2'>Questions personnalisées (optionnel)</h3>
+						<h3 className='font-semibold mb-2'>
+							Questions personnalisées (optionnel)
+						</h3>
 						<p className='text-sm text-muted-foreground'>
-							Ajoutez des questions spécifiques pour obtenir des retours ciblés
+							Ajoutez des questions spécifiques pour obtenir des retours
+							ciblés
 						</p>
 						<div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2'>
 							<p className='text-xs text-blue-800'>
-								💰 <strong>Tarification :</strong> 4€ de base + 0,50€ par question supplémentaire
+								💰 <strong>Tarification :</strong> 4€ de base + 0,50€
+								par question supplémentaire
 							</p>
 						</div>
 					</div>
@@ -557,13 +576,15 @@ function FeedbackConfigStep({
 									variant='outline'
 									size='sm'
 									onClick={() => {
-										setQuestions(questions.filter(q => q.id !== question.id));
+										setQuestions(
+											questions.filter((q) => q.id !== question.id)
+										);
 									}}>
 									Supprimer
 								</Button>
 							</div>
 						))}
-						
+
 						<Button
 							type='button'
 							variant='outline'
@@ -582,10 +603,13 @@ function FeedbackConfigStep({
 					{questions.length > 0 && (
 						<div className='bg-green-50 border border-green-200 rounded-lg p-3'>
 							<p className='text-sm font-medium text-green-800'>
-								{questions.length} question{questions.length > 1 ? 's' : ''} personnalisée{questions.length > 1 ? 's' : ''}
+								{questions.length} question
+								{questions.length > 1 ? 's' : ''} personnalisée
+								{questions.length > 1 ? 's' : ''}
 							</p>
 							<p className='text-xs text-green-700 mt-1'>
-								Coût supplémentaire : +{(questions.length * 0.5).toFixed(2)}€ par roaster
+								Coût supplémentaire : +
+								{(questions.length * 0.5).toFixed(2)}€ par roaster
 							</p>
 						</div>
 					)}
@@ -613,10 +637,12 @@ function PricingStep({
 	const totalPrice = calculatedPrice * (watchedValues.feedbacksRequested || 2);
 
 	// Récupérer les informations de catégorie
-	const selectedCategory = APP_CATEGORIES.find(cat => cat.id === watchedValues.category);
-	
+	const selectedCategory = APP_CATEGORIES.find(
+		(cat) => cat.id === watchedValues.category
+	);
+
 	// Récupérer les audiences sélectionnées
-	const selectedAudiences = targetAudiences.filter(audience => 
+	const selectedAudiences = targetAudiences.filter((audience) =>
 		watchedValues.targetAudienceIds?.includes(audience.id)
 	);
 
@@ -635,71 +661,103 @@ function PricingStep({
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						<div className='space-y-3'>
 							<div>
-								<h4 className='font-medium text-gray-700 mb-1'>Titre</h4>
-								<p className='text-foreground font-medium'>{watchedValues.title || 'Non défini'}</p>
-							</div>
-							
-							<div>
-								<h4 className='font-medium text-gray-700 mb-1'>URL</h4>
-								<p className='text-blue-600 text-sm break-all'>{watchedValues.appUrl || 'Non définie'}</p>
+								<h4 className='font-medium text-gray-700 mb-1'>
+									Titre
+								</h4>
+								<p className='text-foreground font-medium'>
+									{watchedValues.title || 'Non défini'}
+								</p>
 							</div>
 
 							<div>
-								<h4 className='font-medium text-gray-700 mb-1'>Catégorie</h4>
+								<h4 className='font-medium text-gray-700 mb-1'>URL</h4>
+								<p className='text-blue-600 text-sm break-all'>
+									{watchedValues.appUrl || 'Non définie'}
+								</p>
+							</div>
+
+							<div>
+								<h4 className='font-medium text-gray-700 mb-1'>
+									Catégorie
+								</h4>
 								<div className='flex items-center gap-2'>
-									<span className='text-lg'>{selectedCategory?.icon}</span>
-									<span className='font-medium'>{selectedCategory?.label || watchedValues.category}</span>
+									<span className='text-lg'>
+										{selectedCategory?.icon}
+									</span>
+									<span className='font-medium'>
+										{selectedCategory?.label ||
+											watchedValues.category}
+									</span>
 								</div>
 							</div>
 						</div>
 
 						<div className='space-y-3'>
 							<div>
-								<h4 className='font-medium text-gray-700 mb-1'>Audiences cibles</h4>
+								<h4 className='font-medium text-gray-700 mb-1'>
+									Audiences cibles
+								</h4>
 								<div className='space-y-1'>
-									{selectedAudiences.map(audience => (
-										<div key={audience.id} className='bg-blue-50 px-2 py-1 rounded text-sm'>
+									{selectedAudiences.map((audience) => (
+										<div
+											key={audience.id}
+											className='bg-blue-50 px-2 py-1 rounded text-sm'>
 											{audience.name}
 										</div>
 									))}
 									{watchedValues.customTargetAudience?.name && (
 										<div className='bg-purple-50 px-2 py-1 rounded text-sm'>
-											{watchedValues.customTargetAudience.name} <span className='text-xs text-purple-600'>(personnalisée)</span>
+											{watchedValues.customTargetAudience.name}{' '}
+											<span className='text-xs text-purple-600'>
+												(personnalisée)
+											</span>
 										</div>
 									)}
 								</div>
 							</div>
 
 							<div>
-								<h4 className='font-medium text-gray-700 mb-1'>Nombre de roasters</h4>
-								<p className='font-semibold text-lg text-blue-600'>{watchedValues.feedbacksRequested || 2}</p>
+								<h4 className='font-medium text-gray-700 mb-1'>
+									Nombre de roasters
+								</h4>
+								<p className='font-semibold text-lg text-blue-600'>
+									{watchedValues.feedbacksRequested || 2}
+								</p>
 							</div>
 						</div>
 					</div>
 
 					{/* Description */}
 					<div>
-						<h4 className='font-medium text-gray-700 mb-1'>Description</h4>
+						<h4 className='font-medium text-gray-700 mb-1'>
+							Description
+						</h4>
 						<p className='text-sm text-gray-600 bg-gray-50 p-3 rounded-md'>
-							{watchedValues.description && watchedValues.description.length > 200 
+							{watchedValues.description &&
+							watchedValues.description.length > 200
 								? watchedValues.description.substring(0, 200) + '...'
-								: watchedValues.description || 'Non définie'
-							}
+								: watchedValues.description || 'Non définie'}
 						</p>
 					</div>
 
 					{/* Questions personnalisées */}
 					{questions.length > 0 && (
 						<div>
-							<h4 className='font-medium text-gray-700 mb-2'>Questions personnalisées ({questions.length})</h4>
+							<h4 className='font-medium text-gray-700 mb-2'>
+								Questions personnalisées ({questions.length})
+							</h4>
 							<div className='space-y-2'>
 								{questions.map((question, index) => (
-									<div key={question.id} className='bg-amber-50 border border-amber-200 p-3 rounded-md'>
+									<div
+										key={question.id}
+										className='bg-amber-50 border border-amber-200 p-3 rounded-md'>
 										<div className='flex items-start gap-2'>
 											<span className='bg-amber-500 text-white text-xs px-2 py-1 rounded font-medium'>
 												Q{index + 1}
 											</span>
-											<p className='text-sm text-amber-800 flex-1'>{question.text}</p>
+											<p className='text-sm text-amber-800 flex-1'>
+												{question.text}
+											</p>
 										</div>
 									</div>
 								))}
@@ -722,13 +780,18 @@ function PricingStep({
 						<table className='w-full text-sm'>
 							<tbody className='divide-y divide-green-200'>
 								<tr>
-									<td className='px-4 py-3 text-green-700'>Feedback structuré (base)</td>
-									<td className='px-4 py-3 font-medium text-green-800 text-right'>4,00€</td>
+									<td className='px-4 py-3 text-green-700'>
+										Feedback structuré (base)
+									</td>
+									<td className='px-4 py-3 font-medium text-green-800 text-right'>
+										4,00€
+									</td>
 								</tr>
 								{questions.length > 0 && (
 									<tr>
 										<td className='px-4 py-3 text-green-700'>
-											Questions personnalisées ({questions.length} × 0,50€)
+											Questions personnalisées ({questions.length} ×
+											0,50€)
 										</td>
 										<td className='px-4 py-3 font-medium text-green-800 text-right'>
 											+{(questions.length * 0.5).toFixed(2)}€
@@ -736,7 +799,9 @@ function PricingStep({
 									</tr>
 								)}
 								<tr className='bg-green-100 border-t-2 border-green-300'>
-									<td className='px-4 py-3 font-bold text-green-900'>Prix par roaster</td>
+									<td className='px-4 py-3 font-bold text-green-900'>
+										Prix par roaster
+									</td>
 									<td className='px-4 py-3 font-bold text-green-900 text-right text-lg'>
 										{calculatedPrice.toFixed(2).replace('.', ',')}€
 									</td>
@@ -751,29 +816,39 @@ function PricingStep({
 			<Card className='border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50'>
 				<CardContent className='p-6'>
 					<div className='text-center space-y-4'>
-						<h3 className='text-lg font-semibold text-gray-800'>Coût total maximum</h3>
-						
+						<h3 className='text-lg font-semibold text-gray-800'>
+							Coût total maximum
+						</h3>
+
 						<div className='flex items-center justify-center gap-4 text-3xl font-bold'>
 							<div className='flex items-center gap-2 bg-white px-4 py-3 rounded-lg shadow-sm border'>
 								<span className='text-2xl'>💰</span>
-								<span className='text-green-600'>{calculatedPrice.toFixed(2).replace('.', ',')}€</span>
+								<span className='text-green-600'>
+									{calculatedPrice.toFixed(2).replace('.', ',')}€
+								</span>
 							</div>
-							
+
 							<span className='text-gray-400'>×</span>
-							
+
 							<div className='bg-white px-4 py-3 rounded-lg shadow-sm border'>
-								<span className='text-blue-600'>{watchedValues.feedbacksRequested || 2}</span>
+								<span className='text-blue-600'>
+									{watchedValues.feedbacksRequested || 2}
+								</span>
 							</div>
-							
+
 							<span className='text-gray-400'>=</span>
-							
+
 							<div className='bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-lg shadow-lg'>
-								<span className='text-4xl font-bold'>{totalPrice}€</span>
+								<span className='text-4xl font-bold'>
+									{totalPrice}€
+								</span>
 							</div>
 						</div>
-						
+
 						<p className='text-sm text-gray-600'>
-							{calculatedPrice.toFixed(2).replace('.', ',')}€ par roaster × {watchedValues.feedbacksRequested || 2} roaster{(watchedValues.feedbacksRequested || 2) > 1 ? 's' : ''}
+							{calculatedPrice.toFixed(2).replace('.', ',')}€ par roaster
+							× {watchedValues.feedbacksRequested || 2} roaster
+							{(watchedValues.feedbacksRequested || 2) > 1 ? 's' : ''}
 						</p>
 					</div>
 				</CardContent>
@@ -783,8 +858,9 @@ function PricingStep({
 			<Alert>
 				<Info className='h-4 w-4' />
 				<AlertDescription>
-					<strong>Important :</strong> Vous ne payez que pour les feedbacks effectivement reçus. 
-					Le montant affiché est le coût maximum si tous les roasters complètent leur feedback.
+					<strong>Important :</strong> Vous ne payez que pour les feedbacks
+					effectivement reçus. Le montant affiché est le coût maximum si
+					tous les roasters complètent leur feedback.
 				</AlertDescription>
 			</Alert>
 		</div>
