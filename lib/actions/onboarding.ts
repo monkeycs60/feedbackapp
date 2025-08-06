@@ -21,7 +21,7 @@ async function getCurrentUser() {
 	});
 
 	if (!session?.user?.id) {
-		throw new Error('Non authentifié');
+		throw new Error('Not authenticated');
 	}
 
 	return session.user;
@@ -35,15 +35,15 @@ const roleSelectionSchema = z.object({
 const roasterProfileSchema = z.object({
 	specialties: z
 		.array(z.enum(ROASTER_SPECIALTIES))
-		.min(1, 'Sélectionne au moins une spécialité'),
-	languages: z.array(z.string()).min(1, 'Au moins une langue requise'),
-	experience: z.enum(['Débutant', 'Intermédiaire', 'Expert']),
-	bio: z.string().max(500, 'Bio trop longue (max 500 caractères)').optional(),
-	portfolio: z.string().url('URL invalide').optional().or(z.literal('')),
+		.min(1, 'Select at least one specialty'),
+	languages: z.array(z.string()).min(1, 'At least one language required'),
+	experience: z.enum(['Beginner', 'Intermediate', 'Expert']),
+	bio: z.string().max(500, 'Bio too long (max 500 characters)').optional(),
+	portfolio: z.string().url('Invalid URL').optional().or(z.literal('')),
 });
 
 const creatorProfileSchema = z.object({
-	company: z.string().max(100, "Nom d'entreprise trop long").optional(),
+	company: z.string().max(100, 'Company name too long').optional(),
 });
 
 /**
@@ -55,7 +55,7 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
 
 		const validation = roleSelectionSchema.safeParse({ role });
 		if (!validation.success) {
-			throw new Error('Rôle invalide');
+			throw new Error('Invalid role');
 		}
 
 		// Vérifier si l'utilisateur a déjà des profils
@@ -68,7 +68,7 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
 		});
 
 		if (!existingUser) {
-			throw new Error('Utilisateur non trouvé');
+			throw new Error('User not found');
 		}
 
 		// Si l'utilisateur a déjà un profil et en ajoute un second
@@ -99,7 +99,7 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
 				create: {
 					userId: user.id,
 					specialties: [],
-					languages: ['Français'],
+					languages: ['English'],
 				},
 			});
 		}
@@ -107,8 +107,8 @@ export async function selectPrimaryRole(role: 'creator' | 'roaster') {
 		revalidatePath('/onboarding');
 		return { success: true, isAddingSecondRole };
 	} catch (error) {
-		console.error('Erreur sélection rôle:', error);
-		throw new Error('Erreur lors de la sélection du rôle');
+		console.error('Role selection error:', error);
+		throw new Error('Error during role selection');
 	}
 }
 
@@ -122,7 +122,7 @@ export async function setupRoasterProfile(data: RoasterProfileFormData) {
 		const validation = roasterProfileSchema.safeParse(data);
 		if (!validation.success) {
 			throw new Error(
-				'Données invalides: ' +
+				'Invalid data: ' +
 					validation.error.issues.map((i) => i.message).join(', ')
 			);
 		}
@@ -150,8 +150,8 @@ export async function setupRoasterProfile(data: RoasterProfileFormData) {
 		revalidatePath('/onboarding');
 		return { success: true };
 	} catch (error) {
-		console.error('Erreur setup profil roaster:', error);
-		throw new Error('Erreur lors de la configuration du profil');
+		console.error('Roaster profile setup error:', error);
+		throw new Error('Error during profile setup');
 	}
 }
 
@@ -164,7 +164,7 @@ export async function setupCreatorProfile(data: CreatorProfileFormData) {
 
 		const validation = creatorProfileSchema.safeParse(data);
 		if (!validation.success) {
-			throw new Error('Données invalides');
+			throw new Error('Invalid data');
 		}
 
 		const validatedData = validation.data;
@@ -186,8 +186,8 @@ export async function setupCreatorProfile(data: CreatorProfileFormData) {
 		revalidatePath('/onboarding');
 		return { success: true };
 	} catch (error) {
-		console.error('Erreur setup profil creator:', error);
-		throw new Error('Erreur lors de la configuration du profil');
+		console.error('Creator profile setup error:', error);
+		throw new Error('Error during profile setup');
 	}
 }
 
@@ -208,7 +208,7 @@ export async function completeOnboarding() {
 		});
 
 		if (!user) {
-			throw new Error('Utilisateur non trouvé');
+			throw new Error('User not found');
 		}
 
 		// Marquer l'onboarding comme terminé
@@ -231,8 +231,8 @@ export async function completeOnboarding() {
 		if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
 			throw error;
 		}
-		console.error('Erreur finalisation onboarding:', error);
-		throw new Error('Erreur lors de la finalisation');
+		console.error('Onboarding completion error:', error);
+		throw new Error('Error during completion');
 	}
 }
 
@@ -252,7 +252,7 @@ export async function getOnboardingState() {
 		});
 
 		if (!user) {
-			throw new Error('Utilisateur non trouvé');
+			throw new Error('User not found');
 		}
 
 		return {
@@ -269,7 +269,7 @@ export async function getOnboardingState() {
 			},
 		};
 	} catch (error) {
-		console.error('Erreur récupération état onboarding:', error);
+		console.error('Onboarding state retrieval error:', error);
 		throw error;
 	}
 }
@@ -295,7 +295,7 @@ export async function checkOnboardingStatus() {
 			primaryRole: user?.primaryRole,
 		};
 	} catch (error) {
-		console.error('Erreur vérification onboarding:', error);
+		console.error('Onboarding verification error:', error);
 		return {
 			isComplete: false,
 			currentStep: 0,
@@ -317,12 +317,12 @@ export async function triggerRoleDiscoveryNudge(
 		// TODO: Implémenter un système de tracking des nudges
 
 		console.log(
-			`Nudge vers ${targetRole} déclenché pour utilisateur ${user.id}`
+			`Role discovery nudge to ${targetRole} triggered for user ${user.id}`
 		);
 
 		return { success: true };
 	} catch (error) {
-		console.error('Erreur déclenchement nudge:', error);
+		console.error('Nudge trigger error:', error);
 		return { success: false };
 	}
 }
@@ -344,16 +344,16 @@ export async function switchUserRole(newRole: 'creator' | 'roaster') {
 		});
 
 		if (!fullUser) {
-			throw new Error('Utilisateur non trouvé');
+			throw new Error('User not found');
 		}
 
 		// Vérifier que l'utilisateur a le profil correspondant au nouveau rôle
 		if (newRole === 'creator' && !fullUser.creatorProfile) {
-			throw new Error("Vous devez d'abord créer un profil créateur");
+			throw new Error('You must first create a creator profile');
 		}
 
 		if (newRole === 'roaster' && !fullUser.roasterProfile) {
-			throw new Error("Vous devez d'abord créer un profil roaster");
+			throw new Error('You must first create a roaster profile');
 		}
 
 		// Mettre à jour le rôle primaire
@@ -368,11 +368,11 @@ export async function switchUserRole(newRole: 'creator' | 'roaster') {
 		revalidatePath('/dashboard');
 		return { success: true };
 	} catch (error) {
-		console.error('Erreur changement de rôle:', error);
+		console.error('Role change error:', error);
 		throw new Error(
 			error instanceof Error
 				? error.message
-				: 'Erreur lors du changement de rôle'
+				: 'Error during role change'
 		);
 	}
 }

@@ -113,7 +113,6 @@ model RoastRequest {
   title              String
   appUrl             String
   description        String
-  focusAreas         String[]
   maxPrice           Float?
   deadline           DateTime?
   status             String                 @default("open")
@@ -122,12 +121,8 @@ model RoastRequest {
   coverImage         String?
   feedbacksRequested Int                    @default(1)
   category           String?
-  basePriceMode      Float?
-  freeQuestions      Int?
-  questionPrice      Float?
   isUrgent           Boolean                @default(false)
   pricePerRoaster    Float                  @default(3.0)
-  useStructuredForm  Boolean                @default(true)
   feedbacks          Feedback[]
   applications       RoastApplication[]
   questions          RoastQuestion[]
@@ -140,7 +135,7 @@ model RoastRequest {
 model RoastQuestion {
   id                String             @id @default(cuid())
   roastRequestId    String
-  domain            String
+  domain            String?
   text              String
   order             Int
   isDefault         Boolean            @default(false)

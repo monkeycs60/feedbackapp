@@ -3,7 +3,7 @@
 export type UserRole = 'creator' | 'roaster' | 'both';
 export type RoasterLevel = 'rookie' | 'verified' | 'expert' | 'master';
 export type OnboardingStep = 0 | 1 | 2 | 3 | 4; // 0: not started, 4: completed
-export type ExperienceLevel = 'Débutant' | 'Intermédiaire' | 'Expert';
+export type ExperienceLevel = 'Beginner' | 'Intermediate' | 'Expert';
 
 // Spécialités disponibles pour les roasters
 export const ROASTER_SPECIALTIES = [
