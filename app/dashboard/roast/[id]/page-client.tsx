@@ -26,6 +26,7 @@ import { APP_CATEGORIES } from '@/lib/types/roast-request';
 import { useRouter } from 'next/navigation';
 import { acceptApplication, rejectApplication } from '@/lib/actions/roast-application';
 import { UnifiedPricingDisplay } from '@/components/roast/unified-pricing-display';
+import { SPECIALTY_OPTIONS, ROASTER_LEVELS } from '@/lib/config/onboarding';
 
 interface RoastDetailPageClientProps {
   roastRequest: any; // Type this properly based on your data structure
@@ -46,11 +47,11 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
   };
 
   const statusLabels = {
-    open: 'Ouvert',
-    collecting_applications: 'Candidatures en cours',
-    in_progress: 'En cours',
-    completed: 'Terminé',
-    cancelled: 'Annulé'
+    open: 'Open',
+    collecting_applications: 'Collecting Applications',
+    in_progress: 'In Progress',
+    completed: 'Completed',
+    cancelled: 'Cancelled'
   };
 
   // Organize applications and feedbacks for progress display
@@ -88,6 +89,37 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
 
   const getInitials = (name: string) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
+  };
+
+  // Helper function to get specialty info with icon
+  const getSpecialtyInfo = (specialtyId: string) => {
+    return SPECIALTY_OPTIONS.find(spec => spec.id === specialtyId) || {
+      id: specialtyId,
+      label: specialtyId,
+      icon: '💼'
+    };
+  };
+
+  // Helper function to get roaster level info
+  const getRoasterLevelInfo = (level: string) => {
+    return ROASTER_LEVELS[level] || {
+      level: level,
+      badge: '🔰',
+      basePrice: 5
+    };
+  };
+
+  // Helper function to get experience level display
+  const getExperienceDisplay = (experience: string) => {
+    const experienceMap = {
+      'Beginner': { label: 'Beginner', icon: '🌱' },
+      'Intermediate': { label: 'Intermediate', icon: '📈' },
+      'Expert': { label: 'Expert', icon: '🎯' }
+    };
+    return experienceMap[experience as keyof typeof experienceMap] || {
+      label: experience,
+      icon: '📚'
+    };
   };
 
   const handleAcceptApplication = async (applicationId: string) => {
@@ -184,15 +216,15 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <Users className="w-6 h-6 text-blue-600" />
-            État des roasters ({feedbackProgress.completed}/{feedbackProgress.total})
+            Roaster Status ({feedbackProgress.completed}/{feedbackProgress.total})
             <Badge variant="secondary" className="ml-2">
-              {feedbackProgress.percentage}% terminé
+              {feedbackProgress.percentage}% completed
             </Badge>
           </CardTitle>
           <p className="text-muted-foreground">
-            {feedbackProgress.completed} feedback{feedbackProgress.completed > 1 ? 's' : ''} reçu{feedbackProgress.completed > 1 ? 's' : ''}, 
-            {feedbackProgress.inProgress > 0 && ` ${feedbackProgress.inProgress} en cours,`}
-            {feedbackProgress.remaining > 0 && ` ${feedbackProgress.remaining} place${feedbackProgress.remaining > 1 ? 's' : ''} restante${feedbackProgress.remaining > 1 ? 's' : ''}`}
+            {feedbackProgress.completed} feedback{feedbackProgress.completed > 1 ? 's' : ''} received, 
+            {feedbackProgress.inProgress > 0 && ` ${feedbackProgress.inProgress} in progress,`}
+            {feedbackProgress.remaining > 0 && ` ${feedbackProgress.remaining} spot${feedbackProgress.remaining > 1 ? 's' : ''} remaining`}
           </p>
         </CardHeader>
         <CardContent>
@@ -237,11 +269,11 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                   
                   <div className="text-xs text-center">
                     {slot.isCompleted ? (
-                      <span className="text-green-600 font-medium">✓ Terminé</span>
+                      <span className="text-green-600 font-medium">✓ Completed</span>
                     ) : slot.isInProgress ? (
-                      <span className="text-blue-600 font-medium">⏳ En cours</span>
+                      <span className="text-blue-600 font-medium">⏳ In Progress</span>
                     ) : (
-                      <span className="text-gray-500">En attente</span>
+                      <span className="text-gray-500">Waiting</span>
                     )}
                   </div>
                 </div>
@@ -251,34 +283,34 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
         </CardContent>
       </Card>
 
-      {/* Candidatures Section - Toujours visible et mise en avant */}
+      {/* Applications Section - Always visible and highlighted */}
       {applications.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-orange-600" />
-              Candidatures 
+              Applications 
               {pendingApplications.length > 0 && (
                 <Badge className="bg-orange-100 text-orange-800 border-orange-200">
-                  {pendingApplications.length} en attente
+                  {pendingApplications.length} pending
                 </Badge>
               )}
             </CardTitle>
             <p className="text-muted-foreground">
-              {applications.length} candidature{applications.length > 1 ? 's' : ''} reçue{applications.length > 1 ? 's' : ''} 
-              ({acceptedApplications.length} acceptée{acceptedApplications.length > 1 ? 's' : ''}, 
-              {rejectedApplications.length} rejetée{rejectedApplications.length > 1 ? 's' : ''}, 
-              {pendingApplications.length} en attente)
+              {applications.length} application{applications.length > 1 ? 's' : ''} received 
+              ({acceptedApplications.length} accepted, 
+              {rejectedApplications.length} rejected, 
+              {pendingApplications.length} pending)
             </p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Candidatures en attente - priorité */}
+              {/* Pending applications - priority */}
               {pendingApplications.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="font-medium text-orange-800 flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    En attente de votre décision ({pendingApplications.length})
+                    Awaiting your decision ({pendingApplications.length})
                   </h4>
                   {pendingApplications.map((app: any) => (
                     <div key={app.id} className="border border-orange-200 rounded-lg p-4 bg-orange-50">
@@ -292,8 +324,8 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                           </Avatar>
                           
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h5 className="font-medium">{app.roaster?.name || 'Roaster anonyme'}</h5>
+                            <div className="flex items-center gap-2 mb-2">
+                              <h5 className="font-medium">{app.roaster?.name || 'Anonymous Roaster'}</h5>
                               {app.roaster?.roasterProfile?.rating && (
                                 <div className="flex items-center gap-1">
                                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
@@ -302,10 +334,58 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                                   </span>
                                 </div>
                               )}
+                              {/* Roaster Level Badge */}
+                              {app.roaster?.roasterProfile?.level && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {getRoasterLevelInfo(app.roaster.roasterProfile.level).badge} {getRoasterLevelInfo(app.roaster.roasterProfile.level).level}
+                                </Badge>
+                              )}
+                            </div>
+
+                            {/* Specialties */}
+                            {app.roaster?.roasterProfile?.specialties && app.roaster.roasterProfile.specialties.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {app.roaster.roasterProfile.specialties.slice(0, 3).map((specialty: string) => {
+                                  const specialtyInfo = getSpecialtyInfo(specialty);
+                                  return (
+                                    <Badge key={specialty} variant="outline" className="text-xs">
+                                      <span className="mr-1">{specialtyInfo.icon}</span>
+                                      {specialtyInfo.label}
+                                    </Badge>
+                                  );
+                                })}
+                                {app.roaster.roasterProfile.specialties.length > 3 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{app.roaster.roasterProfile.specialties.length - 3} more
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Experience and Performance Metrics */}
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
+                              {app.roaster?.roasterProfile?.experience && (
+                                <div className="flex items-center gap-1">
+                                  <span>{getExperienceDisplay(app.roaster.roasterProfile.experience).icon}</span>
+                                  <span>{getExperienceDisplay(app.roaster.roasterProfile.experience).label}</span>
+                                </div>
+                              )}
+                              {app.roaster?.roasterProfile?.completedRoasts && (
+                                <div className="flex items-center gap-1">
+                                  <CheckCircle className="w-3 h-3" />
+                                  <span>{app.roaster.roasterProfile.completedRoasts} roasts</span>
+                                </div>
+                              )}
+                              {app.roaster?.roasterProfile?.completionRate && (
+                                <div className="flex items-center gap-1">
+                                  <ThumbsUp className="w-3 h-3" />
+                                  <span>{app.roaster.roasterProfile.completionRate}% completion</span>
+                                </div>
+                              )}
                             </div>
                             
                             <p className="text-sm text-muted-foreground mb-2">
-                              {app.roaster?.roasterProfile?.bio || 'Aucune bio disponible'}
+                              {app.roaster?.roasterProfile?.bio || 'No bio available'}
                             </p>
                             
                             {app.motivation && (
@@ -324,7 +404,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                             disabled={processingApplication === app.id}
                           >
                             <ThumbsUp className="w-4 h-4 mr-1" />
-                            {processingApplication === app.id ? 'Acceptation...' : 'Accepter'}
+                            {processingApplication === app.id ? 'Accepting...' : 'Accept'}
                           </Button>
                           <Button 
                             size="sm" 
@@ -334,7 +414,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                             disabled={processingApplication === app.id}
                           >
                             <ThumbsDown className="w-4 h-4 mr-1" />
-                            {processingApplication === app.id ? 'Refus...' : 'Refuser'}
+                            {processingApplication === app.id ? 'Rejecting...' : 'Reject'}
                           </Button>
                         </div>
                       </div>
@@ -343,14 +423,14 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                 </div>
               )}
               
-              {/* Candidatures acceptées - En cours de rédaction uniquement */}
+              {/* Accepted applications - Writing in progress only */}
               {acceptedApplications.filter((app: any) => 
                 !feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
               ).length > 0 && (
                 <div className="space-y-3">
                   <h4 className="font-medium text-blue-800 flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    En cours de rédaction ({acceptedApplications.filter((app: any) => 
+                    Writing in progress ({acceptedApplications.filter((app: any) => 
                       !feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
                     ).length})
                   </h4>
@@ -369,8 +449,8 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm">{app.roaster?.name || 'Roaster anonyme'}</span>
-                              <Badge className="bg-blue-100 text-blue-800 text-xs">⏳ En cours de rédaction</Badge>
+                              <span className="font-medium text-sm">{app.roaster?.name || 'Anonymous Roaster'}</span>
+                              <Badge className="bg-blue-100 text-blue-800 text-xs">⏳ Writing in progress</Badge>
                             </div>
                           </div>
                         </div>
@@ -379,14 +459,14 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                 </div>
               )}
               
-              {/* Roasters qui ont terminé leur feedback */}
+              {/* Roasters who completed their feedback */}
               {acceptedApplications.filter((app: any) => 
                 feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
               ).length > 0 && (
                 <div className="space-y-3">
                   <h4 className="font-medium text-green-800 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />
-                    Feedback livré ({acceptedApplications.filter((app: any) => 
+                    Feedback delivered ({acceptedApplications.filter((app: any) => 
                       feedbacks.find((f: any) => f.roasterId === app.roaster.id && f.status === 'completed')
                     ).length})
                   </h4>
@@ -405,8 +485,8 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm">{app.roaster?.name || 'Roaster anonyme'}</span>
-                              <Badge className="bg-green-100 text-green-800 text-xs">✓ Feedback livré</Badge>
+                              <span className="font-medium text-sm">{app.roaster?.name || 'Anonymous Roaster'}</span>
+                              <Badge className="bg-green-100 text-green-800 text-xs">✓ Feedback delivered</Badge>
                             </div>
                           </div>
                         </div>
@@ -419,13 +499,13 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
         </Card>
       )}
 
-      {/* Feedbacks reçus */}
+      {/* Received feedbacks */}
       {feedbacks.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-green-600" />
-              Feedbacks reçus({feedbacks.length})
+              Received feedbacks ({feedbacks.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -434,10 +514,10 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
         </Card>
       )}
 
-      {/* Informations du projet */}
+      {/* Project information */}
       <Card>
         <CardHeader>
-          <CardTitle>Informations du projet</CardTitle>
+          <CardTitle>Project Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Description */}
@@ -455,7 +535,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
           <div>
             <h3 className="font-semibold mb-3 flex items-center gap-2">
               <Globe className="w-5 h-5" />
-              Tester l'application
+              Test the application
             </h3>
             <a
               href={roastRequest.appUrl}
@@ -463,7 +543,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
             >
-              Ouvrir l'application
+              Open application
               <Globe className="w-4 h-4" />
             </a>
             <p className="text-sm text-muted-foreground mt-1 break-all">
@@ -475,7 +555,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Category */}
             <div>
-              <h3 className="font-semibold mb-3">Type de projet</h3>
+              <h3 className="font-semibold mb-3">Project Type</h3>
               {roastRequest.category && (
                 <div className="flex items-center gap-2">
                   {(() => {
@@ -498,7 +578,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
 
             {/* Target Audiences */}
             <div>
-              <h3 className="font-semibold mb-3">Audiences cibles</h3>
+              <h3 className="font-semibold mb-3">Target Audiences</h3>
               <div className="flex flex-wrap gap-2">
                 {validAudiences.map((audience: any) => (
                   <Badge key={audience.id} variant="secondary">
@@ -513,7 +593,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
           <div>
             <h3 className="font-semibold mb-4 flex items-center gap-2">
               <MessageSquare className="w-5 h-5" />
-              Configuration du feedback
+              Feedback Configuration
             </h3>
             
             <div className="space-y-4">
@@ -521,18 +601,18 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
               <div className="border rounded-lg p-4 bg-blue-50">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xl">📋</span>
-                  <h4 className="font-medium">Feedback structuré inclus</h4>
+                  <h4 className="font-medium">Structured feedback included</h4>
                   <Badge variant="secondary" className="ml-auto">
-                    Toujours inclus
+                    Always included
                   </Badge>
                 </div>
                 
                 <div className="text-sm text-gray-700 space-y-1">
-                  <p>• <strong>Note globale</strong> et première impression</p>
-                  <p>• <strong>Points forts</strong> identifiés</p>
-                  <p>• <strong>Points faibles</strong> à améliorer</p>
-                  <p>• <strong>Recommandations</strong> concrètes</p>
-                  <p>• <strong>Notes détaillées</strong> (UX/UI, Performance, Expérience, Valeur)</p>
+                  <p>• <strong>Overall rating</strong> and first impression</p>
+                  <p>• <strong>Strengths</strong> identified</p>
+                  <p>• <strong>Weaknesses</strong> to improve</p>
+                  <p>• <strong>Concrete recommendations</strong></p>
+                  <p>• <strong>Detailed ratings</strong> (UX/UI, Performance, Experience, Value)</p>
                 </div>
               </div>
 
@@ -541,7 +621,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                 <div className="border rounded-lg p-4 bg-purple-50">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-xl">💬</span>
-                    <h4 className="font-medium">Questions personnalisées</h4>
+                    <h4 className="font-medium">Custom Questions</h4>
                     <Badge variant="outline" className="ml-auto">
                       {roastRequest.questions.length} question{roastRequest.questions.length > 1 ? 's' : ''}
                     </Badge>
@@ -571,7 +651,7 @@ export function RoastDetailPageClient({ roastRequest }: RoastDetailPageClientPro
                 <div className="border rounded-lg p-4 bg-gray-50">
                   <div className="flex items-center gap-2 text-gray-600">
                     <span className="text-lg">ℹ️</span>
-                    <p className="text-sm">Aucune question personnalisée ajoutée. Les roasters fourniront le feedback structuré standard.</p>
+                    <p className="text-sm">No custom questions added. Roasters will provide standard structured feedback.</p>
                   </div>
                 </div>
               )}
