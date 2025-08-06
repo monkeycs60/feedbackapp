@@ -82,18 +82,18 @@ export function NewRoastWizardV2() {
 	const steps = [
 		{
 			id: 'basics',
-			title: 'Informations',
-			description: 'Titre, description et audience',
+			title: 'Information',
+			description: 'Title, description and audience',
 		},
 		{
 			id: 'feedback',
 			title: 'Feedback',
-			description: 'Questions et domaines (optionnel)',
+			description: 'Questions and domains (optional)',
 		},
 		{
 			id: 'pricing',
-			title: 'Tarification',
-			description: 'Prix par roaster et récapitulatif',
+			title: 'Pricing',
+			description: 'Price per roaster and summary',
 		},
 	];
 
@@ -136,7 +136,7 @@ export function NewRoastWizardV2() {
 			// Transform data to match server expectations
 			const submitData = {
 				...data,
-				pricePerRoaster: calculateSuggestedPrice(), // Prix calculé automatiquement
+				pricePerRoaster: calculateSuggestedPrice(), // Price calculated automatically
 				isUrgent: false, // Always false now
 				questions: questions.map((q) => ({
 					domain: q.domain,
@@ -149,7 +149,7 @@ export function NewRoastWizardV2() {
 			await createNewRoastRequest(submitData);
 		} catch (error) {
 			setSubmitError(
-				error instanceof Error ? error.message : 'Une erreur est survenue'
+				error instanceof Error ? error.message : 'An error occurred'
 			);
 		} finally {
 			setIsSubmitting(false);
@@ -168,7 +168,7 @@ export function NewRoastWizardV2() {
 				);
 			case 1: // Feedback config - always valid (questions are optional)
 				return true;
-			case 2: // Pricing - always valid (prix calculé automatiquement)
+			case 2: // Pricing - always valid (price calculated automatically)
 				return true;
 			default:
 				return false;
@@ -183,7 +183,7 @@ export function NewRoastWizardV2() {
 			<div className='mb-8'>
 				<div className='mb-4'>
 					<h1 className='text-3xl font-bold text-foreground'>
-						Créer un nouveau roast
+						Create a new roast
 					</h1>
 					<p className='text-muted-foreground mt-2'>
 						{currentStepData.description}
@@ -194,10 +194,10 @@ export function NewRoastWizardV2() {
 				<div className='space-y-2'>
 					<div className='flex items-center justify-between text-sm'>
 						<span className='font-medium'>
-							Étape {currentStep + 1} sur {steps.length}
+							Step {currentStep + 1} of {steps.length}
 						</span>
 						<span className='text-muted-foreground'>
-							{Math.round(progress)}% complété
+							{Math.round(progress)}% completed
 						</span>
 					</div>
 					<Progress value={progress} className='h-2' />
@@ -274,8 +274,7 @@ export function NewRoastWizardV2() {
 					<Alert className='mb-6 border-orange-200 bg-orange-50'>
 						<AlertCircle className='h-4 w-4 text-orange-600' />
 						<AlertDescription className='text-orange-800'>
-							<strong>Dernière étape :</strong> Cliquez à nouveau sur
-							"Confirmer et créer" pour publier votre roast.
+							<strong>Final step:</strong> Click "Confirm and create" again to publish your roast.
 						</AlertDescription>
 					</Alert>
 				)}
@@ -288,7 +287,7 @@ export function NewRoastWizardV2() {
 						onClick={goToPrevious}
 						disabled={currentStep === 0}>
 						<ArrowLeft className='w-4 h-4 mr-2' />
-						Précédent
+						Previous
 					</Button>
 
 					{currentStep < steps.length - 1 ? (
@@ -296,7 +295,7 @@ export function NewRoastWizardV2() {
 							type='button'
 							onClick={goToNext}
 							disabled={!canProceed}>
-							Suivant
+							Next
 							<ArrowRight className='w-4 h-4 ml-2' />
 						</Button>
 					) : (
@@ -307,16 +306,16 @@ export function NewRoastWizardV2() {
 								confirmSubmit ? 'bg-green-600 hover:bg-green-700' : ''
 							}>
 							{isSubmitting ? (
-								'Création...'
+								'Creating...'
 							) : confirmSubmit ? (
 								<>
 									<Sparkles className='w-4 h-4 mr-2' />
-									Confirmer et créer
+									Confirm and create
 								</>
 							) : (
 								<>
 									<Sparkles className='w-4 h-4 mr-2' />
-									Créer le roast
+									Create roast
 								</>
 							)}
 						</Button>
@@ -348,16 +347,16 @@ function BasicInfoStep({
 			<CardHeader>
 				<CardTitle className='flex items-center gap-2'>
 					<span className='text-2xl'>📝</span>
-					Informations de base
+					Basic information
 				</CardTitle>
 			</CardHeader>
 			<CardContent className='space-y-6'>
 				{/* Title */}
 				<div className='space-y-2'>
-					<Label htmlFor='title'>Titre de votre application *</Label>
+					<Label htmlFor='title'>Your application title *</Label>
 					<Input
 						id='title'
-						placeholder='Ex: TaskFlow - Gestionnaire de tâches pour équipes'
+						placeholder='Ex: TaskFlow - Task manager for teams'
 						{...register('title')}
 					/>
 					{errors.title && (
@@ -367,11 +366,11 @@ function BasicInfoStep({
 
 				{/* URL */}
 				<div className='space-y-2'>
-					<Label htmlFor='appUrl'>URL de votre application *</Label>
+					<Label htmlFor='appUrl'>Your application URL *</Label>
 					<Input
 						id='appUrl'
 						type='url'
-						placeholder='https://votre-app.com'
+						placeholder='https://your-app.com'
 						{...register('appUrl')}
 					/>
 					{errors.appUrl && (
@@ -383,7 +382,7 @@ function BasicInfoStep({
 
 				{/* Category */}
 				<div className='space-y-3'>
-					<Label>Catégorie *</Label>
+					<Label>Category *</Label>
 					<div className='grid grid-cols-2 md:grid-cols-3 gap-3'>
 						{APP_CATEGORIES.map((cat) => (
 							<div
@@ -405,7 +404,7 @@ function BasicInfoStep({
 
 				{/* Target Audiences */}
 				<div className='space-y-3'>
-					<Label>Audience cible * (max 2)</Label>
+					<Label>Target audience * (max 2)</Label>
 					<div className='max-h-40 overflow-y-auto border rounded-lg p-3'>
 						{targetAudiences.map((audience) => {
 							const isSelected =
@@ -458,7 +457,7 @@ function BasicInfoStep({
 					<textarea
 						id='description'
 						rows={4}
-						placeholder='Décrivez votre application et ce sur quoi vous aimeriez des retours...'
+						placeholder='Describe your application and what you would like feedback on...'
 						className='w-full px-3 py-2 border rounded-md'
 						{...register('description')}
 					/>
@@ -469,7 +468,7 @@ function BasicInfoStep({
 
 				{/* Cover Image */}
 				<div className='space-y-2'>
-					<Label>Image de couverture (optionnel)</Label>
+					<Label>Cover image (optional)</Label>
 					<ImageUpload
 						value={watchedValues.coverImage}
 						onChange={(url) => setValue('coverImage', url || '')}
@@ -479,7 +478,7 @@ function BasicInfoStep({
 				{/* Number of Roasters */}
 				<div className='space-y-4'>
 					<Label>
-						Nombre de roasters souhaités *
+						Number of roasters requested *
 						<span className='ml-2 text-lg font-bold text-blue-600'>
 							{watchedValues.feedbacksRequested || 2}
 						</span>
@@ -496,7 +495,7 @@ function BasicInfoStep({
 					<div className='flex justify-between text-xs text-muted-foreground'>
 						<span>1 roaster</span>
 						<span className='text-green-600 font-medium'>
-							2-3 recommandé
+							2-3 recommended
 						</span>
 						<span>10 roasters</span>
 					</div>
@@ -521,7 +520,7 @@ function FeedbackConfigStep({
 			<CardHeader>
 				<CardTitle className='flex items-center gap-2'>
 					<span className='text-2xl'>💬</span>
-					Configuration du feedback
+					Feedback configuration
 				</CardTitle>
 			</CardHeader>
 			<CardContent className='space-y-6'>
@@ -529,13 +528,12 @@ function FeedbackConfigStep({
 				<Alert>
 					<Info className='h-4 w-4' />
 					<AlertDescription>
-						<strong>Feedback structuré inclus :</strong> Chaque roaster
-						fournira automatiquement :
+						<strong>Structured feedback included:</strong> Each roaster will automatically provide:
 						<ul className='list-disc list-inside mt-2'>
-							<li>Note globale et première impression</li>
-							<li>Points forts et points faibles</li>
-							<li>Recommandations concrètes</li>
-							<li>Notes détaillées (UX, Valeur, Performance)</li>
+							<li>Overall rating and first impression</li>
+							<li>Strengths and weaknesses</li>
+							<li>Concrete recommendations</li>
+							<li>Detailed ratings (UX, Value, Performance)</li>
 						</ul>
 					</AlertDescription>
 				</Alert>
@@ -544,16 +542,15 @@ function FeedbackConfigStep({
 				<div className='space-y-4'>
 					<div>
 						<h3 className='font-semibold mb-2'>
-							Questions personnalisées (optionnel)
+							Custom questions (optional)
 						</h3>
 						<p className='text-sm text-muted-foreground'>
-							Ajoutez des questions spécifiques pour obtenir des retours
-							ciblés
+							Add specific questions to get targeted feedback
 						</p>
 						<div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2'>
 							<p className='text-xs text-blue-800'>
-								💰 <strong>Tarification :</strong> 4€ de base + 0,50€
-								par question supplémentaire
+								💰 <strong>Pricing:</strong> €4 base + €0.50
+								per additional question
 							</p>
 						</div>
 					</div>
@@ -569,7 +566,7 @@ function FeedbackConfigStep({
 										updated[index].text = e.target.value;
 										setQuestions(updated);
 									}}
-									placeholder='Votre question...'
+									placeholder='Your question...'
 								/>
 								<Button
 									type='button'
@@ -580,7 +577,7 @@ function FeedbackConfigStep({
 											questions.filter((q) => q.id !== question.id)
 										);
 									}}>
-									Supprimer
+									Remove
 								</Button>
 							</div>
 						))}
@@ -596,20 +593,18 @@ function FeedbackConfigStep({
 								};
 								setQuestions([...questions, newQuestion]);
 							}}>
-							Ajouter une question
+							Add a question
 						</Button>
 					</div>
 
 					{questions.length > 0 && (
 						<div className='bg-green-50 border border-green-200 rounded-lg p-3'>
 							<p className='text-sm font-medium text-green-800'>
-								{questions.length} question
-								{questions.length > 1 ? 's' : ''} personnalisée
-								{questions.length > 1 ? 's' : ''}
+								{questions.length} custom question{questions.length > 1 ? 's' : ''}
 							</p>
 							<p className='text-xs text-green-700 mt-1'>
-								Coût supplémentaire : +
-								{(questions.length * 0.5).toFixed(2)}€ par roaster
+								Additional cost: +
+								€{(questions.length * 0.5).toFixed(2)} per roaster
 							</p>
 						</div>
 					)}
@@ -636,49 +631,49 @@ function PricingStep({
 	const calculatedPrice = suggestedPrice;
 	const totalPrice = calculatedPrice * (watchedValues.feedbacksRequested || 2);
 
-	// Récupérer les informations de catégorie
+	// Get category information
 	const selectedCategory = APP_CATEGORIES.find(
 		(cat) => cat.id === watchedValues.category
 	);
 
-	// Récupérer les audiences sélectionnées
+	// Get selected audiences
 	const selectedAudiences = targetAudiences.filter((audience) =>
 		watchedValues.targetAudienceIds?.includes(audience.id)
 	);
 
 	return (
 		<div className='space-y-6'>
-			{/* Résumé complet de la request */}
+			{/* Complete request summary */}
 			<Card>
 				<CardHeader>
 					<CardTitle className='flex items-center gap-2'>
 						<span className='text-2xl'>📋</span>
-						Récapitulatif de votre roast
+						Your roast summary
 					</CardTitle>
 				</CardHeader>
 				<CardContent className='space-y-4'>
-					{/* Informations principales */}
+					{/* Main information */}
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						<div className='space-y-3'>
 							<div>
 								<h4 className='font-medium text-gray-700 mb-1'>
-									Titre
+									Title
 								</h4>
 								<p className='text-foreground font-medium'>
-									{watchedValues.title || 'Non défini'}
+									{watchedValues.title || 'Not defined'}
 								</p>
 							</div>
 
 							<div>
 								<h4 className='font-medium text-gray-700 mb-1'>URL</h4>
 								<p className='text-blue-600 text-sm break-all'>
-									{watchedValues.appUrl || 'Non définie'}
+									{watchedValues.appUrl || 'Not defined'}
 								</p>
 							</div>
 
 							<div>
 								<h4 className='font-medium text-gray-700 mb-1'>
-									Catégorie
+									Category
 								</h4>
 								<div className='flex items-center gap-2'>
 									<span className='text-lg'>
@@ -695,7 +690,7 @@ function PricingStep({
 						<div className='space-y-3'>
 							<div>
 								<h4 className='font-medium text-gray-700 mb-1'>
-									Audiences cibles
+									Target audiences
 								</h4>
 								<div className='space-y-1'>
 									{selectedAudiences.map((audience) => (
@@ -709,7 +704,7 @@ function PricingStep({
 										<div className='bg-purple-50 px-2 py-1 rounded text-sm'>
 											{watchedValues.customTargetAudience.name}{' '}
 											<span className='text-xs text-purple-600'>
-												(personnalisée)
+												(custom)
 											</span>
 										</div>
 									)}
@@ -718,7 +713,7 @@ function PricingStep({
 
 							<div>
 								<h4 className='font-medium text-gray-700 mb-1'>
-									Nombre de roasters
+									Number of roasters
 								</h4>
 								<p className='font-semibold text-lg text-blue-600'>
 									{watchedValues.feedbacksRequested || 2}
@@ -736,15 +731,15 @@ function PricingStep({
 							{watchedValues.description &&
 							watchedValues.description.length > 200
 								? watchedValues.description.substring(0, 200) + '...'
-								: watchedValues.description || 'Non définie'}
+								: watchedValues.description || 'Not defined'}
 						</p>
 					</div>
 
-					{/* Questions personnalisées */}
+					{/* Custom questions */}
 					{questions.length > 0 && (
 						<div>
 							<h4 className='font-medium text-gray-700 mb-2'>
-								Questions personnalisées ({questions.length})
+								Custom questions ({questions.length})
 							</h4>
 							<div className='space-y-2'>
 								{questions.map((question, index) => (
@@ -767,12 +762,12 @@ function PricingStep({
 				</CardContent>
 			</Card>
 
-			{/* Calcul du pricing - Table compacte */}
+			{/* Pricing calculation - Compact table */}
 			<Card>
 				<CardHeader>
 					<CardTitle className='flex items-center gap-2'>
 						<span className='text-2xl'>🧮</span>
-						Calcul du prix
+						Price calculation
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -781,26 +776,26 @@ function PricingStep({
 							<tbody className='divide-y divide-green-200'>
 								<tr>
 									<td className='px-4 py-3 text-green-700'>
-										Feedback structuré (base)
+										Structured feedback (base)
 									</td>
 									<td className='px-4 py-3 font-medium text-green-800 text-right'>
-										4,00€
+										€4.00
 									</td>
 								</tr>
 								{questions.length > 0 && (
 									<tr>
 										<td className='px-4 py-3 text-green-700'>
-											Questions personnalisées ({questions.length} ×
-											0,50€)
+											Custom questions ({questions.length} ×
+											€0.50)
 										</td>
 										<td className='px-4 py-3 font-medium text-green-800 text-right'>
-											+{(questions.length * 0.5).toFixed(2)}€
+											+€{(questions.length * 0.5).toFixed(2)}
 										</td>
 									</tr>
 								)}
 								<tr className='bg-green-100 border-t-2 border-green-300'>
 									<td className='px-4 py-3 font-bold text-green-900'>
-										Prix par roaster
+										Price per roaster
 									</td>
 									<td className='px-4 py-3 font-bold text-green-900 text-right text-lg'>
 										{calculatedPrice.toFixed(2).replace('.', ',')}€
@@ -812,12 +807,12 @@ function PricingStep({
 				</CardContent>
 			</Card>
 
-			{/* Affichage visuel symbolique du total */}
+			{/* Visual display of total */}
 			<Card className='border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50'>
 				<CardContent className='p-6'>
 					<div className='text-center space-y-4'>
 						<h3 className='text-lg font-semibold text-gray-800'>
-							Coût total maximum
+							Maximum total cost
 						</h3>
 
 						<div className='flex items-center justify-center gap-4 text-3xl font-bold'>
@@ -846,7 +841,7 @@ function PricingStep({
 						</div>
 
 						<p className='text-sm text-gray-600'>
-							{calculatedPrice.toFixed(2).replace('.', ',')}€ par roaster
+							€{calculatedPrice.toFixed(2)} per roaster
 							× {watchedValues.feedbacksRequested || 2} roaster
 							{(watchedValues.feedbacksRequested || 2) > 1 ? 's' : ''}
 						</p>
@@ -854,13 +849,11 @@ function PricingStep({
 				</CardContent>
 			</Card>
 
-			{/* Information importante */}
+			{/* Important information */}
 			<Alert>
 				<Info className='h-4 w-4' />
 				<AlertDescription>
-					<strong>Important :</strong> Vous ne payez que pour les feedbacks
-					effectivement reçus. Le montant affiché est le coût maximum si
-					tous les roasters complètent leur feedback.
+					<strong>Important:</strong> You only pay for feedbacks actually received. The displayed amount is the maximum cost if all roasters complete their feedback.
 				</AlertDescription>
 			</Alert>
 		</div>
