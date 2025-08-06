@@ -176,6 +176,46 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
       throw new Error("Price per roaster must be between €3 and €50");
     }
 
+    // Handle target audiences - create them if they don't exist
+    const audienceIds = [];
+    
+    for (const audienceId of validData.targetAudienceIds) {
+      // Check if it's a fake ID from the English audience list (en_X format)
+      if (audienceId.startsWith('en_')) {
+        const index = parseInt(audienceId.replace('en_', ''));
+        const { TARGET_AUDIENCES_EN } = await import('@/lib/data/target-audiences');
+        const audienceName = TARGET_AUDIENCES_EN[index];
+        
+        if (audienceName) {
+          // Check if this audience already exists
+          let existingAudience = await prisma.targetAudience.findFirst({
+            where: { 
+              name: {
+                equals: audienceName,
+                mode: 'insensitive'
+              }
+            }
+          });
+          
+          // Create it if it doesn't exist
+          if (!existingAudience) {
+            existingAudience = await prisma.targetAudience.create({
+              data: {
+                name: audienceName,
+                isDefault: true,
+                createdBy: user.id
+              }
+            });
+          }
+          
+          audienceIds.push(existingAudience.id);
+        }
+      } else {
+        // Regular audience ID - just use it directly
+        audienceIds.push(audienceId);
+      }
+    }
+
     // Handle custom target audience creation
     let customAudienceId = null;
     if (validData.customTargetAudience?.name) {
@@ -211,7 +251,7 @@ export async function createNewRoastRequest(data: z.infer<typeof newRoastRequest
         // Create target audience relationships
         targetAudiences: {
           create: [
-            ...validData.targetAudienceIds.map(id => ({ targetAudienceId: id })),
+            ...audienceIds.map(id => ({ targetAudienceId: id })),
             ...(customAudienceId ? [{ targetAudienceId: customAudienceId }] : [])
           ]
         }
@@ -518,7 +558,7 @@ export async function getFilteredRoastRequests(filters?: RoastFilters) {
     // Filter by price range
     if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
       filteredRoasts = filteredRoasts.filter(roast => {
-        const pricePerRoast = Math.round(roast.maxPrice ?? 0 / roast.feedbacksRequested);
+        const pricePerRoast = Math.round((roast.maxPrice ?? 0) / roast.feedbacksRequested);
         if (filters.minPrice !== undefined && pricePerRoast < filters.minPrice) return false;
         if (filters.maxPrice !== undefined && pricePerRoast > filters.maxPrice) return false;
         return true;
