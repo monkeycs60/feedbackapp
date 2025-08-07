@@ -143,6 +143,9 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 					const pricePerFeedback = request.pricePerRoaster || Math.round(
 						(request.maxPrice || 0) / request.feedbacksRequested
 					);
+					// Check if all feedbacks are completed
+					const allFeedbacksCompleted = request.feedbacks.length > 0 && 
+						request.feedbacks.every(feedback => feedback.status === 'completed');
 
 					return (
 						<Card
@@ -293,12 +296,16 @@ export function RoastRequestsList({ roastRequests }: RoastRequestsListProps) {
 								<div className='flex gap-2 pt-3 pb-2 border-t'>
 									<Button
 										asChild
-										variant='default'
+										variant={allFeedbacksCompleted ? 'secondary' : 'default'}
 										size='sm'
-										className='flex-1'>
+										className={`flex-1 ${allFeedbacksCompleted ? 'bg-green-100 hover:bg-green-200 text-green-800 border-green-200' : ''}`}>
 										<Link href={`/dashboard/roast/${request.id}`}>
-											<ExternalLink className='w-3.5 h-3.5 mr-1.5' />
-											Voir détails
+											{allFeedbacksCompleted ? (
+												<CheckCircle2 className='w-3.5 h-3.5 mr-1.5' />
+											) : (
+												<ExternalLink className='w-3.5 h-3.5 mr-1.5' />
+											)}
+											{allFeedbacksCompleted ? 'Consulter les feedbacks' : 'Voir détails'}
 										</Link>
 									</Button>
 
