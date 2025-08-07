@@ -6,23 +6,30 @@ interface DashboardStatsProps {
     id: string;
     status: string;
     maxPrice: number | null;
+    feedbacksRequested: number;
     feedbacks: Array<{ id: string; status: string }>;
   }>;
-  activeFilter: 'all' | 'active' | 'completed' | 'feedbacks';
-  onFilterChange: (filter: 'all' | 'active' | 'completed' | 'feedbacks') => void;
+  activeFilter: 'all' | 'feedbacks';
+  onFilterChange: (filter: 'all' | 'feedbacks') => void;
 }
 
 export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: DashboardStatsProps) {
   const stats = {
     totalRequests: roastRequests.length,
-    activeRequests: roastRequests.filter(r => r.status === 'open' || r.status === 'in_progress').length,
-    completedRequests: roastRequests.filter(r => r.status === 'completed').length,
+    activeRequests: roastRequests.filter(r => {
+      const hasAllFeedbacks = r.feedbacks.length >= r.feedbacksRequested;
+      return (r.status === 'open' || r.status === 'in_progress') && !hasAllFeedbacks;
+    }).length,
+    completedRequests: roastRequests.filter(r => {
+      const hasAllFeedbacks = r.feedbacks.length >= r.feedbacksRequested;
+      return r.status === 'completed' || hasAllFeedbacks;
+    }).length,
     totalBudget: roastRequests.reduce((sum, r) => sum + (r.maxPrice || 0), 0),
     feedbacksReceived: roastRequests.reduce((sum, r) => sum + r.feedbacks.length, 0)
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card 
         className={cn(
           "cursor-pointer transition-all hover:shadow-lg bg-backgroundlighter",
@@ -31,40 +38,15 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
         onClick={() => onFilterChange('all')}
       >
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Demandes total</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Toutes mes demandes</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground" data-testid="stat-total-requests">{stats.totalRequests}</div>
-        </CardContent>
-      </Card>
-
-      <Card 
-        className={cn(
-          "cursor-pointer transition-all hover:shadow-lg bg-backgroundlighter",
-          activeFilter === 'active' && "ring-2 ring-blue-500 shadow-lg"
-        )}
-        onClick={() => onFilterChange('active')}
-      >
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">En cours</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-blue-400" data-testid="stat-active-requests">{stats.activeRequests}</div>
-        </CardContent>
-      </Card>
-
-      <Card 
-        className={cn(
-          "cursor-pointer transition-all hover:shadow-lg bg-backgroundlighter",
-          activeFilter === 'completed' && "ring-2 ring-green-500 shadow-lg"
-        )}
-        onClick={() => onFilterChange('completed')}
-      >
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Terminées</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-400" data-testid="stat-completed-requests">{stats.completedRequests}</div>
+          <div className="text-2xl font-bold text-foreground" data-testid="stat-total-requests">
+            {stats.totalRequests}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            {stats.activeRequests} en cours • {stats.completedRequests} terminées
+          </div>
         </CardContent>
       </Card>
 
@@ -79,7 +61,12 @@ export function DashboardStats({ roastRequests, activeFilter, onFilterChange }: 
           <CardTitle className="text-sm font-medium text-muted-foreground">Feedbacks reçus</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-purple-400" data-testid="stat-feedbacks-received">{stats.feedbacksReceived}</div>
+          <div className="text-2xl font-bold text-purple-400" data-testid="stat-feedbacks-received">
+            {stats.feedbacksReceived}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            Sur {stats.totalRequests} projet{stats.totalRequests > 1 ? 's' : ''}
+          </div>
         </CardContent>
       </Card>
     </div>
