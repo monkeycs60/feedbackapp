@@ -29,7 +29,7 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
       ];
 
   return (
-    <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-slate-200 shadow-md max-w-md mx-auto">
+    <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-slate-200 shadow-md max-w-md">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div>
