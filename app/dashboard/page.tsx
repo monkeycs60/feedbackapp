@@ -57,11 +57,9 @@ export default async function DashboardPage() {
 			<div className='space-y-8 pt-6'>
 				<div className='gap-4 flex flex-col'>
 					<div>
-						{currentRole === 'roaster' && hasRoasterProfile ? (
+						{currentRole === 'roaster' && hasRoasterProfile && (
 							<RoasterStatsRealTime />
-						) : !canSwitchRoles ? (
-							<AddSecondRolePrompt currentRole={currentRole} />
-						) : null}
+						)}
 					</div>
 					<div>
 						{currentRole === 'creator' ? (
@@ -75,6 +73,11 @@ export default async function DashboardPage() {
 							</div>
 						)}
 					</div>
+					{!canSwitchRoles && (
+						<div className='mt-8'>
+							<AddSecondRolePrompt currentRole={currentRole} />
+						</div>
+					)}
 				</div>
 			</div>
 		</DashboardLayout>

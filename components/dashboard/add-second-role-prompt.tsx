@@ -29,50 +29,49 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
       ];
 
   return (
-    <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/30">
-      <CardHeader>
+    <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-slate-200 shadow-md max-w-md mx-auto">
+      <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <Plus className="h-5 w-5 text-purple-400" />
+            <CardTitle className="text-lg flex items-center gap-2 text-slate-800">
+              <Plus className="h-4 w-4 text-orange-600" />
               Unlock {oppositeRoleLabel} mode
             </CardTitle>
-            <CardDescription className="mt-2">
-              You're currently using RoastMyApp as a {currentRole === 'creator' ? 'Creator' : 'Roaster'}.
+            <CardDescription className="mt-1 text-slate-600 text-sm">
               Discover the other side of the platform!
             </CardDescription>
           </div>
-          <Badge variant="secondary" className="bg-purple-400/20 text-purple-300 border-purple-400/30">
+          <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 text-xs">
             New
           </Badge>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/20">
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
             {oppositeRole === 'creator' ? (
-              <User className="h-8 w-8 text-blue-400 flex-shrink-0" />
+              <User className="h-6 w-6 text-blue-600 flex-shrink-0" />
             ) : (
-              <Star className="h-8 w-8 text-purple-400 flex-shrink-0" />
+              <Star className="h-6 w-6 text-orange-600 flex-shrink-0" />
             )}
             <div>
-              <p className="font-medium text-foreground">
+              <p className="font-medium text-slate-800 text-sm">
                 Become a {oppositeRoleLabel} too
               </p>
-              <p className="text-sm text-muted-foreground">
-                Access both sides of the platform and switch whenever you want
+              <p className="text-xs text-slate-600">
+                Access both sides of the platform
               </p>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-sm font-medium">
-              By becoming a {oppositeRoleLabel}, you'll be able to:
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-slate-700">
+              Key benefits:
             </p>
-            <ul className="space-y-1">
-              {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <span className="text-orange-400 mt-0.5">•</span>
+            <ul className="space-y-0.5">
+              {benefits.slice(0, 2).map((benefit, index) => (
+                <li key={index} className="flex items-start gap-1 text-xs text-slate-600">
+                  <span className="text-orange-500 mt-0.5">•</span>
                   <span>{benefit}</span>
                 </li>
               ))}
@@ -80,9 +79,9 @@ export function AddSecondRolePrompt({ currentRole }: AddSecondRolePromptProps) {
           </div>
 
           <Link href="/onboarding/role-selection?add_role=true">
-            <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
+            <Button size="sm" className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-sm">
               Add {oppositeRoleLabel} profile
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="ml-1 h-3 w-3" />
             </Button>
           </Link>
         </div>
